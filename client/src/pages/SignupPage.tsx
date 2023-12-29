@@ -23,15 +23,80 @@ const SignupPage = ({
     const [isLoading, setisLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
+    const passwordValidation = () => {
+        return !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)
+    }
+    const emailValidation = () => {
+        return !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email)
+    }
+
+    const confirmPasswordValidation = () => {
+        return password != confirmPassword
+    }
+
+    const usernameValidation = () => {
+        return !/^[a-zA-Z0-9_-]{3,15}$/.test(username)
+    }
+
+    const inputValidation = () => {
+        if (!username || !password || !confirmPassword || !email) {
+            setMessage(
+                "Please provide all the require fields."
+            )
+            return false
+        }
+        
+        if (usernameValidation()) {
+            setMessage(
+                "Username must be between 3 to 15 characters and can only contain letters, numbers, hyphens, and underscores."
+            )
+            return false
+        }
+
+        if (emailValidation()) {
+            setMessage(
+                "Please provide a valid email"
+            );
+            return false
+        }
+        
+        if (passwordValidation()) {
+            setMessage(
+                "Password must contain at least one letter (uppercase or lowercase) and one digit, and must be at least 8 characters in length."
+            );
+            return false
+        }
+
+        if (confirmPasswordValidation()) {
+            setMessage(
+                "Password and confirm password do not match. Please make sure you enter the same password in both fields."
+            );
+            return false
+        }
+        return true
+    }
+
+    const handleFailedRequest = (e: AxiosError) => {
+        if (e.response != null && e.response.data != null) {
+            setMessage(
+                (
+                    e.response?.data as {
+                        success: boolean;
+                        message: string;
+                    }
+                ).message
+            );
+        } else {
+            setMessage("Failed to send the sign up request. Please try again in a bit")
+        }
+    }
+
     const handleSignUp = () => {
         setisLoading(true);
+        if (!inputValidation()) {
+            return
+        }
         try {
-            if (password !== confirmPassword) {
-                setMessage(
-                    "Password and confirm password do not match. Please make sure you enter the same password in both fields."
-                );
-                return;
-            }
             axios
                 .post(`${API_URL}/api/accounts/signup`, {
                     username: username,
@@ -45,14 +110,7 @@ const SignupPage = ({
                 })
                 .catch((e: AxiosError) => {
                     setisLoading(false);
-                    setMessage(
-                        (
-                            e.response?.data as {
-                                success: boolean;
-                                message: string;
-                            }
-                        ).message
-                    );
+                    handleFailedRequest(e)
                 });
         } catch (error) {
             console.error("Sign-up failed:", error);
