@@ -1,155 +1,130 @@
-import MainHeading from "../components/MainHeading";
-import { TypeAnimation } from "react-type-animation";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 
-const LandingPage = ({
-    token,
-    id,
+const LoginPage = ({
+    Data,
 }: {
-    token: string | null;
-    id: string | null;
+    Data: {
+        token: string;
+        setTokenFunction: (string: string) => void;
+        id: string;
+        setIdFunction: (string: string) => void;
+    };
 }) => {
-    const [username, setUsername] = useState<string>("");
-    const [verified, setVerified] = useState<boolean>(false);
-    const [verifiedCertain, setVerifiedCertain] = useState<boolean>(false);
-    useEffect(() => {
-        if (!id) {
-            setVerified(false);
-            setVerifiedCertain(true);
+    const [usernameOrEmail, setUsernameOrEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("");
+    const [isLoading, setisLoading] = useState<boolean>(false);
+    const navigate = useNavigate();
+
+    const handleLogin = () => {
+        setisLoading(true);
+        try {
+            axios
+                .post(`${API_URL}/api/accounts/login`, {
+                    username_or_email: usernameOrEmail,
+                    password: password,
+                })
+                .then(({ data }) => {
+                    if (data.success === false) {
+                        setMessage(data.message);
+                        return;
+                    }
+                    Data.setTokenFunction(data.token);
+                    Data.setIdFunction(data.id);
+                    navigate("/problemset");
+                })
+                .catch((e: AxiosError) => {
+                    setisLoading(false);
+                    setMessage(
+                        (
+                            e.response?.data as {
+                                success: boolean;
+                                message: string;
+                            }
+                        ).message
+                    );
+                });
+        } catch (error) {
+            console.error("Sign-up failed:", error);
         }
-        axios
-            .get(`${API_URL}/api/accounts/id/${id}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
-            .then(({ data }) => {
-                setUsername(data.username);
-                setVerified(true);
-                setVerifiedCertain(true);
-            })
-            .catch((e: AxiosError) => {
-                setVerified(false);
-                setVerifiedCertain(true);
-            });
-    }, []);
+    };
     return (
-        <div className="text-[14px] overflow-hidden h-screen">
-            {verifiedCertain && verified ? (
-                <MainHeading
-                    data={{
-                        username: username,
-                        status: "loggedin",
-                    }}
-                />
-            ) : verifiedCertain === true && verified === false ? (
-                <MainHeading
-                    data={{
-                        status: "not-loggedin",
-                    }}
-                />
-            ) : (
-                <MainHeading
-                    data={{
-                        status: "none",
-                    }}
-                />
-            )}
-            <div className="w-[100vw] overflow-hidden h-[calc(100vh-60px)] absolute">
-                <div className="circle-1-animation absolute top-[6%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-red-800 opacity-60 z-10"></div>
-                <div className="absolute circle-2-animation top-[8%] left-[45%] -translate-x-1/2 w-[500px] h-[500px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-orange-500 opacity-60 z-10"></div>
-                <div className="absolute circle-3-animation top-[10%] left-[45%] -translate-x-1/2 w-[400px] h-[300px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-yellow-600 opacity-60 z-10"></div>
-                <div className="absolute circle-4-animation top-[10%] left-[50%] -translate-x-1/2 w-[200px] h-[200px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-red-600 opacity-60 z-10"></div>
-                <div className="absolute circle-5-animation top-[10%] left-[45%] -translate-x-1/2 w-[400px] h-[400px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-orange-800 opacity-60 z-10"></div>
-                <div className="absolute top-[20%] left-[47%] -translate-x-1/2 w-[600px] h-[500px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-orange-600 opacity-60 z-10"></div>
-                <div className="absolute circle-7-animation top-[10%] left-[50%] -translate-x-1/2 w-[400px] h-[400px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-orange-800 opacity-60 z-10"></div>
-            </div>
-            {verifiedCertain && verified ? (
-                <>
-                    <h1 className="absolute text-[38px] md:text-[48px] mx-auto text-center font-bold mt-[100px] z-50 inset-0 top-[100px]">
-                        <TypeAnimation
-                            sequence={[
-                                `Welcome back ${username}!`,
-                                2000,
-                                `Ready for more challenges, ${username}?`,
-                                2000,
-                                "Let's dive in!",
-                            ]}
-                            wrapper="span"
-                            cursor={true}
-                            style={{
-                                fontSize: "1em",
-                                display: "inline-block",
-                            }}
+        <>
+            <Link to={"/"}>
+                <div
+                    id="logo-cont"
+                    className="inline-block relative text-[24px] left-1/2 -translate-x-1/2 font-bold italic mx-auto mt-[12px]"
+                >
+                    <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 px-[1px]">
+                        Fire
+                    </span>
+                    <span>Code</span>
+                </div>
+            </Link>
+            <div className="min-h-fit w-[300px] mx-auto text-[14px]">
+                <div className="relative bg-black shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                    <h2 className="text-[34px] font-bold mb-[30px] text-center mt-[60px]">
+                        Log In
+                    </h2>
+                    <div className="mb-4">
+                        <input
+                            className="appearance-none border w-full py-2 px-3 placeholder:text-text_2 focus:placeholder:text-orange-500 bg-black rounded border-borders leading-tight focus:outline-none focus:border-orange-500"
+                            type="text"
+                            placeholder="Username or Email"
+                            value={usernameOrEmail}
+                            onChange={(e) => setUsernameOrEmail(e.target.value)}
+                            required={true}
                         />
-                    </h1>
-                    <p className="absolute md:w-1/2 w-3/4 text-center mx-auto mt-[50px] z-50 inset-0 md:top-[300px] top-[400px]">
-                        Ready to conquer complex challenges? Explore our Problem
-                        List now!
-                    </p>
-                    <div className="absolute md:top-[450px] top-[550px] left-1/2 -translate-x-1/2 z-50">
-                        <Link
-                            to="/problemset"
-                            className="relative ml-[8px] font-bold inline-block bg-gradient-to-r from-orange-500 to-red-600 rounded-md text-black text-[18px] hover:bg-red-800"
-                        >
-                            <div className="w-full h-full bg-black text-white py-[6px] px-[16px] rounded-[6px] border border-black hover:bg-[#00000000] hover:border-[#00000000] hover:text-black transition active:bg-red-700">
-                                Problem List
-                            </div>
-                        </Link>
                     </div>
-                </>
-            ) : verifiedCertain === true && verified === false ? (
-                <>
-                    <h1 className="absolute text-[38px] md:text-[48px] mx-auto text-center font-bold mt-[100px] z-50 inset-0 top-[100px]">
-                        <TypeAnimation
-                            sequence={[
-                                "Learn",
-                                2000,
-                                "Solve",
-                                2000,
-                                "Explore",
-                                2000,
-                                "Prepare",
-                                2000,
-                                "Start Now!",
-                                5000,
-                            ]}
-                            wrapper="span"
-                            cursor={true}
-                            repeat={Infinity}
-                            style={{
-                                fontSize: "1em",
-                                display: "inline-block",
-                            }}
+                    <div className="mb-6">
+                        <input
+                            className="appearance-none border w-full py-2 px-3 placeholder:text-text_2 focus:placeholder:text-orange-500 bg-black rounded border-borders leading-tight focus:outline-none focus:border-orange-500"
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required={true}
                         />
-                    </h1>
-                    <p className="absolute md:w-1/2 w-3/4 text-center mx-auto mt-[50px] z-50 inset-0 top-[300px]">
-                        Learn Coding with Mentor.ai. 
-                        Elevate your skills with the best tutor there is and get better every day.
-                    </p>
-                    <div className=" absolute top-[500px] left-1/2 -translate-x-1/2 z-50">
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <button
+                            className="bg-orange-500 hover:bg-red-600 text-black font-bold py-[6px] px-4 rounded focus:outline-none focus:shadow-outline w-full transition"
+                            type="button"
+                            onClick={handleLogin}
+                        >
+                            {isLoading ? (
+                                <div className="w-full block h-[21px]">
+                                    <div className="absolute left-1/2 -translate-x-1/2">
+                                        <Loading />
+                                    </div>
+                                </div>
+                            ) : (
+                                "Login"
+                            )}
+                        </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-[20px]">
+                        <span className="text-text_2">
+                            Don't have an account?{" "}
+                        </span>
                         <Link
                             to="/signup"
-                            className=" relative ml-[8px] font-bold inline-block bg-gradient-to-r from-orange-500 to-red-600 rounded-md text-black text-[18px] hover:bg-red-800"
+                            className="text-orange-500 hover:text-red-600"
                         >
-                            <div className="w-full h-full bg-black text-white py-[6px] px-[16px] rounded-[6px] border border-black hover:bg-[#00000000] hover:border-[#00000000] hover:text-black transition active:bg-red-700">
-                                Get Started
-                            </div>
+                            Signup
                         </Link>
                     </div>
-                </>
-            ) : (
-                <div className="absolute top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2 z-[120]">
-                    <Loading />
+                    <div className="text-center mt-[20px] text-red-600 w-full overflow-hidden">
+                        {message}
+                    </div>
                 </div>
-            )}
-        </div>
+            </div>
+        </>
     );
 };
 
-export default LandingPage;
-
+export default LoginPage;
