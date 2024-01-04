@@ -94,10 +94,10 @@ const ProblemPage = ({
                 );
                 if (
                     "code_body" in data.main &&
-                    "javascript" in data.main.code_body
+                    "JavaScript" in data.main.code_body
                 ) {
                     setInitCode(
-                        data.main.code_body.javascript as unknown as string
+                        data.main.code_body.JavaScript as unknown as string
                     );
                 }
             })
