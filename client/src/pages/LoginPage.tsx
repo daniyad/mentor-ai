@@ -4,54 +4,54 @@ import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 
-const LoginPage = ({
-    Data,
-}: {
-    Data: {
+interface LoginProps {
+    userData: {
         token: string;
-        setTokenFunction: (string: string) => void;
+        setTokenFunction: (token: string) => void;
         id: string;
-        setIdFunction: (string: string) => void;
+        setIdFunction: (id: string) => void;
     };
-}) => {
+}
+
+// LoginPage component handles the user login process
+// It includes form inputs for username/email and password, and a login button
+// On successful login, it sets the user token and id, and navigates to the problem set page
+const LoginPage = ({
+    userData,
+}: LoginProps) => {
     const [usernameOrEmail, setUsernameOrEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
-    const [isLoading, setisLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        setisLoading(true);
+    const handleLogin = async () => {
+        setIsLoading(true);
         try {
-            axios
-                .post(`${API_URL}/api/accounts/login`, {
-                    username_or_email: usernameOrEmail,
-                    password: password,
-                })
-                .then(({ data }) => {
-                    if (data.success === false) {
-                        setMessage(data.message);
-                        return;
-                    }
-                    Data.setTokenFunction(data.token);
-                    Data.setIdFunction(data.id);
-                    navigate("/problemset");
-                })
-                .catch((e: AxiosError) => {
-                    setisLoading(false);
-                    setMessage(
-                        (
-                            e.response?.data as {
-                                success: boolean;
-                                message: string;
-                            }
-                        ).message
-                    );
-                });
+            const response = await axios.post(`${API_URL}/api/accounts/login`, {
+                username_or_email: usernameOrEmail,
+                password: password,
+            });
+            const data = response.data;
+            if (data.success === false) {
+                setMessage(data.message);
+                setIsLoading(false);
+                return;
+            }
+            userData.setTokenFunction(data.token);
+            userData.setIdFunction(data.id);
+            navigate("/problemset");
         } catch (error) {
-            console.error("Sign-up failed:", error);
+            if (error instanceof AxiosError && error.response) {
+                setMessage(error.response.data.message);
+            } else {
+                console.error("Login failed:", error);
+            }
+            setIsLoading(false);
         }
     };
+
+    // Login form layout with conditional rendering for loading state and error messages
     return (
         <>
             <Link to={"/"}>
