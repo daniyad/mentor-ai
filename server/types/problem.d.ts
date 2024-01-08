@@ -67,4 +67,13 @@ interface Submission {
     user_output?: string;
 }
 
+interface HintResponse {
+    problem_name: string;
+    status:
+        | "Accepted"
+        | "Runtime Error"
+    error?: string;
+    response?: string
+}
+
 type Sort = "asc" | "des" | "";

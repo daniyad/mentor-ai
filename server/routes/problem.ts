@@ -9,6 +9,11 @@ import {
     sortByTitle,
 } from "../utils/utils";
 
+import OpenAI from "openai";
+import { MessageContentText } from "openai/resources/beta/threads/messages/messages";
+
+const openai = new OpenAI();
+
 const problem = express.Router();
 
 problem.post("/all", async (req, res) => {
@@ -103,7 +108,7 @@ problem.post<
         if (problem) {
             writeTestFile(req.body.code, problem.test, problem.function_name)
                 .then(async (resolve) => {
-                    if (resolve.stdout != undefined) {
+                if (resolve.stdout != undefined) { 
                         console.log(resolve.stdout);
                         let submission: Submission[] = [
                             {
@@ -209,34 +214,91 @@ problem.post<{ name: string }, Submission[], { id: string }>(
     }
 );
 
-problem.post("/:name", async (req, res) => {
+problem.get("/:name", async (req, res) => {
     const { name } = req.params;
-    const { id } = req.body;
     try {
         const problem = await ProblemModel.findOne({
             "main.name": name,
         });
+        if (!problem) {
+            res.json({ error: "problem not found" });
+            return;
+        }
 
+        const id = req.query.id as string;
         const user = await UserModel.findById(id);
         const problemJson: DProblem = JSON.parse(JSON.stringify(problem));
+        
 
-        if (user?.problems_attempted.includes(name)) {
-            problemJson.main.status = "attempted";
-        }
-        if (user?.problems_solved.includes(name)) {
-            problemJson.main.status = "solved";
-        }
 
-        if (problemJson) {
-            const response = problemJson;
-            res.json(response);
-        } else {
-            res.json({ error: "problem not found" });
-        }
+        res.json(problemJson);
     } catch (e) {
         console.log(e);
+        res.json({ error: "An error occurred" });
     }
 });
+
+problem.post<
+    { name: string },
+    HintResponse,
+    { code: string, id: string,  problem_name: string }
+>("/hint/:name", async (req, res) => {
+    const { name } = req.params;
+    const { id, problem_name,code } = req.body;
+
+    try {
+        const problem = await ProblemModel.findOne({
+            "main.name": name,
+        });
+        const user = await UserModel.findById(id);
+        
+        if(!user) {
+            res.json({
+                problem_name: problem_name,
+                status: "Runtime Error",
+                error: "user not found",
+            });
+            return;
+        }
+
+        const run = await openai.beta.threads.createAndRun({
+            assistant_id: "asst_7muYZP6iEa04iPJ7FYBJgPiR",
+            thread: {
+              messages: [
+                { role: "user", content: `Describe how to make this code work: ${code}` },
+              ],
+            },
+          }); 
+        
+        // Sleep for 2 seconds (2000 milliseconds)
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        const retrievedRun = await openai.beta.threads.runs.retrieve(
+            run.thread_id,
+            run.id
+          );
+        
+        if(retrievedRun.status == "completed"){
+            const threadMessages = await openai.beta.threads.messages.list(
+                run.thread_id
+              );
+            const lastMessage = threadMessages.data[threadMessages.data.length - 1]
+            const textContent = lastMessage.content[0] as MessageContentText
+            res.json({
+                problem_name: problem_name,
+                status: "Accepted",
+                response: textContent.text.value ?? 'No text response'
+            })
+        } else {
+            res.status(500).json({ 
+                problem_name: problem_name,
+                status: "Runtime Error", 
+                error: 'run not complete'
+            })
+        }
+    }
+})
+
 
 problem.get("/:name/editorial", async (req, res) => {
     const name = req.params.name;
