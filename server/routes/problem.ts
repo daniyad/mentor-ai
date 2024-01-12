@@ -1,4 +1,4 @@
-import express, { json } from "express";
+import express, { json, response } from "express";
 import { writeTestFile } from "../utils/createTest";
 import ProblemModel from "../models/problem";
 import UserModel from "../models/user";
@@ -8,12 +8,91 @@ import {
     sortByDifficulty,
     sortByTitle,
 } from "../utils/utils";
+import axios from "axios"
 
 import OpenAI from "openai";
 
 const openai = new OpenAI();
 
 const problem = express.Router();
+
+
+problem.get("/notFound", (req, res) => {
+    res.status(404).send("Problem page not found not found");
+});
+
+
+problem.post("/submitWithJudge0", async (req, res) => {
+    const { id, problem_name, code } = req.body;
+
+    const problem = await ProblemModel.findOne({
+        "main.name": problem_name,
+    })
+
+    if (problem == null || problem == undefined) {
+        res.status(404).send("Problem page not found not found");
+        return
+    }
+
+    // TODO(DIN): update the existing schema to include the expected_output field
+    const expectedOutput = "hello-world"
+    const submissionUrl = "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&fields=*"
+    const pythonLanguageId = 71
+
+    const submissionHeaders = {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+        "X-RapidAPI-Key": "35c9225c5cmshcf78f7b581c247bp1d192ejsn072c0d9c96eb",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+    }
+
+    const optionsForSubmittingCode = {
+        method: "POST",
+        url: submissionUrl,
+        headers: submissionHeaders,
+        data: {
+            "language_id": pythonLanguageId,
+            "source_code": stringToBase64(code),
+            "expected_output": stringToBase64(expectedOutput)
+         }
+    }
+    
+    const submissionResponse = await axios(optionsForSubmittingCode);
+    if (!submissionResponse || submissionResponse.status != 201) {
+        res.status(500).send("There was an error in our servers, please try again later")
+        return
+    }
+    
+    //waiting for the code to be complete
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    const token = submissionResponse.data.token
+    const submissionStatusUrl = 
+    "https://judge0-ce.p.rapidapi.com/submissions/" + token + "?base64_encoded=true&fields=*"
+    const submissionStatusHeaders = {
+        "X-RapidAPI-Key": "35c9225c5cmshcf78f7b581c247bp1d192ejsn072c0d9c96eb",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+    }
+
+    
+    const optionsForRetrievingResult = {
+        method: "GET",
+        url: submissionStatusUrl,
+        headers: submissionStatusHeaders,
+    }
+
+    const codeSubmissionResponse = await axios(optionsForRetrievingResult)
+    if (!codeSubmissionResponse || codeSubmissionResponse.status != 200) {
+        res.status(500).send("There was an error in our servers, please try again later")
+        return
+    }
+    res.status(200).json(codeSubmissionResponse.data.status)
+})
+
+function stringToBase64(str: string): string {
+    return Buffer.from(str).toString('base64');
+}
+
 
 problem.post("/all", async (req, res) => {
     const { id } = req.body;
