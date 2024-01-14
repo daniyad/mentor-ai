@@ -15,7 +15,7 @@ import OpenAI from "openai";
 const openai = new OpenAI();
 
 const problem = express.Router();
-
+const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
 
 problem.get("/notFound", (req, res) => {
     res.status(404).send("Problem page not found not found");
@@ -42,7 +42,7 @@ problem.post("/submitWithJudge0", async (req, res) => {
     const submissionHeaders = {
         "Accept": "application/json",
         "Content-Type": "application/json;charset=UTF-8",
-        "X-RapidAPI-Key": "35c9225c5cmshcf78f7b581c247bp1d192ejsn072c0d9c96eb",
+        "X-RapidAPI-Key": judgeApiKey,
         "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
     }
 
@@ -71,7 +71,7 @@ problem.post("/submitWithJudge0", async (req, res) => {
     "https://judge0-ce.p.rapidapi.com/submissions/" + token + "?base64_encoded=true&fields=*"
     const submissionStatusHeaders = {
         "X-RapidAPI-Key": "35c9225c5cmshcf78f7b581c247bp1d192ejsn072c0d9c96eb",
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+        "X-RapidAPI-Host": judgeApiKey,
     }
 
     
