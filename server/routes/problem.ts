@@ -238,11 +238,7 @@ problem.get("/:name", async (req, res) => {
     }
 });
 
-problem.post<
-    { name: string },
-    HintResponse,
-    { code: string, id: string,  problem_name: string }
->("/hint/:name", async (req, res) => {
+problem.post("/hint/:name", async (req, res) => {
     const { name } = req.params;
     const { id, problem_name,code } = req.body;
 
@@ -261,41 +257,39 @@ problem.post<
             return;
         }
 
-        const run = await openai.beta.threads.createAndRun({
-            assistant_id: "asst_7muYZP6iEa04iPJ7FYBJgPiR",
-            thread: {
-              messages: [
-                { role: "user", content: `Describe how to make this code work: ${code}` },
-              ],
-            },
-          }); 
+        const systemMessage = `
+        You are a helpful assistant. Your job is to help users learn how to program. The
+        current problem that your user is working on is this one:
+        ${problem?.main.description_body}
+        `
         
-        // Sleep for 2 seconds (2000 milliseconds)
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        const userMessage = `
+        Can you make this code work?
+        ${code}
+        `
 
-        const retrievedRun = await openai.beta.threads.runs.retrieve(
-            run.thread_id,
-            run.id
-          );
-        
-        if(retrievedRun.status == "completed"){
-            const threadMessages = await openai.beta.threads.messages.list(
-                run.thread_id
-              );
-            const lastMessage = threadMessages.data[threadMessages.data.length - 1]
-            const textContent = lastMessage.content[0] as MessageContentText
-            res.json({
-                problem_name: problem_name,
-                status: "Accepted",
-                response: textContent.text.value ?? 'No text response'
-            })
-        } else {
-            res.status(500).json({ 
-                problem_name: problem_name,
-                status: "Runtime Error", 
-                error: 'run not complete'
-            })
-        }
+        const completion = await openai.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: systemMessage
+                },
+                {
+                    role: "user",
+                    content: userMessage
+                }
+            ],
+            model: "gpt-4-1106-preview"
+        });
+        let content = completion.choices[0].message.content ?? ''
+
+        res.json({
+            problem_name: problem_name,
+            status: "Accepted",
+            response: content
+        })
+    } catch (e) {
+        console.log(e);
     }
 })
 
