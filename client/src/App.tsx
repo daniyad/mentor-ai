@@ -80,6 +80,16 @@ function App() {
                         }
                     />
                     <Route
+                        path="/problem/:name/hint"
+                        element={
+                            <ProblemPage
+                                data={{ activeNavOption: "hint" }}
+                                token={token}
+                                id={id}
+                            />
+                        }
+                    />
+                    <Route
                         path="/problem/:name"
                         element={
                             <ProblemPage

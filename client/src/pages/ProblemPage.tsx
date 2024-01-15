@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Editorial from "../components/Editorial";
 import MainHeading from "../components/MainHeading";
 import Submissions from "../components/Submissions";
+import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 
@@ -36,6 +37,7 @@ const ProblemPage = ({
     };
 
     const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
+    const [isHintLoading, setIsHintLoading] = useState<boolean>(false);
 
     const [editorial, setEditorial] = useState<string>("");
 
@@ -45,9 +47,12 @@ const ProblemPage = ({
         useState<DescriptionData>();
 
     const [submissionData, setSubmissionData] = useState<Submission[]>();
+
+    const [hintData, setHintData] = useState<Hint>();
     const navigate = useNavigate();
 
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+    const [isHintRequested, setIsHintRequested] = useState<boolean>(false);
 
     const { name } = useParams();
 
@@ -83,9 +88,37 @@ const ProblemPage = ({
             });
     };
 
+    const requestHint = () => {
+        setIsHintLoading(true);
+        if(!id || !name) {
+            console.log("id not found");
+            setIsHintLoading(false);
+            return;
+        }
+
+        const problem_name = name;
+        axios
+            .post(`${API_URL}/api/problem/hint/${name}`, {
+                code,
+                id,
+                problem_name,
+            })
+            .then(({ data }) => {
+                setIsHintLoading(false);
+                setHintData(data.response);
+                navigate(`/problem/${name}/hint`)
+                setIsHintRequested(false);
+            })
+            .catch((err) => {
+               console.error(err);
+               setIsHintRequested(false);
+               setIsHintLoading(false); 
+            });
+    }
+
     useEffect(() => {
         axios
-            .post(`${API_URL}/api/problem/${name}`, { id: id })
+            .get(`${API_URL}/api/problem/${name}?id=${id}`)
             .then(({ data }) => {
                 setProblemDescriptionData(
                     data.main as unknown as SetStateAction<
@@ -210,6 +243,12 @@ const ProblemPage = ({
                                         }}
                                     />
                                 )}
+                            {
+                                activeNavOption == "hint" &&
+                                (
+                                    <HintDisplay data = {{ hint: hintData, is_hint_loading: isHintLoading, is_hint_requested: isHintRequested }} />  
+                                )
+                            }
                         </div>
                     </div>
                     <div
@@ -257,6 +296,20 @@ const ProblemPage = ({
                                     </div>
                                 ) : (
                                     "Submit"
+                                )}
+                            </div>
+                            <div
+                                className="w-fit h-fit rounded mr-[11px] px-[20px] py-[4px] hover:bg-green-500 cursor-pointer hover:text-black text-black bg-green-500 text-[14px] active:border-green-800 active:bg-green-800 border-green-500 font-bold right-0 transition select-none"
+                                onClick={requestHint}
+                            >
+                                {isHintLoading ? (
+                                    <div className="w-full block h-[21px]">
+                                        <div className="">
+                                            <Loading />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    "Request Hint"
                                 )}
                             </div>
                         </div>
