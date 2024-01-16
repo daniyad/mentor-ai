@@ -11,6 +11,14 @@ const problemSchema = new mongoose.Schema({
         expected_output: { type: String, required: true },
 });
 
-const ProblemsModel = mongoose.model("Problems_New", problemSchema, "problems_new");
-
-export default ProblemsModel;
+// New Section Schema
+const sectionSchema = new mongoose.Schema({
+        title: { type: String, required: true },
+        description: { type: String, required: true },
+        problems: [problemSchema]  // Embedding problem documents directly
+    });
+    
+    const ProblemsModel = mongoose.model("Problems_New", problemSchema, "problems_new");
+    const SectionModel = mongoose.model("Section", sectionSchema);
+    
+    export { ProblemsModel, SectionModel };
