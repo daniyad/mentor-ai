@@ -5,6 +5,19 @@ import ProblemsModel from "../models/problem-model";
 const problem_new = express.Router();
 const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
 
+
+problem_new.get("/problems", async (req, res) => {
+    // TODO(DIN): retrieve user id and all the submitted problems
+    const problems = await ProblemsModel.find({})
+
+    if (problems == null || problems == undefined) {
+        res.status(404).send("Couldn't find a problem based on the id you provided");
+        return
+    }
+    
+    res.status(200).json(problems)
+})
+
 problem_new.get("/problem/:id", async (req, res) => {
     const id = req.params.id;
 
