@@ -14,13 +14,11 @@ const HintDisplay = ({ data }: { data: HintData }) => {
             </div>
         );
     }
-    // Ensure that 'data.hint' is defined before accessing 'data.hint.hint'
-    const hintString = data.hint ? data.hint.hint : 'No hint available';
     
     return (
         <div>
             <div className="text-[14px] text-text_2 mx-auto text-center mt-[50px]">
-                    {hintString}
+                    {data.hint ? data.hint.hint : 'No hint available' }
             </div>
         </div>
     )

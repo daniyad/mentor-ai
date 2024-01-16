@@ -10,7 +10,6 @@ import {
 } from "../utils/utils";
 
 import OpenAI from "openai";
-import { MessageContentText } from "openai/resources/beta/threads/messages/messages";
 
 const openai = new OpenAI();
 

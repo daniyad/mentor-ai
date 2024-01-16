@@ -98,14 +98,25 @@ const ProblemPage = ({
 
         const problem_name = name;
         axios
-            .post(`${API_URL}/api/problem/hint/${name}`, {
+            .post<{}, AxiosResponse<HintResponse>, { code: string; id: string; problem_name: string }>(`${API_URL}/api/problem/hint/${name}`, {
                 code,
                 id,
                 problem_name,
             })
             .then(({ data }) => {
                 setIsHintLoading(false);
-                setHintData(data.response);
+                if (data.status !== "Accepted" && data.status !== "Runtime Error"){
+                    console.log("Data status is unaccepted")
+                    return
+                }
+
+                const hint: Hint = {
+                    problem_name: data.problem_name,
+                    status: data.status,
+                    error: data.error,
+                    hint: data.response
+                };
+                setHintData(hint);
                 navigate(`/problem/${name}/hint`)
                 setIsHintRequested(false);
             })
