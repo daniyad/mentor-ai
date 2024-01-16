@@ -9,6 +9,11 @@ import {
     sortByTitle,
 } from "../utils/utils";
 
+import OpenAI from "openai";
+import { MessageContentText } from "openai/resources/beta/threads/messages/messages";
+
+const openai = new OpenAI();
+
 const problem = express.Router();
 
 problem.post("/all", async (req, res) => {
@@ -103,7 +108,7 @@ problem.post<
         if (problem) {
             writeTestFile(req.body.code, problem.test, problem.function_name)
                 .then(async (resolve) => {
-                    if (resolve.stdout != undefined) {
+                if (resolve.stdout != undefined) { 
                         console.log(resolve.stdout);
                         let submission: Submission[] = [
                             {
@@ -209,34 +214,85 @@ problem.post<{ name: string }, Submission[], { id: string }>(
     }
 );
 
-problem.post("/:name", async (req, res) => {
+problem.get("/:name", async (req, res) => {
     const { name } = req.params;
-    const { id } = req.body;
     try {
         const problem = await ProblemModel.findOne({
             "main.name": name,
         });
+        if (!problem) {
+            res.json({ error: "problem not found" });
+            return;
+        }
 
+        const id = req.query.id as string;
         const user = await UserModel.findById(id);
         const problemJson: DProblem = JSON.parse(JSON.stringify(problem));
+        
 
-        if (user?.problems_attempted.includes(name)) {
-            problemJson.main.status = "attempted";
-        }
-        if (user?.problems_solved.includes(name)) {
-            problemJson.main.status = "solved";
+
+        res.json(problemJson);
+    } catch (e) {
+        console.log(e);
+        res.json({ error: "An error occurred" });
+    }
+});
+
+problem.post("/hint/:name", async (req, res) => {
+    const { name } = req.params;
+    const { id, problem_name,code } = req.body;
+
+    try {
+        const problem = await ProblemModel.findOne({
+            "main.name": name,
+        });
+        const user = await UserModel.findById(id);
+        
+        if(!user) {
+            res.json({
+                problem_name: problem_name,
+                status: "Runtime Error",
+                error: "user not found",
+            });
+            return;
         }
 
-        if (problemJson) {
-            const response = problemJson;
-            res.json(response);
-        } else {
-            res.json({ error: "problem not found" });
-        }
+        const systemMessage = `
+        You are a helpful assistant. Your job is to help users learn how to program. The
+        current problem that your user is working on is this one:
+        ${problem?.main.description_body}
+        `
+        
+        const userMessage = `
+        Can you make this code work?
+        ${code}
+        `
+
+        const completion = await openai.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: systemMessage
+                },
+                {
+                    role: "user",
+                    content: userMessage
+                }
+            ],
+            model: "gpt-4-1106-preview"
+        });
+        let content = completion.choices[0].message.content ?? ''
+
+        res.json({
+            problem_name: problem_name,
+            status: "Accepted",
+            response: content
+        })
     } catch (e) {
         console.log(e);
     }
-});
+})
+
 
 problem.get("/:name/editorial", async (req, res) => {
     const name = req.params.name;
