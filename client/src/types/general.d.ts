@@ -163,3 +163,25 @@ interface Submission {
     expected_output?: string;
     user_output?: string;
 }
+
+interface HintResponse {
+    problem_name: string;
+    status: string;
+    error: string;
+    response: string; // or whatever type the hint is supposed to be
+  }
+
+interface HintData {
+    hint: Hint | undefined;
+    is_hint_loading: boolean;
+    is_hint_requested: boolean;
+}
+
+interface Hint {
+    problem_name: string;
+    status:
+        | "Accepted"
+        | "Runtime Error"
+    error?: string;
+    hint: string;
+}

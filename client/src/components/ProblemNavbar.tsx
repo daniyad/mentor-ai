@@ -108,6 +108,19 @@ const ProblemNavbar = ({ data }: { data: Data }) => {
                     Submissions
                 </div>
             </Link>
+            <Link to={`/problem/${data.problem_name}/hint`}>
+                <div 
+                    id="hint" 
+                    className={`z-40 px-[20px] py-[14px] cursor-pointer hover:text-white transition relative p-[14px] ${
+                        (activeItem || data.nav_option_name) === "hint"
+                            ? "text-white "
+                            : ""
+                    }`}
+                    onMouseOver={handleMenuItemsHover}
+                >
+                    Hint
+                </div>
+            </Link>
         </div>
     );
 };
