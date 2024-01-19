@@ -1,17 +1,22 @@
 // server/dialogue/aiConversationHandler.ts
 
 import { Conversation } from './conversation';
-import { LLMClient } from '../llm/llmClient';
+import { LLMClient } from './llmClient';
 
 class AIConversationHandler {
   constructor(private conversation: Conversation, private llmClient: LLMClient) {}
 
-  async handleUserInput(userCode: string, optionText: string): Promise<string> {
+  async handleUserInput(userCode: string, optionText: string): Promise<Conversation> {
     this.conversation.addMessage('user', optionText, userCode);
     const prompt = this.createPrompt(userCode, optionText);
-    const aiText = await this.llmClient.createCompletion(prompt, 150);
-    this.conversation.addMessage('ai', aiText);
-    return aiText;
+    const aiText = await this.llmClient.createChatCompletion(prompt, this.conversation);
+
+    if (aiText == null){
+        throw new Error('AI text generation failed.');
+    }
+
+    this.conversation.addMessage('assistant', aiText);
+    return this.conversation;
   }
 
   private createPrompt(userCode: string, optionText: string): string {

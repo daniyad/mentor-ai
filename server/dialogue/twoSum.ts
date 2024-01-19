@@ -1,5 +1,5 @@
 // server/dialogue/dialogue.ts
-
+import { DialogueNode, DialogueTree } from "./dialogue";
 // Define the interfaces and class as previously extended
 
 // Example dialogue nodes for the "Two Sum" problem

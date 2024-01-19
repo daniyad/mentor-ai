@@ -1,7 +1,10 @@
 // server/llm/llmClient.ts
 
+import { Conversation } from "./conversation";
+
+
 interface LLMClient {
-  createCompletion(prompt: string, maxTokens: number): Promise<string>;
+  createChatCompletion(prompt: string, conversation: Conversation): Promise<string | null>;
 }
   
 export { LLMClient };
