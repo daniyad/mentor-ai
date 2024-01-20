@@ -15,7 +15,7 @@ interface DbProblem extends Document {
         expected_output: { type: String, required: true },
 }
 
-const problemSchema = new mongoose.Schema({
+const problemSchema = new mongoose.Schema<DbProblem>({
         id: { type: Number, required: true },
         name: { type: String, required: true },
         difficulty: { type: String, required: true },
