@@ -1,6 +1,8 @@
 import express, { json, response } from "express";
 import axios from "axios"
-import ProblemsModel from "../models/problem-model";
+import ProblemsModel from "../../models/problem-model";
+import authFilter from "../../middlewares/auth-filter"
+
 
 const problem_new = express.Router();
 const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
@@ -74,7 +76,7 @@ problem_new.post("/submitWithJudge0", async (req, res) => {
     }
     
     //waiting for the code to be complete
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     const token = submissionResponse.data.token
     const submissionStatusUrl = 

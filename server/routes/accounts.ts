@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import { existsEmail, existsUsername } from "../utils/utils";
 import jwt from "jsonwebtoken";
-import { authenticateToken } from "../middlewares/token";
 import Filter from "bad-words";
 import ProblemModel from "../models/problem";
 import { customCors } from "../middlewares/cors";
@@ -15,7 +14,7 @@ const accounts = express.Router();
 accounts.post<
     {},
     { id?: string; token?: string; success: boolean; message: string },
-    User
+    IUser
 >("/signup", async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -176,7 +175,7 @@ accounts.post<
     }
 });
 
-accounts.post("/delete/:id", authenticateToken, async (req, res) => {
+accounts.post("/delete/:id", async (req, res) => {
     try {
         const { id } = req.params;
         await UserModel.findByIdAndDelete(id);
@@ -189,7 +188,7 @@ accounts.post("/delete/:id", authenticateToken, async (req, res) => {
     }
 });
 
-accounts.get("/id/:id", authenticateToken, async (req, res) => {
+accounts.get("/id/:id", async (req, res) => {
     const id = req.params.id;
 
     const user = await UserModel.findById(id);

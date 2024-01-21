@@ -1,14 +1,5 @@
 import mongoose, { Document } from "mongoose";
 
-enum PROBLEM_STATUS{
-    ATTEMPTED,
-    SOLVED
-}
-
-interface Attempt {
-    problem_id: number,
-    status: PROBLEM_STATUS
-}
 
 interface DbUser extends Document {
     id: number;
