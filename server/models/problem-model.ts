@@ -12,7 +12,7 @@ interface DbProblem extends Document {
         description_body: string,
         supported_languages: [string],
         code_body: [CodeBody],
-        expected_output: { type: String, required: true },
+        expected_output: string,
 }
 
 const problemSchema = new mongoose.Schema<DbProblem>({
