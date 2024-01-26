@@ -3,12 +3,17 @@
 interface UserQuestionNode {
     id: string;
     options: UserQuestionOption[];
-    aiPrompt?: () => AiResponse;
+    aiPrompt?: (code: string, chosenOption: string) => AiResponse;
+    evaluationPrompt?: (code: string, chosenOption: string, aiResponse: AiResponse) => EvaluationResponse;
   }
 
   interface AiResponse {
     code?: string;
     text?: string;
+  }
+
+  interface EvaluationResponse {
+    score: number;
   }
   
   interface UserQuestionOption {
