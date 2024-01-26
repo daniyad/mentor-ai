@@ -2,11 +2,12 @@
 
 import { Conversation } from './conversation';
 import { LLMClient } from './llmClient';
+import { AiResponse } from './dialogue';
 
 class AIConversationHandler {
   constructor(private conversation: Conversation, private llmClient: LLMClient) {}
 
-  async handleUserInput(userCode: string, optionText: string): Promise<Conversation> {
+  async handleUserInput(userCode: string, optionText: string): Promise<AiResponse> {
     this.conversation.addMessage('user', optionText, userCode);
     const prompt = this.createPrompt(userCode, optionText);
     const aiText = await this.llmClient.createChatCompletion(prompt, this.conversation);

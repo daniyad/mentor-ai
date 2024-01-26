@@ -1,25 +1,28 @@
 // server/dialogue/dialogueTree.ts
 
+import { AIConversationHandler } from "./aiConversationHandler";
+import { LLMClient } from "./llmClient";
+
 interface UserQuestionNode {
     id: string;
     options: UserQuestionOption[];
-    aiPrompt?: (code: string, chosenOption: string) => AiResponse;
-    evaluationPrompt?: (code: string, chosenOption: string, aiResponse: AiResponse) => EvaluationResponse;
-  }
+    aiPrompt?: (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => Promise<AiResponse>;
+    evaluationPrompt?: (code: string, chosenOption: string, llmClient: LLMClient, aiConversationHandler: AIConversationHandler) => Promise<EvaluationResponse>;
+}
 
-  interface AiResponse {
-    code?: string;
-    text?: string;
-  }
+interface AiResponse {
+  code?: string;
+  text?: string;
+}
 
-  interface EvaluationResponse {
-    score: number;
-  }
+interface EvaluationResponse {
+  score: number;
+}
   
-  interface UserQuestionOption {
-    text: string;
-    nextNodeId: string | null;
-  }
+interface UserQuestionOption {
+  text: string;
+  nextNodeId: string | null;
+}
   
 class UserQuestionTree {
   private nodes: Map<string, UserQuestionNode>;
@@ -39,4 +42,4 @@ class UserQuestionTree {
   }
 }
   
-export { UserQuestionTree, UserQuestionNode, UserQuestionOption};
+export { UserQuestionTree, UserQuestionNode, UserQuestionOption, AiResponse, EvaluationResponse};
