@@ -1,97 +1,112 @@
 // server/dialogue/dialogue.ts
-import { DialogueNode, DialogueTree } from "./dialogue";
+import { UserQuestionNode, UserQuestionTree } from "./dialogue";
 // Define the interfaces and class as previously extended
 
 // Example dialogue nodes for the "Two Sum" problem
-const twoSumDialogueNodes: DialogueNode[] = [
+const twoSumQuestionNodes: UserQuestionNode[] = [
     {
-        id: "start",
-        text: "Welcome to the 'Two Sum' problem. Do you need an explanation of the problem, or would you like to dive into coding?",
+        id: 'start',
         options: [
             {
-                text: "Explain the problem to me.",
-                nextNodeId: "explainProblem"
+                text: 'What is the Two Sum problem?',
+                nextNodeId: 'explain-two-sum'
             },
             {
-                text: "I'm ready to code.",
-                nextNodeId: "codingTips"
+                text: 'Can you provide a code example for Two Sum?',
+                nextNodeId: 'code-example-two-sum'
             }
         ],
-        metadata: {
-            topic: "Array",
-            difficulty: "Easy",
-            tags: ["Hash Table", "Array"]
+        aiPrompt: () => {
+            return {
+                text: 'How can I assist you with the Two Sum problem?'
+            };
         }
     },
     {
-        id: "explainProblem",
-        text: "The 'Two Sum' problem asks you to find two numbers in an array that add up to a specific target number. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
+        id: 'explain-two-sum',
         options: [
             {
-                text: "Got it, any coding tips?",
-                nextNodeId: "codingTips"
+                text: 'Can you explain how to approach solving it?',
+                nextNodeId: 'approach-two-sum'
             },
             {
-                text: "Can I see an example?",
-                nextNodeId: "showExample"
+                text: 'What are the common pitfalls?',
+                nextNodeId: 'pitfalls-two-sum'
             }
-        ]
+        ],
+        aiPrompt: () => {
+            return {
+                text: 'The Two Sum problem asks to find the indices of the two numbers in an array that add up to a specific target.'
+            };
+        }
     },
     {
-        id: "showExample",
-        text: "Sure, here's an example: Given nums = [2, 7, 11, 15], target = 9, because nums[0] + nums[1] = 2 + 7 = 9, return [0, 1].",
+        id: 'code-example-two-sum',
         options: [
             {
-                text: "I understand now, let's start coding.",
-                nextNodeId: "codingTips"
+                text: 'Can you explain this code?',
+                nextNodeId: 'explain-code'
             },
             {
-                text: "I need some hints.",
-                nextNodeId: "hints"
+                text: 'Can you help me write a test for this code?',
+                nextNodeId: 'write-test'
             }
-        ]
+        ],
+        aiPrompt: () => {
+            return {
+                code: 'function twoSum(nums, target) {\n' +
+                      '    const map = {};\n' +
+                      '    for (let i = 0; i < nums.length; i++) {\n' +
+                      '        const complement = target - nums[i];\n' +
+                      '        if (map[complement] !== undefined) {\n' +
+                      '            return [map[complement], i];\n' +
+                      '        }\n' +
+                      '        map[nums[i]] = i;\n' +
+                      '    }\n' +
+                      '}\n',
+                text: 'Here is a code example for the Two Sum problem.'
+            };
+        }
     },
     {
-        id: "codingTips",
-        text: "Remember to consider the time complexity of your solution. A brute force approach would be to check each pair of numbers, but there's a more efficient way using a hash table.",
-        options: [
-            {
-                text: "I'd like a hint, please.",
-                nextNodeId: "hints"
-            },
-            {
-                text: "I'll try on my own first.",
-                nextNodeId: null // End of the dialogue
-            }
-        ]
+        id: 'approach-two-sum',
+        options: [],
+        aiPrompt: () => {
+            return {
+                text: 'A common approach is to use a hash map to store the complement of each element and its index as you iterate through the array.'
+            };
+        }
     },
     {
-        id: "hints",
-        text: "Think about how a hash table can be used to store and quickly retrieve the index of the complement numbers you need.",
-        options: [
-            {
-                text: "I'll try with this hint.",
-                nextNodeId: null // End of the dialogue
-            },
-            {
-                text: "I'm stuck, I need more help.",
-                nextNodeId: "additionalResources"
-            }
-        ]
+        id: 'pitfalls-two-sum',
+        options: [],
+        aiPrompt: () => {
+            return {
+                text: 'Common pitfalls include not considering duplicate elements or assuming the input array is sorted.'
+            };
+        }
     },
     {
-        id: "additionalResources",
-        text: "No problem! Here are some resources that might help you: [Link to Two Sum problem discussion], [Link to a tutorial on hash tables].",
-        options: [
-            {
-                text: "Thanks, I'll check these out.",
-                nextNodeId: null // End of the dialogue
-            }
-        ]
+        id: 'explain-code',
+        options: [],
+        aiPrompt: () => {
+            return {
+                text: 'This function iterates through the array, calculating the complement for the target sum and checking if it exists in the hash map.'
+            };
+        }
+    },
+    {
+        id: 'write-test',
+        options: [],
+        aiPrompt: () => {
+            return {
+                text: 'To write a test, you should consider various cases such as an empty array, an array with one element, and an array with multiple elements where two sum up to the target.'
+            };
+        }
     }
 ];
 
 // Instantiate the DialogueTree with the nodes and the root node id
-const twoSumDialogueTree = new DialogueTree(twoSumDialogueNodes, "start");
+const twoSumQuestionTree = new UserQuestionTree(twoSumQuestionNodes, "start");
 
-export { twoSumDialogueTree };
+export { twoSumQuestionTree };
