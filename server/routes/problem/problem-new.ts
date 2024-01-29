@@ -24,7 +24,7 @@ problem_new.get("/problem/:name", authFilter, async (req, res) => {
     try {
         const problemName = req.params.name;
         const user = req.user as User; // User information from session
-
+        
         if (!user) {
             res.status(403).send("User not authenticated.");
             return;
