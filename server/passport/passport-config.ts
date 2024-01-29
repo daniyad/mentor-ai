@@ -6,12 +6,12 @@ const initializePassport = () => {
     passport.use(localStrategy);
 
     passport.serializeUser((user: any, done) => {
-        done(null, user.id);
+        done(null, user._id);
     });
 
     passport.deserializeUser(async (id, done) => {
         try {
-            const user = await Users.findOne({ id: id });
+            const user = await Users.findById(id);
             done(null, user);
         } catch (err) {
             done(err);

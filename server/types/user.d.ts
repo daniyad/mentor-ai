@@ -17,3 +17,12 @@ interface User extends Express.User {
     language: string;
     attempts: [Attempt]
 }
+
+
+declare global {
+    namespace Express {
+        interface Request {
+        user?: User; // Override the default Express.User with your custom User type
+        }
+    }
+}
