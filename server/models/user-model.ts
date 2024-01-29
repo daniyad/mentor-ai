@@ -12,10 +12,6 @@ interface DbUser extends Document {
 }
 
 const userSchema = new mongoose.Schema<DbUser>({
-    id: {
-        type: Number,
-        required: true,
-    },
     name: {
         type: String,
         required: true,

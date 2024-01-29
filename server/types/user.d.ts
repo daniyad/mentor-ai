@@ -9,7 +9,6 @@ interface Attempt {
 }
 
 interface User extends Express.User {
-    id: number;
     name: string;
     email: string;
     password: string;
