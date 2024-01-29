@@ -2,7 +2,7 @@
 
 interface Message {
     speaker: 'user' | 'assistant';
-    text: string;
+    text?: string;
     code?: string;
 }
   
@@ -13,7 +13,7 @@ class Conversation {
     this.history = [];
   }
 
-  addMessage(speaker: 'user' | 'assistant', text: string, code?: string) {
+  addMessage(speaker: 'user' | 'assistant', text?: string, code?: string) {
     this.history.push({ speaker, text, code });
   }
   

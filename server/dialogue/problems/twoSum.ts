@@ -1,4 +1,5 @@
 // server/dialogue/dialogue.ts
+import { AIConversationHandler } from "../aiConversationHandler";
 import { UserQuestionNode, UserQuestionTree } from "../dialogue";
 
 // Define the interfaces and class as previously extended
@@ -17,11 +18,9 @@ const twoSumQuestionNodes: UserQuestionNode[] = [
                 nextNodeId: 'code-example-two-sum'
             }
         ],
-        aiPrompt: () => {
-            return {
-                text: 'How can I assist you with the Two Sum problem?'
-            };
-        }
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
+        },
     },
     {
         id: 'explain-two-sum',
@@ -35,10 +34,8 @@ const twoSumQuestionNodes: UserQuestionNode[] = [
                 nextNodeId: 'pitfalls-two-sum'
             }
         ],
-        aiPrompt: () => {
-            return {
-                text: 'The Two Sum problem asks to find the indices of the two numbers in an array that add up to a specific target.'
-            };
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
         }
     },
     {
@@ -53,56 +50,36 @@ const twoSumQuestionNodes: UserQuestionNode[] = [
                 nextNodeId: 'write-test'
             }
         ],
-        aiPrompt: () => {
-            return {
-                code: 'function twoSum(nums, target) {\n' +
-                      '    const map = {};\n' +
-                      '    for (let i = 0; i < nums.length; i++) {\n' +
-                      '        const complement = target - nums[i];\n' +
-                      '        if (map[complement] !== undefined) {\n' +
-                      '            return [map[complement], i];\n' +
-                      '        }\n' +
-                      '        map[nums[i]] = i;\n' +
-                      '    }\n' +
-                      '}\n',
-                text: 'Here is a code example for the Two Sum problem.'
-            };
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
         }
     },
     {
         id: 'approach-two-sum',
         options: [],
-        aiPrompt: () => {
-            return {
-                text: 'A common approach is to use a hash map to store the complement of each element and its index as you iterate through the array.'
-            };
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
         }
     },
     {
         id: 'pitfalls-two-sum',
         options: [],
-        aiPrompt: () => {
-            return {
-                text: 'Common pitfalls include not considering duplicate elements or assuming the input array is sorted.'
-            };
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
         }
     },
     {
         id: 'explain-code',
         options: [],
-        aiPrompt: () => {
-            return {
-                text: 'This function iterates through the array, calculating the complement for the target sum and checking if it exists in the hash map.'
-            };
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
         }
     },
     {
         id: 'write-test',
         options: [],
-        aiPrompt: () => {
-            return {
-                text: 'To write a test, you should consider various cases such as an empty array, an array with one element, and an array with multiple elements where two sum up to the target.'
-            };
+        aiPrompt: async (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => {
+            return aiConversationHandler.handleUserInput(code, chosenOption)
         }
     }
 ];

@@ -2,10 +2,16 @@
 
 import { Conversation } from './conversation';
 import { LLMClient } from './llmClient';
-import { AiResponse } from './dialogue';
+import { AiResponse, EvaluationResponse } from './dialogue';
 
 class AIConversationHandler {
-  constructor(private conversation: Conversation, private llmClient: LLMClient) {}
+  public conversation: Conversation;
+  private llmClient: LLMClient;
+
+  constructor(private providedLLMClient: LLMClient) {
+    this.conversation = new Conversation();
+    this.llmClient = providedLLMClient;
+  }
 
   async handleUserInput(userCode: string, optionText: string): Promise<AiResponse> {
     this.conversation.addMessage('user', optionText, userCode);
@@ -16,18 +22,18 @@ class AIConversationHandler {
         throw new Error('AI text generation failed.');
     }
 
-    this.conversation.addMessage('assistant', aiText);
-    return this.conversation;
+    this.conversation.addMessage('assistant', aiText.text, aiText.code);
+    return {
+      code: aiText.code,
+      text: aiText.text
+    };
   }
 
   private createPrompt(userCode: string, optionText: string): string {
-    const historyText = this.conversation.getHistory()
-      .map(message => `${message.speaker}: ${message.text}`)
-      .join('\n');
-    return `User has written the following code:\n${userCode}\n\n` +
-           `The following conversation has taken place:\n${historyText}\n\n` +
-           `The user has selected the option: "${optionText}".\n\n` +
-           `Based on the user's selection, provide the appropriate response or guidance.`;
+    return JSON.stringify({
+      "code": userCode,
+      "text": optionText
+    })
   }
 }
 

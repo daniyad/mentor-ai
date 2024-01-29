@@ -1,13 +1,11 @@
 // server/dialogue/dialogueTree.ts
 
 import { AIConversationHandler } from "./aiConversationHandler";
-import { LLMClient } from "./llmClient";
 
 interface UserQuestionNode {
     id: string;
     options: UserQuestionOption[];
     aiPrompt?: (code: string, chosenOption: string, aiConversationHandler: AIConversationHandler) => Promise<AiResponse>;
-    evaluationPrompt?: (code: string, chosenOption: string, llmClient: LLMClient, aiConversationHandler: AIConversationHandler) => Promise<EvaluationResponse>;
 }
 
 interface AiResponse {
