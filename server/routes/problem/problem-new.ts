@@ -8,7 +8,7 @@ const problem_new = express.Router();
 const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
 
 
-problem_new.get("/problems", async (req, res) => {
+problem_new.get("/problems", authFilter, async (req, res) => {
     // TODO(DIN): retrieve user id and all the submitted problems
     const problems = await ProblemsModel.find({})
 
@@ -20,22 +20,40 @@ problem_new.get("/problems", async (req, res) => {
     res.status(200).json(problems)
 })
 
-problem_new.get("/problem/:id", async (req, res) => {
-    const id = req.params.id;
 
-    const problem = await ProblemsModel.findOne({
-        'id': id
-    })
+problem_new.get("/problem/:name", authFilter, async (req, res) => {
+    try {
+        const problemName = req.params.name;
+        const user = req.user as User; // User information from session
 
-    if (problem == null || problem == undefined) {
-        res.status(404).send("Couldn't find a problem based on the id you provided");
-        return
+        console.log(`user is ${user}`)
+
+        if (!user) {
+            res.status(403).send("User not authenticated.");
+            return;
+        }
+
+        const problem = await ProblemsModel.findOne({ 'name': problemName });
+        if (!problem) {
+            res.status(404).send("Couldn't find a problem based on the name provided");
+            return;
+        }
+
+        // Check if the problem is solved by the user
+        const isSolved = user.attempts.some(attempt => 
+            attempt.problem_id === problem.id && attempt.status == PROBLEM_STATUS.SOLVED
+        );
+
+        // Add isSolved field to the problem object
+        const response = { ...problem.toObject(), isSolved };
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).send("Internal server error");
     }
+});
 
-    res.status(200).json(`${problem} is found`)
-})
-
-problem_new.post("/submitWithJudge0", async (req, res) => {
+problem_new.post("/submitWithJudge0", authFilter, async (req, res) => {
     const { id, code } = req.body;
 
     const problem = await ProblemsModel.findOne({
@@ -82,7 +100,7 @@ problem_new.post("/submitWithJudge0", async (req, res) => {
     const submissionStatusUrl = 
     "https://judge0-ce.p.rapidapi.com/submissions/" + token + "?base64_encoded=true&fields=*"
     const submissionStatusHeaders = {
-        "X-RapidAPI-Key": "35c9225c5cmshcf78f7b581c247bp1d192ejsn072c0d9c96eb",
+        "X-RapidAPI-Key": judgeApiKey,
         "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
     }
 

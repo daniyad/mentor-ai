@@ -38,7 +38,8 @@
         "passport": "^0.7.0",
         "passport-google-oauth20": "^2.0.0",
         "passport-local": "^1.0.0",
-        "typescript": "^5.3.3"
+        "typescript": "^5.3.3",
+        "validator": "^13.11.0"
     },
     "prettier": {
         "tabWidth": 4
