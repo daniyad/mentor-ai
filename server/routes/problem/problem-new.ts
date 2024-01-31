@@ -48,9 +48,11 @@ problem_new.get("/sections", authFilter, async (req, res) => {
 
 problem_new.get("/problem", authFilter, async (req, res) => {
     try {
-        const sectionId = req.query.sectionId as string; // Get sectionId from query param
-        const problemId = req.query.problemId as string; // Get problemId from query param
+        const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
+        const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
         const user = req.user as User; // User information from session
+
+        console.log(`section id is ${sectionId} and problem id is ${problemId}`)
 
         // Fetch the section based on sectionId
         const section = await SectionModel.findOne({ id: sectionId });
@@ -81,7 +83,7 @@ problem_new.get("/problem", authFilter, async (req, res) => {
     }
 });
 
-problem_new.post("/submitWithJudge0", authFilter, async (req, res) => {
+problem_new.post("/submit", authFilter, async (req, res) => {
     const { sectionId, problemId, code } = req.body;
 
     // Fetch the section based on sectionId
