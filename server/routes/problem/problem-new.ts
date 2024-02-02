@@ -1,4 +1,4 @@
-import express, { json, response } from "express";
+import express from "express";
 import axios from "axios"
 import {SectionModel} from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
@@ -51,8 +51,6 @@ problem_new.get("/problem", authFilter, async (req, res) => {
         const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
         const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
         const user = req.user as User; // User information from session
-
-        console.log(`section id is ${sectionId} and problem id is ${problemId}`)
 
         // Fetch the section based on sectionId
         const section = await SectionModel.findOne({ id: sectionId });
