@@ -189,7 +189,7 @@ const SignupPage = ({
                     {message && <div className="text-red-600 text-center mt-4">{message}</div>}
 
                     {/* Login Link */}
-                    <div className="text-white text-center mt-4 text-sm">
+                    <div className="text-white text-left mt-4 text-sm">
                         Already have an account?{' '}
                         <Link to="/login" className="text-blue-500 no-underline">
                             Login
