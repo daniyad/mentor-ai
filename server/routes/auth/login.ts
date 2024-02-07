@@ -9,6 +9,12 @@ const auth = express.Router();
 
 
 auth.post('/login-locally', (req, res, next) => {
+  // Check if user is already logged in
+  if (req.isAuthenticated()) {
+    // User is already logged in, so redirect or send a message
+    return res.status(400).send({ message: "User already logged in." });
+  }
+
   passport.authenticate('local', (err, user, info) => {
     if (err) {
       return next(err); // handle error

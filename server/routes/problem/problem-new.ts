@@ -1,6 +1,6 @@
-import express, { json, response } from "express";
+import express from "express";
 import axios from "axios"
-import ProblemsModel from "../../models/problem-model";
+import {SectionModel} from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
 
 
@@ -8,34 +8,62 @@ const problem_new = express.Router();
 const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
 
 
-problem_new.get("/problems", authFilter, async (req, res) => {
-    // TODO(DIN): retrieve user id and all the submitted problems
-    const problems = await ProblemsModel.find({})
-
-    if (problems == null || problems == undefined) {
-        res.status(404).send("Couldn't find a problem based on the id you provided");
-        return
-    }
-    
-    res.status(200).json(problems)
-})
-
-
-problem_new.get("/problem/:name", authFilter, async (req, res) => {
+problem_new.get("/sections", authFilter, async (req, res) => {
     try {
-        const problemName = req.params.name;
         const user = req.user as User; // User information from session
+        // Fetch all sections
+        const sections = await SectionModel.find({});
 
-        console.log(`user is ${user}`)
-
-        if (!user) {
-            res.status(403).send("User not authenticated.");
+        if (!sections || sections.length === 0) {
+            res.status(404).send("No sections found.");
             return;
         }
 
-        const problem = await ProblemsModel.findOne({ 'name': problemName });
+        // Construct the response object
+        const response = sections.map(section => {
+            // Extract section properties
+            const { title, description, problems } = section.toObject();
+
+            // Determine the user's solved status for each problem
+            const problemStatus = problems.map(problem => ({
+                name: problem.name,
+                isSolved: user.attempts.some(attempt =>
+                    attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED
+                ),
+            }));
+
+            return {
+                title,
+                description,
+                problems: problemStatus,
+            };
+        });
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).send("Internal server error");
+    }
+});
+
+
+problem_new.get("/problem", authFilter, async (req, res) => {
+    try {
+        const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
+        const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
+        const user = req.user as User; // User information from session
+
+        // Fetch the section based on sectionId
+        const section = await SectionModel.findOne({ id: sectionId });
+        if (!section) {
+            res.status(400).send("Requested section does not exist");
+            return;
+        }
+
+        // Fetch the problem based on problemId within the section
+        const problem = section.problems.find(p => p.id == problemId);
+
         if (!problem) {
-            res.status(404).send("Couldn't find a problem based on the name provided");
+            res.status(400).send("Requested problem does not exist");
             return;
         }
 
@@ -53,12 +81,18 @@ problem_new.get("/problem/:name", authFilter, async (req, res) => {
     }
 });
 
-problem_new.post("/submitWithJudge0", authFilter, async (req, res) => {
-    const { id, code } = req.body;
+problem_new.post("/submit", authFilter, async (req, res) => {
+    const { sectionId, problemId, code } = req.body;
 
-    const problem = await ProblemsModel.findOne({
-        'id': id
-    })
+    // Fetch the section based on sectionId
+    const section = await SectionModel.findOne({ id: sectionId });
+    if (!section) {
+        res.status(400).send("Requested section does not exist");
+        return;
+    }
+
+    // Fetch the problem based on problemId within the section
+    const problem = section.problems.find(p => p.id == problemId);
 
     if (problem == null || problem == undefined) {
         res.status(404).send("Couldn't find a problem based on the id you provided");
