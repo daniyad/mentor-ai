@@ -19,17 +19,18 @@ interface LoginProps {
 const LoginPage = ({
     userData,
 }: LoginProps) => {
-    const [usernameOrEmail, setUsernameOrEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const isFormFilled = email.length > 0 && password.length > 0;
 
     const handleLogin = async () => {
         setIsLoading(true);
         try {
             const response = await axios.post(`${API_URL}/api/accounts/login`, {
-                username_or_email: usernameOrEmail,
+                username_or_email: email,
                 password: password,
             });
             const data = response.data;
@@ -51,75 +52,72 @@ const LoginPage = ({
         }
     };
 
+    const handleClose = () => {
+        navigate("/");
+    };
+
     // Login form layout with conditional rendering for loading state and error messages
     return (
         <>
-            <Link to={"/"}>
-                <div
-                    id="logo-cont"
-                    className="inline-block relative text-[24px] left-1/2 -translate-x-1/2 font-bold italic mx-auto mt-[12px]"
-                >
-                    <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 px-[1px]">
-                        Mentor
-                    </span>
-                    <span>Ai</span>
-                </div>
-            </Link>
-            <div className="min-h-fit w-[300px] mx-auto text-[14px]">
-                <div className="relative bg-black shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                    <h2 className="text-[34px] font-bold mb-[30px] text-center mt-[60px]">
-                        Log In
-                    </h2>
-                    <div className="mb-4">
-                        <input
-                            className="appearance-none border w-full py-2 px-3 placeholder:text-text_2 focus:placeholder:text-orange-500 bg-black rounded border-borders leading-tight focus:outline-none focus:border-orange-500"
-                            type="text"
-                            placeholder="Username or Email"
-                            value={usernameOrEmail}
-                            onChange={(e) => setUsernameOrEmail(e.target.value)}
-                            required={true}
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <input
-                            className="appearance-none border w-full py-2 px-3 placeholder:text-text_2 focus:placeholder:text-orange-500 bg-black rounded border-borders leading-tight focus:outline-none focus:border-orange-500"
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required={true}
-                        />
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <button
-                            className="bg-orange-500 hover:bg-red-600 text-black font-bold py-[6px] px-4 rounded focus:outline-none focus:shadow-outline w-full transition"
-                            type="button"
-                            onClick={handleLogin}
-                        >
-                            {isLoading ? (
-                                <div className="w-full block h-[21px]">
-                                    <div className="absolute left-1/2 -translate-x-1/2">
-                                        <Loading />
-                                    </div>
-                                </div>
-                            ) : (
-                                "Login"
-                            )}
-                        </button>
-                    </div>
-                    <div className="flex items-center justify-between mt-[20px]">
-                        <span className="text-text_2">
-                            Don't have an account?{" "}
-                        </span>
-                        <Link
-                            to="/signup"
-                            className="text-orange-500 hover:text-red-600"
-                        >
-                            Signup
+            <div
+                id="logo-cont"
+                className="inline-block relative text-[24px] left-1/2 -translate-x-1/2 font-bold italic mx-auto mt-[12px]">
+                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 px-[1px]">
+                    Mentor
+                </span>
+                <span>Ai</span>
+            </div>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="relative bg-[#1A1A1A] rounded-lg p-8 max-w-md m-4 w-full">
+                    <button
+                        onClick={handleClose}
+                        className="absolute top-4 right-4 bg-gray-800 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-700"
+                        aria-label="Close"
+                    >
+                        &times;
+                    </button>
+                    <h2 className="text-white text-left text-2xl font-bold mb-2"> Log In </h2>
+                    <p className="text-white text-left text-sm mb-6"> By continuing, you agree to our
+                        <Link to="/user-agreement" className="text-blue-500 no-underline"> User Agreement </Link>
+                        and acknowledge that you understand the
+                        <Link to="/privacy-policy" className="text-blue-500 no-underline"> Privacy Policy</Link>.
+                    </p>
+                    <input
+                        className="bg-[#2A2A2A] text-white rounded-full border border-[#2A2A2A] mb-4 px-5 py-3 w-full"
+                        type="text"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <input
+                        className="bg-[#2A2A2A] text-white rounded-full border border-[#2A2A2A] mb-4 px-5 py-3 w-full"
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <button
+                        className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}
+                        type="button"
+                        onClick={handleLogin}
+                        disabled={!isFormFilled}
+                    >
+                        {isLoading ? <Loading /> : 'Login'}
+                    </button>
+                    {message && (
+                        <div className="text-red-600 text-center mt-4">
+                            {message}
+                        </div>
+                    )}
+                    <div className="text-left mt-4 text-sm">
+                        <span className="text-white">
+                            New to Mentor.ai?
+                        </span>{' '}
+                        <Link to="/signup" className="text-blue-500 no-underline">
+                            Sign Up
                         </Link>
-                    </div>
-                    <div className="text-center mt-[20px] text-red-600 w-full overflow-hidden">
-                        {message}
                     </div>
                 </div>
             </div>
