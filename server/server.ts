@@ -8,6 +8,7 @@ import sessions from "./middlewares/sessions";
 import passport = require('passport')
 import initializePassport from "./passport/passport-config";
 import errorHandler from "./middlewares/server-error-filter";
+import cors from "cors"
 
 const MONGODB_URI = process.env.MONGODB_URI || "";
 mongoose.connect(MONGODB_URI);
@@ -28,7 +29,10 @@ app.use(sessions)
 app.use(passport.session())
 initializePassport()
 
-app.use(customCors);
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with your client's origin
+    credentials: true
+}));
 app.use(express.json());
 
 

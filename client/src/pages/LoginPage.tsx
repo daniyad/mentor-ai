@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
+import Navbar from "../components/Navbar";
 
 interface LoginProps {
     userData: {
@@ -10,6 +11,8 @@ interface LoginProps {
         setTokenFunction: (token: string) => void;
         id: string;
         setIdFunction: (id: string) => void;
+        isLoggedIn: boolean,
+        setIsLoggedIn: (isLoggedIn: boolean) => void;
     };
 }
 
@@ -23,27 +26,31 @@ const LoginPage = ({
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
     const navigate = useNavigate();
     const isFormFilled = email.length > 0 && password.length > 0;
 
     const handleLogin = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post(`${API_URL}/api/accounts/login`, {
-                username_or_email: email,
+            const response = await axios.post(`${API_URL}/api/auth/login-locally`, {
+                username: email,
                 password: password,
-            });
+            }, {withCredentials: true});
+            
             const data = response.data;
             if (data.success === false) {
                 setMessage(data.message);
                 setIsLoading(false);
                 return;
             }
-            userData.setTokenFunction(data.token);
-            userData.setIdFunction(data.id);
+            userData.setTokenFunction("rubbish");
+            userData.setIdFunction("rubbish");
+            userData.setIsLoggedIn(true)
             navigate("/problemset");
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
+                console.log(`${error}`)
                 setMessage(error.response.data.message);
             } else {
                 console.error("Login failed:", error);
@@ -59,14 +66,7 @@ const LoginPage = ({
     // Login form layout with conditional rendering for loading state and error messages
     return (
         <>
-            <div
-                id="logo-cont"
-                className="inline-block relative text-[24px] left-1/2 -translate-x-1/2 font-bold italic mx-auto mt-[12px]">
-                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 px-[1px]">
-                    Mentor
-                </span>
-                <span>Ai</span>
-            </div>
+            <Navbar/>
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                 <div className="relative bg-[#1A1A1A] rounded-lg p-8 max-w-md m-4 w-full">
                     <button
