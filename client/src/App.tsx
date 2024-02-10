@@ -31,7 +31,6 @@ function App() {
         const checkAuthStatus = async () => {
           try {
             const response = await axios.get(`${API_URL}/api/auth/status`, {withCredentials: true});
-            console.log(response)
             setIsLoggedIn(response.data.isAuthenticated);
           } catch (error) {
             console.error("Error checking auth status:", error);

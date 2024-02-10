@@ -9,8 +9,6 @@ const auth = express.Router();
 
 
 auth.post('/login-locally', (req, res, next) => { 
-  console.log('Cookies:', req.headers);
-
   if (req.isAuthenticated()) {
     // User is already logged in, so redirect or send a message
     return res.status(400).send({ message: "User already logged in." });
@@ -35,8 +33,6 @@ auth.post('/login-locally', (req, res, next) => {
 });
 
 auth.get('/status', (req, res) => {
-  console.log('Cookies:', req.headers);
-
   if (req.isAuthenticated()) {
     res.json({ isAuthenticated: true });
   } else {

@@ -50,7 +50,6 @@ const LoginPage = ({
             navigate("/problemset");
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
-                console.log(`${error}`)
                 setMessage(error.response.data.message);
             } else {
                 console.error("Login failed:", error);
