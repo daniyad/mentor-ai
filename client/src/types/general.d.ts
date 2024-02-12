@@ -111,17 +111,6 @@ interface NavbarItem {
     options?: any | undefined;
 }
 
-interface MainHeadingData {
-    items?: MainHeadingItems[];
-    username?: string;
-    id?: string;
-    status?: "loggedin" | "not-loggedin" | "none";
-}
-
-interface MainHeadingItems {
-    text: string;
-    link_path: string;
-}
 
 interface ProblemListData {
     main: {

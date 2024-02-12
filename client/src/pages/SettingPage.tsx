@@ -73,12 +73,6 @@ const SettingPage = ({
                 <MainHeading
                     data={{
                         username: username || "",
-                        items: [
-                            {
-                                text: "Problem List",
-                                link_path: "/problemset",
-                            },
-                        ],
                     }}
                 />
             ) : (

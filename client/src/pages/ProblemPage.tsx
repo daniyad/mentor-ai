@@ -200,7 +200,6 @@ const ProblemPage = ({
         <>
             <MainHeading
                 data={{
-                    items: [{ text: "Problem List", link_path: "/problemset" }],
                     username: username,
                 }}
             />

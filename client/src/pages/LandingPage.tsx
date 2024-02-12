@@ -9,12 +9,10 @@ import Loading from "../components/Loading";
 const LandingPage = ({
     isLoggedIn
 }: {
-    token: string | null;
-    id: string | null;
     isLoggedIn: boolean,
 }) => {
     const [username, setUsername] = useState<string>("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -30,6 +28,12 @@ const LandingPage = ({
                 });
         }
     }, [isLoggedIn]); // Dependency on isLoggedIn ensures this runs once based on its value
+
+    if (loading) {
+        return <div className="absolute top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2 z-[120]">
+        <Loading />
+    </div>
+    }
 
     return (
         <div className="text-[14px] overflow-hidden h-screen">
