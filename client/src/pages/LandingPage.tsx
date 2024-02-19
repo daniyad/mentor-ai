@@ -5,12 +5,10 @@ import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
+import { useAuth } from '../AuthContext'; // Adjust the import path as necessary
 
-const LandingPage = ({
-    isLoggedIn
-}: {
-    isLoggedIn: boolean,
-}) => {
+const LandingPage = () => {
+    const { isLoggedIn } = useAuth();
     const [username, setUsername] = useState<string>("");
     const [loading, setLoading] = useState(true);
 
@@ -22,10 +20,13 @@ const LandingPage = ({
                     setUsername(data.name);
                     setLoading(false); // Data fetched, loading complete
                 })
-                .catch((error) => {
+                .catch((error: Error) => {
                     // Handle error, possibly setting loading to false and managing error state
+                    console.error(error)
                     setLoading(false);
                 });
+        } else {
+            setLoading(false);
         }
     }, [isLoggedIn]); // Dependency on isLoggedIn ensures this runs once based on its value
 

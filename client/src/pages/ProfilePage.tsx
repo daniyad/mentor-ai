@@ -1,107 +1,69 @@
 import axios, { AxiosError } from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import MainHeading from "../components/MainHeading";
 import { API_URL } from "../App";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import MainHeading from "../components/MainHeading";
+import { useAuth } from "../AuthContext";
 
-const ProfilePage = ({
-    token,
-    id,
-}: {
-    token: string | null;
-    id: string | null;
-}) => {
-    const [username, setUsername] = useState<string>("");
-    const [verified, setVerified] = useState<boolean>(false);
-    const [user, setUser] = useState<PublicUser>();
-    const [verifiedCertain, setVerifiedCertain] = useState<boolean>(false);
-    const { name } = useParams();
+// Define the type for your solvedCounts state to ensure TypeScript knows the shape of the object.
+type SolvedCounts = {
+    easySolved: number;
+    mediumSolved: number;
+    hardSolved: number;
+    totalSolved: number;
+    easyTotal: number;
+    mediumTotal: number;
+    hardTotal: number;
+    total: number,
+    [key: string]: number; // Add this line
+};
 
-    const [eAll, setEAll] = useState<number>();
-    const [mAll, setMAll] = useState<number>();
-    const [hAll, setHALL] = useState<number>();
+const ProfilePage = () => {
+    const isLoggedIn = useAuth()
+    const [username, setUsername] = useState<string>('ZHOPA');
+    const [solvedCounts, setSolvedCounts] = useState<SolvedCounts>({
+        easySolved: 0,
+        mediumSolved: 0,
+        hardSolved: 0,
+        totalSolved: 0,
+        easyTotal: 0,
+        mediumTotal: 0,
+        hardTotal: 0,
+        total: 0,
+    });
 
-    const [eSolved, setESolved] = useState<number>();
-    const [mSolved, setMSolved] = useState<number>();
-    const [hSolved, setHSolved] = useState<number>();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        axios
-            .get(`${API_URL}/api/accounts/id/${id}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
+        console.log(isLoggedIn)
+        if (!isLoggedIn) {
+            navigate('/'); // Redirect to landing page if not logged in
+            return;
+        }
+
+        // Fetch profile details
+        axios.get(`${API_URL}/api/profile/details`, { withCredentials: true })
             .then(({ data }) => {
-                setUsername(data.username);
-                setVerified(true);
-                setVerifiedCertain(true);
+                console.log(data)
+                setUsername(data.name);
+                setSolvedCounts(data.solvedCounts);
             })
-            .catch((e: AxiosError) => {
-                console.log(e);
-                setVerified(false);
-                setVerifiedCertain(true);
+            .catch((error) => {
+                console.error(error);
             });
-        axios
-            .get<{}, { data: PublicUser }>(`${API_URL}/api/accounts/${name}`)
-            .then(({ data }) => {
-                setUsername(data.username);
-                setUser(data);
-                setEAll(data.easy_problems_count);
-                setMAll(data.medium_problems_count);
-                setHALL(data.hard_problems_count);
-                setESolved(data.problems_solved_easy);
-                setMSolved(data.problems_solved_medium);
-                setHSolved(data.problems_solved_hard);
-            })
-            .catch((e: AxiosError) => {
-                console.log(e);
-            });
-    }, []);
+    }, [isLoggedIn, navigate]);
+
+
     return (
         <div>
-            {verifiedCertain && verified ? (
-                <MainHeading
-                    data={{
-                        username: username,
-                        status: "loggedin",
-                    }}
-                />
-            ) : verifiedCertain === true && verified === false ? (
-                <MainHeading
-                    data={{
-                        status: "not-loggedin",
-                    }}
-                />
-            ) : (
-                <MainHeading
-                    data={{
-                        status: "none",
-                    }}
-                />
-            )}
-            {user != null ? (
-                <>
-                    <div className="w-[calc(100%-72px)] h-[260px] sm:h-[160px] bg-black mx-auto mt-[8px] rounded-lg border border-borders">
-                        <div
-                            id="main"
-                            className="flex flex-col sm:flex-row h-fit"
-                        >
-                            <div id="porfile-pic">
-                                <div className="w-[80px] h-[80px] mt-[40px] border border-borders sm:ml-[50px] mx-auto rounded-lg"></div>
-                            </div>
+            <MainHeading data = {{username: username, status: "loggedin"}}></MainHeading>
+            <div className="profile-stats">
+                {/* Profile, Community Stats and Solved Problems components */}
+                <div className="w-[calc(100%-72px)] h-[260px] sm:h-[160px] bg-black mx-auto mt-[8px] rounded-lg border border-borders">
+                        <div className="flex flex-col sm:flex-row h-fit">
                             <div className="flex flex-col w-[280px] text-center sm:text-left mx-auto sm:ml-0">
-                                <div
-                                    id="username"
-                                    className="text-[28px] font-bold mt-[20px] sm:mt-[40px] text-white sm:ml-[30px] ml-0"
-                                >
-                                    {user.username}
-                                </div>
-                                <div
-                                    id="username"
-                                    className="text-[18px] mt-[6px] text-text_2 sm:ml-[30px] ml-0"
-                                >
-                                    Rank: {user.rank}
+                                <div className="text-[28px] font-bold mt-[20px] sm:mt-[40px] text-white sm:ml-[30px] ml-0">
+                                    {username}
                                 </div>
                             </div>
                             <div className="md:flex hidden flex-row absolute right-[90px]">
@@ -117,38 +79,17 @@ const ProfilePage = ({
                             </div>
                         </div>
                     </div>
-
-                    <div className="flex lg:flex-row sm:flex-col flex-col w-[calc(100%-72px)] mx-auto justify-between">
-                        <div className="lg:w-[calc(40%-4px)] sm:w-full h-[240px] bg-black mt-[8px] rounded-lg border border-borders">
-                            <div className="text-[22px] font-bold mt-[40px] text-white ml-[50px]">
-                                Community Stats
-                            </div>
-                            <div className="mt-[18px] text-[14px] ml-[50px]">
-                                <span className="text-text_2">Views:</span>{" "}
-                                {user.views}
-                            </div>
-                            <div className="mt-[18px] text-[14px] ml-[50px]">
-                                <span className="text-text_2">Solutions:</span>{" "}
-                                {user.solution_count}
-                            </div>
-                            <div className="mt-[18px] text-[14px] ml-[50px] mb-[40px]">
-                                <span className="text-text_2">Reputation:</span>{" "}
-                                {user.reputation_count}
-                            </div>
-                        </div>
-                        <div className="lg:w-[calc(60%-4px)] sm:w-full sm:h-[240px] h-[450px] bg-black mt-[8px] rounded-lg border border-borders relative">
+                    <div className="w-[calc(100%-72px)] min-h-[260px] sm:min-h-[160px] bg-black mx-auto mt-[8px] rounded-lg border border-borders">
                             <div className="flex sm:flex-row flex-col justify-between">
                                 <div>
                                     <div className="text-[22px] font-bold mt-[40px] text-white ml-[50px]">
                                         Solved Problems
                                     </div>
                                     <div className="text-[72px] font-bold mt-[32px] text-white ml-[50px]">
-                                        {user.problems_solved_count}{" "}
+                                        {solvedCounts.totalSolved}{" "}
                                         <span className="text-text_2 text-[14px]">
                                             {"/ "}
-                                            {user.easy_problems_count +
-                                                user.medium_problems_count +
-                                                user.hard_problems_count}
+                                            {solvedCounts.total}
                                         </span>
                                     </div>
                                 </div>
@@ -159,9 +100,9 @@ const ProfilePage = ({
                                                 Easy
                                             </div>
                                             <div className="mb-[8px] text-green-500">
-                                                {eSolved}
+                                                {solvedCounts.easySolved}
                                                 {" / "}
-                                                {eAll}
+                                                {solvedCounts.easyTotal}
                                             </div>
                                         </div>
                                         <div
@@ -174,9 +115,9 @@ const ProfilePage = ({
                                                 Medium
                                             </div>
                                             <div className="mb-[8px] text-orange-500">
-                                                {mSolved}
+                                                {solvedCounts.mediumSolved}
                                                 {" / "}
-                                                {mAll}
+                                                {solvedCounts.mediumTotal}
                                             </div>
                                         </div>
                                         <div
@@ -189,9 +130,9 @@ const ProfilePage = ({
                                                 Hard
                                             </div>
                                             <div className="mb-[8px] text-red-600">
-                                                {hSolved}
+                                                {solvedCounts.hardSolved}
                                                 {" / "}
-                                                {hAll}
+                                                {solvedCounts.hardTotal}
                                             </div>
                                         </div>
                                         <div
@@ -199,15 +140,15 @@ const ProfilePage = ({
                                         ></div>
                                         <style>
                                             {`.easy-line::after { width: ${
-                                                ((eSolved || 0) / (eAll || 1)) *
+                                                ((solvedCounts.easySolved || 0) / (solvedCounts.easyTotal || 1)) *
                                                 100
                                             }%; }`}
                                             {`.medium-line::after { width: ${
-                                                ((mSolved || 0) / (mAll || 1)) *
+                                                ((solvedCounts.mediumSolved || 0) / (solvedCounts.mediumTotal || 1)) *
                                                 100
                                             }%; }`}
                                             {`.hard-line::after { width: ${
-                                                ((hSolved || 0) / (hAll || 1)) *
+                                                ((solvedCounts.hardSolved || 0) / (solvedCounts.hardTotal || 1)) *
                                                 100
                                             }%; }`}
                                         </style>
@@ -216,11 +157,7 @@ const ProfilePage = ({
                             </div>
                         </div>
                     </div>
-                </>
-            ) : (
-                <></>
-            )}
-        </div>
+                </div>
     );
 };
 
