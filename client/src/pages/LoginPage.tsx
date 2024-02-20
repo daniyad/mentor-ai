@@ -1,31 +1,27 @@
 import axios, { AxiosError } from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../AuthContext";
 
-interface LoginProps {
-    userData: {
-        token: string;
-        setTokenFunction: (token: string) => void;
-        id: string;
-        setIdFunction: (id: string) => void;
-        isLoggedIn: boolean,
-        setIsLoggedIn: (isLoggedIn: boolean) => void;
-    };
-}
 
 // LoginPage component handles the user login process
 // It includes form inputs for username/email and password, and a login button
 // On successful login, it sets the user token and id, and navigates to the problem set page
-const LoginPage = ({
-    userData,
-}: LoginProps) => {
+const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const {isLoggedIn, setIsLoggedIn} = useAuth()
+
+    useEffect(() => {
+      if (isLoggedIn) {
+        navigate("/")
+      }  
+    })
 
     const navigate = useNavigate();
     const isFormFilled = email.length > 0 && password.length > 0;
@@ -44,9 +40,7 @@ const LoginPage = ({
                 setIsLoading(false);
                 return;
             }
-            userData.setTokenFunction("rubbish");
-            userData.setIdFunction("rubbish");
-            userData.setIsLoggedIn(true)
+            setIsLoggedIn(true)
             navigate("/");
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
@@ -54,6 +48,7 @@ const LoginPage = ({
             } else {
                 console.error("Login failed:", error);
             }
+            setIsLoggedIn(false)
             setIsLoading(false);
         }
     };

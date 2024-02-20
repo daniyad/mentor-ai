@@ -4,17 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../AuthContext";
 
-const SignupPage = ({
-    Data,
-}: {
-    Data: {
-        token: string;
-        setTokenFunction: (string: string) => void;
-        id: string;
-        setIdFunction: (string: string) => void;
-    };
-}) => {
+const SignupPage = () => {
+    
+    const { setIsLoggedIn } = useAuth();
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -66,39 +60,23 @@ const SignupPage = ({
     };
 
 
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
         setisLoading(true);
         try {
-            if (password !== confirmPassword) {
-                setMessage(
-                    "Password and confirm password do not match. Please make sure you enter the same password in both fields."
-                );
-                return;
-            }
-            axios
-                .post(`${API_URL}/api/accounts/signup`, {
-                    username: username,
-                    email: email,
-                    password: password,
-                })
-                .then(({ data }) => {
-                    Data.setTokenFunction(data.token);
-                    Data.setIdFunction(data.id);
-                    navigate("/problemset");
-                })
-                .catch((e: AxiosError) => {
-                    setisLoading(false);
-                    setMessage(
-                        (
-                            e.response?.data as {
-                                success: boolean;
-                                message: string;
-                            }
-                        ).message
-                    );
-                });
-        } catch (error) {
-            console.error("Sign-up failed:", error);
+            await axios.post(`${API_URL}/api/auth/signup-locally`, {
+                username: username,
+                email: email,
+                password: password,
+            });
+            setIsLoggedIn(true);
+            navigate("/");
+        } catch (e) {
+            // Assuming AxiosError is already imported or defined somewhere in your code
+            // Handle errors that aren't from the server response
+            setMessage("An unexpected error occurred. Please try again.");
+            console.error("Sign-up failed:", e);
+        } finally {
+            setisLoading(false); // Ensure isLoading is set to false when the operation is complete
         }
     };
 
