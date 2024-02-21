@@ -16,7 +16,7 @@ const SettingPage = () => {
 
     const deleteAccountFn = async () => {
         try {
-            const response = await axios.post(`${API_URL}/api/profile/delete`, // Adjusted endpoint assuming no ID needed
+            const response = await axios.post(`${API_URL}/api/auth/delete-account`, // Adjusted endpoint assuming no ID needed
                 {}, // No body data needed for cookie-based session auth
                 { withCredentials: true } // Ensures cookies are sent with the request
             );
@@ -24,6 +24,7 @@ const SettingPage = () => {
                 clearCookies(); // Clear cookies upon account deletion
                 setIsLoggedIn(false)
                 navigate("/");
+                window.location.reload()
             }
         } catch (e) {
             console.log(e);
@@ -31,6 +32,7 @@ const SettingPage = () => {
     };
 
     useEffect(() => {
+        console.log(isLoggedIn)
         if (!isLoggedIn) {
             navigate("/");
             return;
@@ -38,7 +40,7 @@ const SettingPage = () => {
 
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`${API_URL}/api/accounts/user`, // Adjusted endpoint for user data
+                const response = await axios.get(`${API_URL}/api/profile/details`, // Adjusted endpoint for user data
                     { withCredentials: true } // Ensures cookies are sent with the request
                 );
                 setUsername(response.data.username);

@@ -42,7 +42,7 @@ const ProfilePage = () => {
         }
 
         // Fetch profile details
-        axios.get(`${API_URL}/api/profile/details`, { withCredentials: true })
+        axios.get(`${API_URL}/api/profile/achievements`, { withCredentials: true })
             .then(({ data }) => {
                 console.log(data)
                 setUsername(data.name);
