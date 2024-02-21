@@ -72,7 +72,7 @@ auth.post('/signup-locally', async (req, res, next) => {
     // Authenticate the user to start the session
     req.logIn(newUser, (err) => {
       if (err) return next(err);
-      return res.redirect('/');
+      return res.send({ success: true });
     });
 
   } catch (error) {
@@ -99,7 +99,7 @@ const performLogout = (req, res, next) => {
           }
 
           // Optionally, you can pass a callback or a URL to redirect to after logout
-          res.redirect('/login');
+          res.send({ success: true });
       });
   });
 };
@@ -116,6 +116,8 @@ auth.post('/delete-account', ensureAuthenticated, async (req, res, next) => {
 
       // Find and delete the user by email
       const deletedUser = await UsersModel.findOneAndDelete({ email: user.email });
+      console.log(user)
+      console.log(deletedUser)
 
       if (!deletedUser) {
           // If no user was found or deleted, handle accordingly

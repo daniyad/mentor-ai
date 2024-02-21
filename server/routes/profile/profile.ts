@@ -4,8 +4,24 @@ import { SectionModel } from '../../models/problem-model';
 
 const profile = express.Router();
 
-// Profile details route
 profile.get('/details', ensureAuthenticated, async (req, res) => {
+    try {
+        const user = req.user as User;
+
+        // Extract and send the required details along with solved counts
+        const userDetails = {
+            name: user.name,
+            language: user.language,
+            solvedCounts: user.email // Include solved counts in the response
+        };
+
+        res.json(userDetails);
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
+});
+
+profile.get('/achievements', ensureAuthenticated, async (req, res) => {
     try {
         const user = req.user as User;
 
