@@ -8,6 +8,7 @@ import { CourseMeta } from "../components/CourseMeta";
 import Syllabus from "../components/Syllabus";
 import { CourseDescription } from "../components/CourseDescription";
 import MainHeading from "../components/MainHeading";
+import { CircularProgress } from '@chakra-ui/react'
 
 const CoursePage = () => {
     const { isLoggedIn } = useAuth();
@@ -51,7 +52,7 @@ const CoursePage = () => {
     }, [isLoggedIn, navigate]);
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <CircularProgress isIndeterminate color='orange.300' />;
     }
 
     return (
