@@ -5,6 +5,7 @@ interface CodeBody {
         language: string,
         code_template: string
 }
+
 interface DbProblem extends Document {
         id: number,
         name: string;
@@ -30,10 +31,21 @@ const sectionSchema = new mongoose.Schema({
         id: {type: Number, required: true, unique: true},
         title: { type: String, required: true },
         description: { type: String, required: true },
-        problems: [problemSchema]  // Embedding problem documents directly
+        short_description: {type: String, required: true },
+        problems: [problemSchema],
 });
+
+// New course schema
+const courseSchema = new mongoose.Schema({
+        id: { type: Number, required: true, unique: true},
+        title: { type: String, required: true},
+        description: {type: String, required: true},
+        skills: {type: String, required: true},
+        sections: [sectionSchema],
+    })
 
 const ProblemsModel = mongoose.model("Problems_New", problemSchema, "problems_new");
 const SectionModel = mongoose.model("Section", sectionSchema, "sections_new");
+const CourseModel = mongoose.model("Course", courseSchema, "courses_new")
 
-export { SectionModel };
+export { CourseModel };

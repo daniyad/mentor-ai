@@ -1,6 +1,6 @@
 import express from 'express';
 import ensureAuthenticated from '../../middlewares/auth-filter'
-import { SectionModel } from '../../models/problem-model';
+import { CourseModel } from '../../models/problem-model';
 
 const profile = express.Router();
 
@@ -24,7 +24,6 @@ profile.get('/details', ensureAuthenticated, async (req, res) => {
 profile.get('/achievements', ensureAuthenticated, async (req, res) => {
     try {
         const user = req.user as User;
-
         // Initialize solved counts
         let solvedCounts = {
             easySolved: 0,
@@ -36,25 +35,27 @@ profile.get('/achievements', ensureAuthenticated, async (req, res) => {
             hardTotal: 0,
             total: 0,
         };
+        const courses = await CourseModel.find({})
+        courses.map(course => {
+            const sections = course.sections
+            // Get all problems from the database
+            sections.map(section => {
+                section.problems.map(problem => {
+                    // Increment total problems based on difficulty
+                    const difficultyKey = problem.difficulty.toLowerCase() + 'Total'; // e.g., 'easyTotal'
+                    solvedCounts[difficultyKey]++;
+                    solvedCounts.total++;
 
-        // Get all problems from the database
-        const sections = await SectionModel.find(); // Adjust with correct method to get all sections
-        sections.forEach(section => {
-            section.problems.forEach(problem => {
-                // Increment total problems based on difficulty
-                const difficultyKey = problem.difficulty.toLowerCase() + 'Total'; // e.g., 'easyTotal'
-                solvedCounts[difficultyKey]++;
-                solvedCounts.total++;
-
-                // Check if the user has solved this problem
-                if (user.attempts.some(attempt => attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED)) {
-                    const solvedKey = problem.difficulty.toLowerCase() + 'Solved'; // e.g., 'easySolved'
-                    solvedCounts[solvedKey]++;
-                    solvedCounts.totalSolved++;
-                }
+                    // Check if the user has solved this problem
+                    if (user.attempts.some(attempt => attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED)) {
+                        const solvedKey = problem.difficulty.toLowerCase() + 'Solved'; // e.g., 'easySolved'
+                        solvedCounts[solvedKey]++;
+                        solvedCounts.totalSolved++;
+                    }
+                });
             });
-        });
 
+        })
         // Extract and send the required details along with solved counts
         const userDetails = {
             name: user.name,

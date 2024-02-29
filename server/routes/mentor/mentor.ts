@@ -1,6 +1,6 @@
 
 import express from "express";
-import {SectionModel} from "../../models/problem-model";
+import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
 import OpenAI from "openai";
 
@@ -10,16 +10,29 @@ const openai = new OpenAI();
 
 mentor.post("/hint", authFilter, async (req, res) => {
     try {
-        const { sectionId, problemId, code } = req.body;
+        const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
+        const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
+        const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
+        const code = (req.query.code as string)
 
-        const section = await SectionModel.findOne({ id: sectionId });
+        const course = await CourseModel.findOne({id: courseId})
+        if (!course) {
+            res.status(400).send("The requested course doesn't exist")
+        }
+
+        const section = course.sections.find(section => section.id == sectionId)
         if (!section) {
-            res.status(400).send("Requested section does not exist");
+            res.status(400).send("The requested section doesn't exist")
             return;
         }
 
         // Fetch the problem based on problemId within the section
-        const problem = section.problems.find(p => p.id == problemId)
+        const problem = section.problems.find(p => p.id == problemId);
+
+        if (!problem) {
+            res.status(400).send("Requested problem does not exist");
+            return;
+        }
 
         const systemMessage = `
         You are a helpful assistant. Your job is to help users learn how to program. The
