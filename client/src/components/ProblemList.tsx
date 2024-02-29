@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { kebabToSpacedPascal } from "../ts/utils/string";
 import Loading from "./Loading";
 import SortIcon from "./SortIcon";
-import StarIcon from "./StarIcon";
 import Tooltip from "./Tooltip";
 
 const ProblemList = ({
@@ -18,10 +17,7 @@ const ProblemList = ({
     const [refReset, setRefReset] = useState<number>(0);
     const statusRef = useRef<HTMLDivElement>(null);
     const titleRef = useRef<HTMLDivElement>(null);
-    const acceptanceRef = useRef<HTMLDivElement>(null);
     const difficultyRef = useRef<HTMLDivElement>(null);
-    const likesRef = useRef<HTMLDivElement>(null);
-    const dislikesRef = useRef<HTMLDivElement>(null);
     const starRef = useRef<HTMLDivElement>(null);
 
     const [SortOptions, setSortOptions] = useState<SortOptions>({
@@ -33,11 +29,7 @@ const ProblemList = ({
     const [isSortLoading, setIsSortLoading] = useState<boolean>(false);
 
     const statusWidth = starRef.current?.clientWidth;
-    const acceptanceWidth = acceptanceRef.current?.clientWidth;
     const difficultyWidth = difficultyRef.current?.clientWidth;
-    const likesWidth = likesRef.current?.clientWidth;
-    const dislikesWidth = dislikesRef.current?.clientWidth;
-    const starWidth = starRef.current?.clientWidth;
 
     const difficultyOnClick = async () => {
         setIsSortLoading(true);
@@ -47,24 +39,6 @@ const ProblemList = ({
                 difficulty === "" ? "asc" : difficulty === "asc" ? "des" : "",
             title: SortOptions.title,
             acceptance_rate_count: SortOptions.acceptance_rate_count,
-        };
-        setSortOptions(newOptions);
-        await searchFn(searchQuery, newOptions);
-        setIsSortLoading(false);
-    };
-
-    const acceptanceOnClick = async () => {
-        setIsSortLoading(true);
-        const { acceptance_rate_count } = SortOptions;
-        const newOptions: SortOptions = {
-            acceptance_rate_count:
-                acceptance_rate_count === ""
-                    ? "asc"
-                    : acceptance_rate_count === "asc"
-                    ? "des"
-                    : "",
-            title: SortOptions.title,
-            difficulty: SortOptions.difficulty,
         };
         setSortOptions(newOptions);
         await searchFn(searchQuery, newOptions);
@@ -117,24 +91,6 @@ const ProblemList = ({
                         <SortIcon order={SortOptions.title} />
                     </div>
                     <div
-                        id="accaptance-label"
-                        className="h-fit w-fit px-[20px] hover:text-white hover:cursor-pointer transition"
-                        ref={acceptanceRef}
-                        style={{
-                            color:
-                                SortOptions.acceptance_rate_count === "asc"
-                                    ? "rgb(34, 197, 94)"
-                                    : SortOptions.acceptance_rate_count ===
-                                      "des"
-                                    ? "rgb(220, 38, 38)"
-                                    : "",
-                        }}
-                        onClick={() => acceptanceOnClick()}
-                    >
-                        Acceptance
-                        <SortIcon order={SortOptions.acceptance_rate_count} />
-                    </div>
-                    <div
                         id="difficulty-label"
                         className="h-fit w-fit px-[20px] hover:cursor-pointer hover:text-white transition"
                         ref={difficultyRef}
@@ -150,27 +106,6 @@ const ProblemList = ({
                     >
                         Difficulty
                         <SortIcon order={SortOptions.difficulty} />
-                    </div>
-                    <div
-                        id="likes-label"
-                        className="h-fit w-fit px-[20px]"
-                        ref={likesRef}
-                    >
-                        Likes
-                    </div>
-                    <div
-                        id="dislikes-label"
-                        className="h-fit w-fit px-[20px]"
-                        ref={dislikesRef}
-                    >
-                        Dislikes
-                    </div>
-                    <div
-                        id="star-label"
-                        className="h-fit w-fit px-[20px]"
-                        ref={starRef}
-                    >
-                        Star
                     </div>
                 </div>
                 {data != undefined &&
@@ -269,18 +204,6 @@ const ProblemList = ({
                                     </div>
                                     <div
                                         style={{
-                                            width: acceptanceWidth,
-                                            height: "40px",
-                                            lineHeight: "40px",
-                                        }}
-                                    >
-                                        <div className="ml-[20px]">
-                                            {main.acceptance_rate_count}
-                                            {"%"}
-                                        </div>
-                                    </div>
-                                    <div
-                                        style={{
                                             width: difficultyWidth,
                                             height: "40px",
                                             lineHeight: "40px",
@@ -298,59 +221,6 @@ const ProblemList = ({
                                         >
                                             {kebabToSpacedPascal(
                                                 main.difficulty
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div
-                                        style={{
-                                            width: likesWidth,
-                                            height: "40px",
-                                            lineHeight: "40px",
-                                        }}
-                                    >
-                                        <div className="ml-[20px]">
-                                            {main.like_count}
-                                        </div>
-                                    </div>
-                                    <div
-                                        style={{
-                                            width: dislikesWidth,
-                                            height: "40px",
-                                            lineHeight: "40px",
-                                        }}
-                                    >
-                                        <div className="ml-[20px]">
-                                            {main.dislike_count}
-                                        </div>
-                                    </div>
-                                    <div
-                                        style={{
-                                            width: starWidth,
-                                            height: "40px",
-                                            lineHeight: "40px",
-                                        }}
-                                    >
-                                        <div className="ml-[20px] relative h-full">
-                                            {main.is_starred ? (
-                                                <div className="absolute top-1/2 -translate-y-1/2 left-0">
-                                                    <StarIcon
-                                                        data={{
-                                                            is_filled: true,
-                                                            width: "14px",
-                                                            height: "14px",
-                                                        }}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="absolute top-1/2 -translate-y-1/2 left-0">
-                                                    <StarIcon
-                                                        data={{
-                                                            is_filled: false,
-                                                            width: "14px",
-                                                            height: "14px",
-                                                        }}
-                                                    />
-                                                </div>
                                             )}
                                         </div>
                                     </div>

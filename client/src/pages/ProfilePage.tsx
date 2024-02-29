@@ -19,8 +19,8 @@ type SolvedCounts = {
 };
 
 const ProfilePage = () => {
-    const isLoggedIn = useAuth()
-    const [username, setUsername] = useState<string>('ZHOPA');
+    const {isLoggedIn, setIsLoggedIn} = useAuth(); // Fetches isLoggedIn status
+    const [username, setUsername] = useState<string>('');
     const [solvedCounts, setSolvedCounts] = useState<SolvedCounts>({
         easySolved: 0,
         mediumSolved: 0,
@@ -35,12 +35,10 @@ const ProfilePage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log(isLoggedIn)
         if (!isLoggedIn) {
             navigate('/'); // Redirect to landing page if not logged in
             return;
         }
-
         // Fetch profile details
         axios.get(`${API_URL}/api/profile/achievements`, { withCredentials: true })
             .then(({ data }) => {

@@ -38,13 +38,12 @@ const SidePanel = ({
     data: { username?: string };
 }) => {
     const [logoutState, setLogoutState] = useState<boolean>(false);
-    const {setIsLoggedIn} = useAuth()
+    const { setIsLoggedIn } = useAuth()
     const navigate = useNavigate();
 
     const onLogout = async () => {
         try {
             // Make an asynchronous request to the logout endpoint
-            console.log(`${API_URL}/api/auth/logout`);
             await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
             clearCookies(); // Clear cookies upon account deletion
             setIsLoggedIn(false);
@@ -64,8 +63,7 @@ const SidePanel = ({
         <>
             <div
                 onClick={() => displayFn(false)}
-                className={`w-screen h-screen ${display ? "fixed" : "hidden"
-                    } top-0 left-0 z-[80] backdrop-blur-sm `}
+                className={`w-screen h-screen ${display ? "fixed" : "hidden"} top-0 left-0 z-[80] backdrop-blur-sm `}
             ></div>
             <div
                 className={` fixed z-[90] ${display ? "translate-x-[-100%]" : " translate-x-[0]"
@@ -89,7 +87,7 @@ const SidePanel = ({
                     to={`/profile`}
                     Icon={MdPerson}
                 />
-                <SidePanelItem text="Problem List" to="/problemset" Icon={MdList} />
+                <SidePanelItem text="Problem List" to="/course" Icon={MdList} />
                 <SidePanelItem text="Settings" to="/settings" Icon={MdSettings} />
                 {/* Logout button */}
                 <div

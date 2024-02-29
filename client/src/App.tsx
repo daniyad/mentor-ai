@@ -9,7 +9,8 @@ import ErrorPage from "./pages/ErrorPage";
 import ProfilePage from "./pages/ProfilePage";
 import SettingPage from "./pages/SettingPage";
 import axios from "axios";
-import { AuthProvider } from './AuthContext'; // Adjust the import path as necessary
+import { AuthProvider, useAuth } from './AuthContext'; // Adjust the import path as necessary
+import CoursePage from "./pages/CoursePage";
 
 export const TOKEN_STORAGE_KEY = "authToken";
 export const ID_STORAGE_KEY = "id";
@@ -131,7 +132,10 @@ function App() {
                             path="/profile"
                             element={<ProfilePage />}
                         />
-
+                        <Route
+                            path="/course"
+                            element={<CoursePage />}
+                        />
                         <Route
                             path="*"
                             element={
