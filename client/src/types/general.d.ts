@@ -134,7 +134,14 @@ interface SectionData {
     id: number,
     title: string,
     short_description: string,
-    problems: []
+    problems: Problem[],
+}
+
+interface Problem {
+    id: number,
+    name: string,
+    difficulty: string,
+    isSolved: boolean
 }
 
 interface ProblemListData {
