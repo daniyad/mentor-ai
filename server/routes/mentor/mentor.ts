@@ -3,6 +3,8 @@ import express from "express";
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
 import OpenAI from "openai";
+import { Conversation } from "../../types/conversation";
+import { ClaudeClient } from "../../utils/claude_client";
 
 
 const mentor = express.Router();
@@ -67,6 +69,27 @@ mentor.post("/hint", authFilter, async (req, res) => {
 
     } catch (error) {
         res.status(500).send("Internal server error");
+    }
+});
+
+mentor.post("/conversation/next", async (req, res) => {
+    // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
+    let { conversationFromReq } = req.body;
+    const conversation = conversationFromReq as Conversation;
+    const claudeClient = new ClaudeClient();
+
+    try {
+        // Retrieve the ongoing conversation from the database or cache
+        let aiResponse = await claudeClient.createChatCompletion(conversation);
+
+        // Send the AI's response back to the FE
+        res.json({
+            message: aiResponse.message,
+            code_body: aiResponse.code_body
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "An error occurred while fetching the next message" });
     }
 });
 

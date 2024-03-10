@@ -193,6 +193,23 @@ interface Submission {
     user_output?: string;
 }
 
+export interface Message {
+    role:
+        | "assistant"
+        | "user";
+    text: string
+}
+
+export interface Conversation {
+    messages: Message[];
+    code_body: string;
+}
+
+export interface AiResponse {
+    message: string;
+    code_body: string;
+}
+
 interface HintResponse {
     problem_name: string;
     status: string;
