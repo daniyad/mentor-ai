@@ -38,7 +38,6 @@ const CoursePage = () => {
                 const courseData = await axios.get(`${API_URL}/api/problem_new/course/?courseId=1`,
                     { withCredentials: true }
                 );
-                console.log(courseData);
                 setCourseData(courseData.data);
                 setIsLoading(false);
             } catch (e) {
@@ -64,12 +63,12 @@ const CoursePage = () => {
                 }}/>
             <CourseHeader
                 title={courseData?.title!!}
-                course_description={"Learn the basics of Python 3, of the most powerful, versatile programming languages today."}
+                course_description={courseData?.short_description!!}
             />
             <CourseMeta
-                level="Beginner"
-                timeToComplete="25 hours"
-                prerequisites="None"
+                level={courseData?.metadata?.level!!}
+                timeToComplete={courseData?.metadata?.timeToComplete!!}
+                prerequisites={courseData?.metadata?.prerequisites!!}
             />
             <CourseDescription
                 description={courseData?.description!!}

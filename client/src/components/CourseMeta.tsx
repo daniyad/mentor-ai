@@ -4,7 +4,7 @@ import { PiCertificate, PiListMagnifyingGlassThin } from 'react-icons/pi';
 
 import { Box, Text, HStack, VStack } from '@chakra-ui/react'
 
-export const CourseMeta = ({ level, timeToComplete, prerequisites }: { level: string, timeToComplete: string, prerequisites: string }) => {
+export const CourseMeta = ({ level, timeToComplete, prerequisites }: { level: string, timeToComplete: number, prerequisites: string[] }) => {
   return (
     <Box p={5} mx={5} border="1px solid" borderColor="gray.700" borderRadius="lg" >
       <HStack w="full" justify="center" spacing={10}>
@@ -23,7 +23,7 @@ export const CourseMeta = ({ level, timeToComplete, prerequisites }: { level: st
             <Text fontSize="x-small" color="gray">
               Time to complete
             </Text>
-            <Text color="white" fontWeight="bold">{timeToComplete}</Text>
+            <Text color="white" fontWeight="bold">{`${timeToComplete} hours`}</Text>
           </VStack>
         </HStack>
         <HStack spacing={3}>
@@ -41,7 +41,9 @@ export const CourseMeta = ({ level, timeToComplete, prerequisites }: { level: st
             <Text fontSize="x-small" color="gray">
               Prerequisites
             </Text>
-            <Text color="white" fontWeight="bold">{prerequisites}</Text>
+            <Text color="white" fontWeight="bold">
+              {prerequisites.length === 0 ? "None" : prerequisites.join(', ')}
+            </Text>
           </VStack>
         </HStack>
       </HStack>

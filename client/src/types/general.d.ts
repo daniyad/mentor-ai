@@ -122,12 +122,20 @@ interface ProblemsData {
     isSolved: boolean,
 }
 
+interface CourseMetadata {
+    level: string,
+    timeToComplete: number,
+    prerequisites: string[],
+}
+
 interface CourseData {
     id: number,
     title: string,
+    short_description: string,
     description: string,
     skills: string,
     sections: SectionData[],
+    metadata: CourseMetadata,
 }
 
 interface SectionData {
