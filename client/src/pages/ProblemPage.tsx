@@ -12,6 +12,7 @@ import MainHeading from "../components/MainHeading";
 import Submissions from "../components/Submissions";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
+import { HStack, VStack } from "@chakra-ui/react";
 
 const ProblemPage = ({
     data,
@@ -135,6 +136,24 @@ const ProblemPage = ({
                 setSubmissionData(data);
             })
             .catch((e) => console.log(e));
+        
+        const messages = [
+            {
+                role: "user",
+                text: "Hello!"
+            }
+        ]
+        const conversation = {
+            messages: messages, 
+            code_body: code,
+        }
+        axios
+            .post<{}, { data: AiResponse }, { conversation: Conversation }>(`${API_URL}/api/problem/conversation/next`, {
+                conversation,
+            }).then(({ data }) => {
+                console.log(data.message);
+                console.log(data.code_body);
+            })
     }, []);
 
     useEffect(() => {
@@ -152,11 +171,39 @@ const ProblemPage = ({
             .catch((e) => console.error(e));
     }, [activeNavOption]);
 
+    
+
     return (
         <>
             <MainHeading
                 data={{
                     items: [{ text: "Problem List", link_path: "/problemset" }],
+                    username: username,
+                }}
+            />
+            <HStack>
+                <VStack>
+
+                </VStack>
+                <ReactCodeMirror
+                    value={
+                        code === "" || code == null
+                        ? initCode || ""
+                        : code || ""
+                        }
+                    extensions={[loadLanguage("javascript")!]}
+                    theme={tokyoNight}
+                    onChange={(value) => {
+                        setCode(value);
+                    }}
+                    width="100%"
+                    height="100%"
+                />
+            </HStack>
+        </>
+        /**<>
+            <MainHeading
+                data={{
                     username: username,
                 }}
             />
@@ -263,7 +310,7 @@ const ProblemPage = ({
                     </div>
                 </div>
             </div>
-        </>
+        </>**/
     );
 };
 
