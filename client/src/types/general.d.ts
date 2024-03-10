@@ -6,6 +6,8 @@ interface CodeData {
     testcases?: TestCase[];
 }
 
+interface Messages
+
 interface DescriptionData {
     id: number;
     name: string;

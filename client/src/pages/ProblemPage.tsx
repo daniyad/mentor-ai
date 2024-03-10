@@ -13,6 +13,7 @@ import Submissions from "../components/Submissions";
 import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
+import { HStack, VStack } from "@chakra-ui/react";
 
 const ProblemPage = ({
     data,
@@ -196,8 +197,36 @@ const ProblemPage = ({
             .catch((e) => console.error(e));
     }, [activeNavOption]);
 
+    
+
     return (
         <>
+            <MainHeading
+                data={{
+                    username: username,
+                }}
+            />
+            <HStack>
+                <VStack>
+
+                </VStack>
+                <ReactCodeMirror
+                    value={
+                        code === "" || code == null
+                        ? initCode || ""
+                        : code || ""
+                        }
+                    extensions={[loadLanguage("javascript")!]}
+                    theme={tokyoNight}
+                    onChange={(value) => {
+                        setCode(value);
+                    }}
+                    width="100%"
+                    height="100%"
+                />
+            </HStack>
+        </>
+        /**<>
             <MainHeading
                 data={{
                     username: username,
@@ -326,7 +355,7 @@ const ProblemPage = ({
                     </div>
                 </div>
             </div>
-        </>
+        </>**/
     );
 };
 
