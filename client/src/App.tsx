@@ -18,7 +18,6 @@ export const API_URL = "http://localhost:80";
 function App() {
     const [token, setToken] = useState(localStorage.getItem(TOKEN_STORAGE_KEY));
     const [id, setId] = useState(localStorage.getItem(ID_STORAGE_KEY));
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     const changeToken = (string: string) => {
         setToken(string);
@@ -93,29 +92,13 @@ function App() {
                         <Route
                             path="/signup"
                             element={
-                                <SignupPage
-                                    Data={{
-                                        token: token || "",
-                                        setTokenFunction: changeToken,
-                                        id: id || "",
-                                        setIdFunction: changeId,
-                                    }}
-                                />
+                                <SignupPage/>
                             }
                         />
                         <Route
                             path="/login"
                             element={
-                                <LoginPage
-                                    userData={{
-                                        token: token || "",
-                                        setTokenFunction: changeToken,
-                                        id: id || "",
-                                        setIdFunction: changeId,
-                                        setIsLoggedIn: setIsLoggedIn,
-                                        isLoggedIn: isLoggedIn,
-                                    }}
-                                />
+                                <LoginPage/>
                             }
                         />
                         <Route
@@ -142,7 +125,7 @@ function App() {
                         />
                         <Route
                             path="/settings"
-                            element={<SettingPage token={token} id={id} />}
+                            element={<SettingPage/>}
                         />
                         <Route
                             path="/profile"

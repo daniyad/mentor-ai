@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmModal from "./ConfirmModal";
 import { MdPerson, MdList, MdSettings, MdExitToApp } from 'react-icons/md';
+import axios from "axios";
+import { API_URL } from "../App";
+import { clearCookies } from "../ts/utils/utils";
+import { useAuth } from "../AuthContext";
 
 const SidePanelItem = ({
     text,
@@ -34,13 +38,26 @@ const SidePanel = ({
     data: { username?: string };
 }) => {
     const [logoutState, setLogoutState] = useState<boolean>(false);
+    const {setIsLoggedIn} = useAuth()
     const navigate = useNavigate();
 
-    const onLogout = () => {
-        // Assume deleteTokenAndId is a function that removes auth tokens
-        // deleteTokenAndId(); // Implement this function as needed
-        navigate("/");
-        window.location.reload();
+    const onLogout = async () => {
+        try {
+            // Make an asynchronous request to the logout endpoint
+            console.log(`${API_URL}/api/auth/logout`);
+            await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
+            clearCookies(); // Clear cookies upon account deletion
+            setIsLoggedIn(false);
+            // Navigate to the home page after successful logout
+            navigate("/");
+            window.location.reload();
+        } catch (error) {
+            console.error("Logout failed:", error);
+            navigate("/");
+            window.location.reload();
+            // Handle any errors that occur during logout
+            // You might want to show an error message to the user or handle specific cases differently
+        }
     };
 
     return (
