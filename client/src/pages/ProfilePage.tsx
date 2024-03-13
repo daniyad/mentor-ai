@@ -65,9 +65,6 @@ const ProfilePage = ({
                     data={{
                         username: username,
                         status: "loggedin",
-                        items: [
-                            { text: "Problem List", link_path: "/problemset" },
-                        ],
                     }}
                 />
             ) : verifiedCertain === true && verified === false ? (

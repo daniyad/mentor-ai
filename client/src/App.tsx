@@ -47,7 +47,7 @@ function App() {
                 <Routes>
                     <Route
                         path="/"
-                        element={<LandingPage token={token} id={id} isLoggedIn={isLoggedIn}/>}
+                        element={<LandingPage isLoggedIn={isLoggedIn}/>}
                     />
                     <Route
                         path="/problemset"

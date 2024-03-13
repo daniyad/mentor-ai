@@ -16,7 +16,7 @@ const Notification = ({
                 } top-0 left-0 z-[90]`}
             ></div>
             <div
-                className="group w-[32px] h-[32px] border border-borders rounded-[99px] relative hover:bg-[#222] cursor-pointer"
+                className="group w-[35px] h-[35px] relative hover:bg-[#222] cursor-pointer"
                 onClick={() => displayFn(!display)}
             >
                 <svg
