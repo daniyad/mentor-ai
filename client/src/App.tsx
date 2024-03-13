@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import ErrorPage from "./pages/ErrorPage";
 import ProfilePage from "./pages/ProfilePage";
 import SettingPage from "./pages/SettingPage";
+import axios from "axios";
 
 export const TOKEN_STORAGE_KEY = "authToken";
 export const ID_STORAGE_KEY = "id";
@@ -16,6 +17,7 @@ export const API_URL = "http://localhost:80";
 function App() {
     const [token, setToken] = useState(localStorage.getItem(TOKEN_STORAGE_KEY));
     const [id, setId] = useState(localStorage.getItem(ID_STORAGE_KEY));
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     const changeToken = (string: string) => {
         setToken(string);
@@ -24,18 +26,20 @@ function App() {
         setId(string);
     };
 
+    // checking whether the user is authorized or not
     useEffect(() => {
-        if (token) {
-            localStorage.setItem(TOKEN_STORAGE_KEY, token);
-        } else {
-            localStorage.removeItem(TOKEN_STORAGE_KEY);
-        }
-        if (id) {
-            localStorage.setItem(ID_STORAGE_KEY, id);
-        } else {
-            localStorage.removeItem(ID_STORAGE_KEY);
-        }
-    }, [token, id]);
+        const checkAuthStatus = async () => {
+          try {
+            const response = await axios.get(`${API_URL}/api/auth/status`, {withCredentials: true});
+            setIsLoggedIn(response.data.isAuthenticated);
+          } catch (error) {
+            console.error("Error checking auth status:", error);
+            setIsLoggedIn(false);
+          }
+        };
+      
+        checkAuthStatus();
+      }, []);
 
     return (
         <div className="App">
@@ -43,7 +47,7 @@ function App() {
                 <Routes>
                     <Route
                         path="/"
-                        element={<LandingPage token={token} id={id} />}
+                        element={<LandingPage token={token} id={id} isLoggedIn={isLoggedIn}/>}
                     />
                     <Route
                         path="/problemset"
@@ -121,6 +125,8 @@ function App() {
                                     setTokenFunction: changeToken,
                                     id: id || "",
                                     setIdFunction: changeId,
+                                    setIsLoggedIn: setIsLoggedIn,
+                                    isLoggedIn: isLoggedIn,
                                 }}
                             />
                         }

@@ -9,26 +9,25 @@ import Loading from "../components/Loading";
 const LandingPage = ({
     token,
     id,
+    isLoggedIn
 }: {
     token: string | null;
     id: string | null;
+    isLoggedIn: boolean,
 }) => {
     const [username, setUsername] = useState<string>("");
     const [verified, setVerified] = useState<boolean>(false);
     const [verifiedCertain, setVerifiedCertain] = useState<boolean>(false);
     useEffect(() => {
-        if (!id) {
+        if (!isLoggedIn) {
             setVerified(false);
             setVerifiedCertain(true);
+            return;
         }
         axios
-            .get(`${API_URL}/api/accounts/id/${id}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
+            .get(`${API_URL}/api/profile/details`, {withCredentials: true})
             .then(({ data }) => {
-                setUsername(data.username);
+                setUsername(data.name);
                 setVerified(true);
                 setVerifiedCertain(true);
             })
