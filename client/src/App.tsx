@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import ProblemPage from "./pages/ProblemPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import ProblemSet from "./pages/ProblemSet";
 import LandingPage from "./pages/LandingPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
@@ -50,11 +49,7 @@ function App() {
                             element={<LandingPage/>}
                         />
                         <Route
-                            path="/problemset"
-                            element={<ProblemSet token={token} id={id} />}
-                        />
-                        <Route
-                            path="/problem/:name/editorial"
+                            path="/problems/:id/editorial"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "editorial" }}
@@ -64,7 +59,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name/solutions"
+                            path="/problems/:id/solutions"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "solutions" }}
@@ -74,7 +69,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name/submissions"
+                            path="/problems/:id/submissions"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "submissions" }}
@@ -84,7 +79,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name/hint"
+                            path="/problems/:id/hint"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "hint" }}
@@ -94,7 +89,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name"
+                            path="/problems/:id"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "description" }}
