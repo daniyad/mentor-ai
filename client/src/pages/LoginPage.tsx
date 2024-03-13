@@ -47,7 +47,7 @@ const LoginPage = ({
             userData.setTokenFunction("rubbish");
             userData.setIdFunction("rubbish");
             userData.setIsLoggedIn(true)
-            navigate("/problemset");
+            navigate("/");
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
                 setMessage(error.response.data.message);

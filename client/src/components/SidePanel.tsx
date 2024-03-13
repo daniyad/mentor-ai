@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmModal from "./ConfirmModal";
 import { MdPerson, MdList, MdSettings, MdExitToApp } from 'react-icons/md';
@@ -69,7 +69,7 @@ const SidePanel = ({
                 {/* Use the SidePanelItem for each link */}
                 <SidePanelItem
                     text="Your Profile"
-                    to={`/accounts/${data.username}`}
+                    to={`/profile`}
                     Icon={MdPerson}
                 />
                 <SidePanelItem text="Problem List" to="/problemset" Icon={MdList} />
