@@ -21,6 +21,7 @@
         "@types/passport-local": "^1.0.38"
     },
     "dependencies": {
+        "@sendgrid/mail": "^8.1.1",
         "@types/mongoose": "^5.11.97",
         "acorn": "^8.10.0",
         "axios": "^1.6.5",
