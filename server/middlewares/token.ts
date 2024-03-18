@@ -1,15 +1,16 @@
-import { NextFunction } from "express";
-import express from "express";
-import jwt from "jsonwebtoken";
-require("dotenv");
+import { NextFunction, Request, Response } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
-interface UserRequest extends express.Request {
-    user?: string;
+interface UserRequest extends Request {
+    user?: string | JwtPayload;
 }
 
 export function authenticateToken(
     req: UserRequest,
     res: express.Response,
+    res: Response,
     next: NextFunction
 ) {
     const authHeader = req.headers["authorization"];
@@ -21,13 +22,13 @@ export function authenticateToken(
             .json({ success: false, message: "Token not provided" });
     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, decoded) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, user) => {
         if (err) {
             return res
                 .status(403)
                 .json({ success: false, message: "Invalid token" });
         }
-        req.user = decoded?.toString();
+        req.user = user;
         next();
     });
 }
