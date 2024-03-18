@@ -89,6 +89,10 @@ type TitleSort = { title: Sort };
 type DifficultySort = { difficulty: Sort };
 type SortOptions = DifficultySort & TitleSort & AccaptanceSort;
 
+type SectionNameSort = { title: Sort }
+type ProblemNameSort = { name: Sort }
+type ProblemSortOptions = DifficultySort & SectionNameSort & ProblemNameSort;
+
 interface Navbar {
     items: NavbarItem[];
     default_active_item?: string | "none" | undefined;
@@ -111,16 +115,26 @@ interface NavbarItem {
     options?: any | undefined;
 }
 
-interface MainHeadingData {
-    items?: MainHeadingItems[];
-    username?: string;
-    id?: string;
-    status?: "loggedin" | "not-loggedin" | "none";
+interface ProblemsData {
+    id: number,
+    name: string,
+    difficulty: string,
+    isSolved: boolean,
 }
 
-interface MainHeadingItems {
-    text: string;
-    link_path: string;
+interface CourseData {
+    id: number,
+    title: string,
+    description: string,
+    skills: string,
+    sections: SectionData[],
+}
+
+interface SectionData {
+    id: number,
+    title: string,
+    short_description: string,
+    problems: []
 }
 
 interface ProblemListData {

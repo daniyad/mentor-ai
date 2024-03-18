@@ -3,95 +3,65 @@ import MainHeading from "../components/MainHeading";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import ConfirmModal from "../components/ConfirmModal";
-import { deleteTokenAndId } from "../ts/utils/utils";
-import { TOKEN_STORAGE_KEY, ID_STORAGE_KEY, API_URL } from "../App";
+import { API_URL } from "../App";
+import { useAuth } from "../AuthContext";
+import { clearCookies } from "../ts/utils/utils";
 
-const SettingPage = ({
-    token,
-    id,
-}: {
-    token: string | null;
-    id: string | null;
-}) => {
+
+const SettingPage = () => {
     const [username, setUsername] = useState<string>("");
-    const [verified, setVerified] = useState<boolean>(false);
+    const [deleteAccountConfirm, setDeleteAccountConfirm] = useState<boolean>(false);
     const navigate = useNavigate();
+    const {isLoggedIn, setIsLoggedIn} = useAuth(); // Fetches isLoggedIn status
 
-    const [deleteAccountConfirm, setDeleteAccountConfirm] =
-        useState<boolean>(false);
-
-    const deleteAccountFn = () => {
-        console.log("account deleted");
-        axios
-            .post(
-                `${API_URL}/api/accounts/delete/${id}`,
-                {},
-                {
-                    headers: {
-                        Authorization: token,
-                    },
-                }
-            )
-            .then(({ data }) => {
-                if (data.success) {
-                    deleteTokenAndId(TOKEN_STORAGE_KEY, ID_STORAGE_KEY);
-                    navigate("/");
-                    window.location.reload();
-                } else {
-                }
-            })
-            .catch((e) => {
-                console.log(e);
-            });
+    const deleteAccountFn = async () => {
+        try {
+            const response = await axios.post(`${API_URL}/api/auth/delete-account`, // Adjusted endpoint assuming no ID needed
+                {}, // No body data needed for cookie-based session auth
+                { withCredentials: true } // Ensures cookies are sent with the request
+            );
+            if (response.data.success) {
+                clearCookies(); // Clear cookies upon account deletion
+                setIsLoggedIn(false)
+                navigate("/");
+                window.location.reload()
+            }
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     useEffect(() => {
-        axios
-            .get(`${API_URL}/api/accounts/id/${id}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
-            .then(({ data }) => {
-                setUsername(data.username);
-                setVerified(true);
-            })
-            .catch((e: AxiosError) => {
+        console.log(isLoggedIn)
+        if (!isLoggedIn) {
+            navigate("/");
+            return;
+        }
+
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/api/profile/details`, // Adjusted endpoint for user data
+                    { withCredentials: true } // Ensures cookies are sent with the request
+                );
+                setUsername(response.data.username);
+                // Removed the cookie clearing after fetching user data
+            } catch (e) {
                 console.log(e);
-                if (
-                    (e.response?.data as { success: boolean; message: string })
-                        .success === false
-                ) {
-                    navigate("/sorry");
-                    setVerified(false);
-                }
-            });
-    }, []);
+                navigate("/");
+            }
+        };
+
+        fetchUserData();
+    }, [isLoggedIn]); // Depend on isLoggedIn to react to auth state changes
+
     return (
         <>
-            {verified ? (
-                <MainHeading
-                    data={{
-                        username: username || "",
-                        items: [
-                            {
-                                text: "Problem List",
-                                link_path: "/problemset",
-                            },
-                        ],
-                    }}
-                />
-            ) : (
-                <MainHeading data={{ status: "none" }} />
-            )}
+            <MainHeading data={{ username: username || "User" }} />
             <div className="px-[8px]">
                 <div className="bg-black border border-borders rounded-lg mx-auto justify-center mt-[8px] max-w-[1000px] h-fit px-6 py-2">
-                    <h1 className="setting-title text-red-600">
-                        Delete Account
-                    </h1>
+                    <h1 className="setting-title text-red-600">Delete Account</h1>
                     <p className="setting-p">
-                        This will delete your account permenantly. All data will
-                        be lost. There is no going back.
+                        This will delete your account permanently. All data will be lost. There is no going back.
                     </p>
                     <button
                         className="setting-button-red"
@@ -104,7 +74,7 @@ const SettingPage = ({
                         displayFn={setDeleteAccountConfirm}
                         onOkFn={deleteAccountFn}
                         title="Delete Account"
-                        message={`Are you sure you want to delete account ${username}?`}
+                        message={`Are you sure you want to delete your account?`}
                     />
                     <hr className="setting-hr" />
                 </div>
@@ -112,5 +82,4 @@ const SettingPage = ({
         </>
     );
 };
-
 export default SettingPage;

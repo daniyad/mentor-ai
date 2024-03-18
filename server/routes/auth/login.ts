@@ -72,7 +72,7 @@ auth.post('/signup-locally', async (req, res, next) => {
     // Authenticate the user to start the session
     req.logIn(newUser, (err) => {
       if (err) return next(err);
-      return res.redirect('/problems-new/problems');
+      return res.send({ success: true });
     });
 
   } catch (error) {
@@ -82,23 +82,54 @@ auth.post('/signup-locally', async (req, res, next) => {
 
 // Logout route
 auth.post('/logout', ensureAuthenticated, (req, res, next) => {
-  req.logout((err) => {
-    if (err) {
-      // Handle the error case
-      return next(err);
-    }
-    // Explicitly destroy the session
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Error destroying session:', err);
-        return next(err); // Handle errors in session destruction
-      }
-
-      // Redirect or send a response after successful logout
-      res.redirect('/login');
-    });
-  });
+  performLogout(req, res, next);
 });
 
+const performLogout = (req, res, next) => {
+  req.logout((err) => {
+      if (err) {
+          // Handle the error case
+          return next(err);
+      }
+      // Explicitly destroy the session
+      req.session.destroy((err) => {
+          if (err) {
+              console.error('Error destroying session:', err);
+              return next(err); // Handle errors in session destruction
+          }
+
+          // Optionally, you can pass a callback or a URL to redirect to after logout
+          res.send({ success: true });
+      });
+  });
+};
+
+auth.post('/delete-account', ensureAuthenticated, async (req, res, next) => {
+  // Assuming the User type includes an email field
+  const user = req.user as User; // Fetching the user from the session
+
+  try {
+      if (!user || !user.email) {
+          // Handle cases where the user or email is not available
+          return res.status(400).send({ message: "User session invalid or email not found." });
+      }
+
+      // Find and delete the user by email
+      const deletedUser = await UsersModel.findOneAndDelete({ email: user.email });
+      console.log(user)
+      console.log(deletedUser)
+
+      if (!deletedUser) {
+          // If no user was found or deleted, handle accordingly
+          return res.status(404).send({ message: "User not found." });
+      }
+
+      // Proceed with logout and session destruction
+      performLogout(req, res, next);
+  } catch (error) {
+      console.error('Error deleting account:', error);
+      return next(error); // Pass errors to error-handling middleware
+  }
+});
 
 export default auth;

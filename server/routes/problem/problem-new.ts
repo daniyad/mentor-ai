@@ -1,6 +1,6 @@
 import express from "express";
 import axios from "axios"
-import {SectionModel} from "../../models/problem-model";
+import {CourseModel} from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
 
 
@@ -8,36 +8,46 @@ const problem_new = express.Router();
 const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
 
 
-problem_new.get("/sections", authFilter, async (req, res) => {
+problem_new.get("/course", authFilter, async (req, res) => {
     try {
         const user = req.user as User; // User information from session
-        // Fetch all sections
-        const sections = await SectionModel.find({});
+        const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
 
-        if (!sections || sections.length === 0) {
-            res.status(404).send("No sections found.");
+        const course = await CourseModel.findOne({id: courseId}).populate('sections.problems');
+        if (!course) {
+            res.status(400).send("The requested course doesn't exist")
             return;
         }
+        console.log(course)
 
         // Construct the response object
-        const response = sections.map(section => {
-            // Extract section properties
-            const { title, description, problems } = section.toObject();
+        const response = {
+            id: course.id,
+            title: course.title,
+            description: course.description,
+            skills: course.skills,
+            sections: course.sections.map(section => {
+                // Extract section properties
+                const { id, title, short_description, problems } = section;
 
-            // Determine the user's solved status for each problem
-            const problemStatus = problems.map(problem => ({
-                name: problem.name,
-                isSolved: user.attempts.some(attempt =>
-                    attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED
-                ),
-            }));
+                // Construct problems info
+                const problemsInfo = problems.map(problem => ({
+                    id: problem.id,
+                    name: problem.name,
+                    difficulty: problem.difficulty,
+                    isSolved: user.attempts.some(attempt =>
+                        attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED
+                    ),
+                }));
 
-            return {
-                title,
-                description,
-                problems: problemStatus,
-            };
-        });
+                return {
+                    id,
+                    title,
+                    short_description,
+                    problems: problemsInfo,
+                };
+            }),
+        };
 
         res.status(200).json(response);
     } catch (error) {
@@ -45,17 +55,21 @@ problem_new.get("/sections", authFilter, async (req, res) => {
     }
 });
 
-
 problem_new.get("/problem", authFilter, async (req, res) => {
     try {
+        const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
         const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
         const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
         const user = req.user as User; // User information from session
 
-        // Fetch the section based on sectionId
-        const section = await SectionModel.findOne({ id: sectionId });
+        const course = await CourseModel.findOne({id: courseId})
+        if (!course) {
+            res.status(400).send("The requested course doesn't exist")
+        }
+
+        const section = course.sections.find(section => section.id == sectionId)
         if (!section) {
-            res.status(400).send("Requested section does not exist");
+            res.status(400).send("The requested section doesn't exist")
             return;
         }
 
@@ -82,21 +96,29 @@ problem_new.get("/problem", authFilter, async (req, res) => {
 });
 
 problem_new.post("/submit", authFilter, async (req, res) => {
-    const { sectionId, problemId, code } = req.body;
+    const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
+    const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
+    const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
+    const code = req.query.code as string // Get submitted code
 
-    // Fetch the section based on sectionId
-    const section = await SectionModel.findOne({ id: sectionId });
+    
+    const course = await CourseModel.findOne({id: courseId})
+    if (!course) {
+        res.status(400).send("The requested course doesn't exist")
+    }
+
+    const section = course.sections.find(section => section.id == sectionId)
     if (!section) {
-        res.status(400).send("Requested section does not exist");
+        res.status(400).send("The requested section doesn't exist")
         return;
     }
 
     // Fetch the problem based on problemId within the section
     const problem = section.problems.find(p => p.id == problemId);
 
-    if (problem == null || problem == undefined) {
-        res.status(404).send("Couldn't find a problem based on the id you provided");
-        return
+    if (!problem) {
+        res.status(400).send("Requested problem does not exist");
+        return;
     }
 
     const expectedOutput = problem.expected_output
