@@ -9,7 +9,6 @@ interface UserRequest extends Request {
 
 export function authenticateToken(
     req: UserRequest,
-    res: express.Response,
     res: Response,
     next: NextFunction
 ) {
