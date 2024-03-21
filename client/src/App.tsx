@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import ProblemPage from "./pages/ProblemPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import ProblemSet from "./pages/ProblemSet";
 import LandingPage from "./pages/LandingPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
@@ -11,10 +10,22 @@ import SettingPage from "./pages/SettingPage";
 import axios from "axios";
 import { AuthProvider, useAuth } from './AuthContext'; // Adjust the import path as necessary
 import CoursePage from "./pages/CoursePage";
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 export const TOKEN_STORAGE_KEY = "authToken";
 export const ID_STORAGE_KEY = "id";
 export const API_URL = "http://localhost:80";
+
+const theme = extendTheme({
+    styles: {
+      global: {
+        // Applying styles globally
+        body: {
+          bg: 'black', // Set background color to black
+        },
+      },
+    },
+  });
 
 function App() {
     const [token, setToken] = useState(localStorage.getItem(TOKEN_STORAGE_KEY));
@@ -28,6 +39,7 @@ function App() {
     };
 
     return (
+        <ChakraProvider theme={theme}>
         <AuthProvider>
             <div className="App">
                 <BrowserRouter>
@@ -37,11 +49,7 @@ function App() {
                             element={<LandingPage/>}
                         />
                         <Route
-                            path="/problemset"
-                            element={<ProblemSet token={token} id={id} />}
-                        />
-                        <Route
-                            path="/problem/:name/editorial"
+                            path="/problems/:id/editorial"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "editorial" }}
@@ -51,7 +59,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name/solutions"
+                            path="/problems/:id/solutions"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "solutions" }}
@@ -61,7 +69,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name/submissions"
+                            path="/problems/:id/submissions"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "submissions" }}
@@ -71,7 +79,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name/hint"
+                            path="/problems/:id/hint"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "hint" }}
@@ -81,7 +89,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/problem/:name"
+                            path="/problems/:id"
                             element={
                                 <ProblemPage
                                     data={{ activeNavOption: "description" }}
@@ -158,6 +166,7 @@ function App() {
                 </BrowserRouter>
             </div>
         </AuthProvider>
+        </ChakraProvider>
     );
 }
 

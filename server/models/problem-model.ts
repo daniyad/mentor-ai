@@ -40,6 +40,7 @@ const courseSchema = new mongoose.Schema({
         id: { type: Number, required: true, unique: true},
         title: { type: String, required: true},
         description: {type: String, required: true},
+        short_description: {type: String, required: true},
         skills: {type: String, required: true},
         sections: [sectionSchema],
     })

@@ -1,6 +1,6 @@
 import express from "express";
 import axios from "axios"
-import {CourseModel} from "../../models/problem-model";
+import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
 
 
@@ -13,19 +13,26 @@ problem_new.get("/course", authFilter, async (req, res) => {
         const user = req.user as User; // User information from session
         const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
 
-        const course = await CourseModel.findOne({id: courseId}).populate('sections.problems');
+        const course = await CourseModel.findOne({ id: courseId }).populate('sections.problems');
         if (!course) {
             res.status(400).send("The requested course doesn't exist")
             return;
         }
-        console.log(course)
+        // TODO(Din): Update data model to contain course metadata
+        const courseMetadata = {
+            level: "Beginner",
+            timeToComplete: 25,
+            prerequisites: []
+        }
 
         // Construct the response object
         const response = {
             id: course.id,
             title: course.title,
+            short_description: course.short_description,
             description: course.description,
             skills: course.skills,
+            metadata: courseMetadata,
             sections: course.sections.map(section => {
                 // Extract section properties
                 const { id, title, short_description, problems } = section;
@@ -62,7 +69,7 @@ problem_new.get("/problem", authFilter, async (req, res) => {
         const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
         const user = req.user as User; // User information from session
 
-        const course = await CourseModel.findOne({id: courseId})
+        const course = await CourseModel.findOne({ id: courseId })
         if (!course) {
             res.status(400).send("The requested course doesn't exist")
         }
@@ -82,7 +89,7 @@ problem_new.get("/problem", authFilter, async (req, res) => {
         }
 
         // Check if the problem is solved by the user
-        const isSolved = user.attempts.some(attempt => 
+        const isSolved = user.attempts.some(attempt =>
             attempt.problem_id === problem.id && attempt.status == PROBLEM_STATUS.SOLVED
         );
 
@@ -101,8 +108,8 @@ problem_new.post("/submit", authFilter, async (req, res) => {
     const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
     const code = req.query.code as string // Get submitted code
 
-    
-    const course = await CourseModel.findOne({id: courseId})
+
+    const course = await CourseModel.findOne({ id: courseId })
     if (!course) {
         res.status(400).send("The requested course doesn't exist")
     }
@@ -140,21 +147,21 @@ problem_new.post("/submit", authFilter, async (req, res) => {
             "language_id": pythonLanguageId,
             "source_code": stringToBase64(code),
             "expected_output": stringToBase64(expectedOutput)
-         }
+        }
     }
-    
+
     const submissionResponse = await axios(optionsForSubmittingCode);
     if (!submissionResponse || submissionResponse.status != 201) {
         res.status(500).send("There was an error in our servers, please try again later")
         return
     }
-    
+
     //waiting for the code to be complete
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     const token = submissionResponse.data.token
-    const submissionStatusUrl = 
-    "https://judge0-ce.p.rapidapi.com/submissions/" + token + "?base64_encoded=true&fields=*"
+    const submissionStatusUrl =
+        "https://judge0-ce.p.rapidapi.com/submissions/" + token + "?base64_encoded=true&fields=*"
     const submissionStatusHeaders = {
         "X-RapidAPI-Key": judgeApiKey,
         "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
