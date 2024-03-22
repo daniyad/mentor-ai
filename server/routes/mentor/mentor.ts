@@ -46,9 +46,11 @@ mentor.post("/hint", authFilter, async (req, res) => {
             res.json({
                 problem_name: problem.name,
                 status: "Accepted",
-                response: predefinedResponse
+                options: options
             });
-            return;
+        } else {
+            // If no options available, send a prompt for further input or guidance
+            res.status(404).send("No options found in the dialogue tree.");
         }
 
         const systemMessage = `
@@ -106,14 +108,16 @@ mentor.post("/dialogue-tree", authFilter, async (req, res) => {
         const dialogueTree = getDialogueTreeForProblem(problem);
 
         // Check if the dialogue tree has a predefined response
-        const predefinedResponse = dialogueTree.getResponseForUserInput(userInput);
-        if (predefinedResponse) {
+        const options = dialogueTree.getOptionsForUserInput(userInput);
+        if (options && options.length > 0) {
             res.json({
                 problem_name: problem.name,
                 status: "Accepted",
-                response: predefinedResponse
+                options: options
             });
-            return;
+        } else {
+            // If no options available, send a prompt for further input or guidance
+            res.status(404).send("No options found in the dialogue tree.");
         }
 
         // If no predefined response, send a prompt for further input or guidance
