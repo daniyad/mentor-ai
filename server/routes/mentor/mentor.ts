@@ -3,6 +3,7 @@ import express from "express";
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
 import OpenAI from "openai";
+import { DialogueTree } from "../../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
 import { ClaudeClient } from "../../utils/claude_client";
 
@@ -36,12 +37,27 @@ mentor.post("/hint", authFilter, async (req, res) => {
             return;
         }
 
+        // Retrieve the dialogue tree for the current problem
+        const dialogueTree = getDialogueTreeForProblem(problem);
+
+        // Check if the dialogue tree has a predefined response
+        const predefinedResponse = dialogueTree.getResponseForUserInput(code);
+        if (predefinedResponse) {
+            res.json({
+                problem_name: problem.name,
+                status: "Accepted",
+                response: predefinedResponse
+            });
+            return;
+        }
+
         const systemMessage = `
         You are a helpful assistant. Your job is to help users learn how to program. The
         current problem that your user is working on is this one:
         ${problem.description_body}
         `
         
+
         const userMessage = `Can you make this code work?
         ${code}
         `
@@ -72,6 +88,14 @@ mentor.post("/hint", authFilter, async (req, res) => {
     }
 });
 
+// Function to retrieve the dialogue tree for a given problem
+function getDialogueTreeForProblem(problem) {
+    // This function should retrieve the dialogue tree based on the problem's unique characteristics
+    // For now, it returns a placeholder dialogue tree
+    return new DialogueTree();
+}
+
+export default mentor;
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
     let { conversationFromReq } = req.body;
