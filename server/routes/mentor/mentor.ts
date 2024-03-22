@@ -88,6 +88,42 @@ mentor.post("/hint", authFilter, async (req, res) => {
     }
 });
 
+mentor.post("/dialogue-tree", authFilter, async (req, res) => {
+    try {
+        const problemId = parseInt(req.body.problemId, 10); // Get problemId from request body
+        const userInput = req.body.userInput; // Get user input from request body
+
+        // Fetch the problem based on problemId
+        const problem = await CourseModel.findOne({"sections.problems.id": problemId}, {"sections.$": 1})
+            .then(course => course?.sections[0].problems.find(p => p.id === problemId));
+
+        if (!problem) {
+            res.status(400).send("Requested problem does not exist");
+            return;
+        }
+
+        // Retrieve the dialogue tree for the current problem
+        const dialogueTree = getDialogueTreeForProblem(problem);
+
+        // Check if the dialogue tree has a predefined response
+        const predefinedResponse = dialogueTree.getResponseForUserInput(userInput);
+        if (predefinedResponse) {
+            res.json({
+                problem_name: problem.name,
+                status: "Accepted",
+                response: predefinedResponse
+            });
+            return;
+        }
+
+        // If no predefined response, send a prompt for further input or guidance
+        res.status(404).send("No predefined response found in the dialogue tree.");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal server error");
+    }
+});
+
 // Function to retrieve the dialogue tree for a given problem
 function getDialogueTreeForProblem(problem) {
     // This function should retrieve the dialogue tree based on the problem's unique characteristics
