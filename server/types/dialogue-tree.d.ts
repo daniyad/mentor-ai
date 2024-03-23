@@ -21,10 +21,11 @@ export interface DialogueNode {
 }
 
 export class DialogueTree {
-    constructor(rootNode: DialogueNode, nodes: { [id: string]: DialogueNode });
+    constructor(rootNode: DialogueNode, nodes: DialogueNode[], childrenMap: { [id: string]: string[] });
 
     private rootNode: DialogueNode;
-    private nodes: { [id: string]: DialogueNode };
+    private nodes: DialogueNode[];
+    private childrenMap: { [id: string]: string[] };
     private currentNode: DialogueNode;
 
     navigateToNode(nodeId: string): void;
