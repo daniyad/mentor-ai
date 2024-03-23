@@ -91,8 +91,26 @@ mentor.post("/hint", authFilter, async (req, res) => {
 
 // Function to retrieve the dialogue tree for a given problem
 function getDialogueTreeForProblem(problem) {
-    // This function now returns a dialogue tree specific to the "Hello World" problem in Python
-    const helloWorldTree = new DialogueTree(nodes['root'], nodes);
+    // Define nodes
+    const nodes = [
+        { id: 'root', type: 'TEXT', content: { text: 'Welcome to the Python "Hello World" problem!' } },
+        { id: 'ask-how', type: 'TEXT', content: { text: 'To write "Hello World" in Python, you can use the print function.' } },
+        { id: 'explain-print', type: 'TEXT', content: { text: 'The print function in Python outputs text to the console.' } },
+        { id: 'guide-print-text', type: 'TEXT', content: { text: 'You can write print("Hello World") to display the text "Hello World".' } },
+        // Add more nodes as needed
+    ];
+
+    // Define children map
+    const childrenMap = {
+        'root': ['ask-how', 'explain-print'],
+        'ask-how': ['guide-print-text'],
+        'explain-print': ['guide-print-text'],
+        // Add more relationships as needed
+    };
+
+    // Create the dialogue tree with the nodes and children map
+    const helloWorldTree = new DialogueTree(nodes[0], nodes, childrenMap);
+
 
     return helloWorldTree;
 }
