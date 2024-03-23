@@ -116,6 +116,32 @@ function getDialogueTreeForProblem(problem) {
                     text: 'It seems there was an error. Remember to include the quotation marks inside the parentheses.',
                 },
             },
+            {
+                id: 'ask-how',
+                type: 'TEXT',
+                content: {
+                    type: 'TEXT',
+                    text: 'If you are unsure about how to start, you can ask questions like "What is the print function?" or "How do I print text in Python?".',
+                },
+                children: [
+                    {
+                        id: 'explain-print',
+                        type: 'LARGE_LANGUAGE_MODEL',
+                        content: {
+                            type: 'LARGE_LANGUAGE_MODEL',
+                            prompt: 'Explain the print function in Python and how to use it to display text.',
+                        },
+                    },
+                    {
+                        id: 'guide-print-text',
+                        type: 'LARGE_LANGUAGE_MODEL',
+                        content: {
+                            type: 'LARGE_LANGUAGE_MODEL',
+                            prompt: 'Guide the user on how to print text in Python, including syntax and common practices.',
+                        },
+                    },
+                ],
+            },
         ],
     });
 
