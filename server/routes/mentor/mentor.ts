@@ -142,13 +142,57 @@ function getDialogueTreeForProblem(problem) {
 
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
-    let { conversationFromReq } = req.body;
-    const conversation = conversationFromReq as Conversation;
-    const claudeClient = new ClaudeClient();
+    const { problemId, userInput, nodeId } = req.body;
 
     try {
         // Retrieve the ongoing conversation from the database or cache
-        let aiResponse = await claudeClient.createChatCompletion(conversation);
+        const problem = await CourseModel.findOne(
+            { "sections.problems.id": problemId },
+            { "sections.$": 1 },
+        ).then((course) =>
+            course?.sections[0].problems.find((p) => p.id === problemId),
+        );
+
+        if (!problem) {
+            res.status(400).send("Requested problem does not exist");
+            return;
+        }
+
+        const dialogueTree = getDialogueTreeForProblem(problem);
+        dialogueTree.navigateToNode(nodeId);
+        const currentNode = dialogueTree.getCurrentNode();
+
+        if (currentNode.type === 'LARGE_LANGUAGE_MODEL') {
+            const completion = await openai.chat.completions.create({
+                messages: [
+                    {
+                        role: "system",
+                        content: currentNode.content.prompt,
+                    },
+                    {
+                        role: "user",
+                        content: userInput,
+                    },
+                ],
+                model: "gpt-4-1106-preview",
+            });
+            let content = completion.choices[0].message.content ?? "";
+            res.json({
+                problem_name: problem.name,
+                status: "Accepted",
+                response: content,
+                options: dialogueTree.getOptionsForCurrentNode(),
+            });
+        } else if (currentNode.type === 'TEXT') {
+            res.json({
+                problem_name: problem.name,
+                status: "Accepted",
+                response: currentNode.content.text,
+                options: dialogueTree.getOptionsForCurrentNode(),
+            });
+        } else {
+            res.status(404).send("Node type not supported.");
+        }
 
         // Send the AI's response back to the FE
         res.json({
