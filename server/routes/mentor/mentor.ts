@@ -92,58 +92,7 @@ mentor.post("/hint", authFilter, async (req, res) => {
 // Function to retrieve the dialogue tree for a given problem
 function getDialogueTreeForProblem(problem) {
     // This function now returns a dialogue tree specific to the "Hello World" problem in Python
-    const helloWorldTree = new DialogueTree({
-        id: 'root',
-        type: 'TEXT',
-        content: {
-            type: 'TEXT',
-            text: 'To write "Hello World" in Python, you just need to use the print function. Try typing: print("Hello World")',
-        },
-        children: [
-            {
-                id: 'success',
-                type: 'TEXT',
-                content: {
-                    type: 'TEXT',
-                    text: 'Well done! You have successfully written "Hello World" in Python!',
-                },
-            },
-            {
-                id: 'error',
-                type: 'TEXT',
-                content: {
-                    type: 'TEXT',
-                    text: 'It seems there was an error. Remember to include the quotation marks inside the parentheses.',
-                },
-            },
-            {
-                id: 'ask-how',
-                type: 'TEXT',
-                content: {
-                    type: 'TEXT',
-                    text: 'If you are unsure about how to start, you can ask questions like "What is the print function?" or "How do I print text in Python?".',
-                },
-                children: [
-                    {
-                        id: 'explain-print',
-                        type: 'LARGE_LANGUAGE_MODEL',
-                        content: {
-                            type: 'LARGE_LANGUAGE_MODEL',
-                            prompt: 'Explain the print function in Python and how to use it to display text.',
-                        },
-                    },
-                    {
-                        id: 'guide-print-text',
-                        type: 'LARGE_LANGUAGE_MODEL',
-                        content: {
-                            type: 'LARGE_LANGUAGE_MODEL',
-                            prompt: 'Guide the user on how to print text in Python, including syntax and common practices.',
-                        },
-                    },
-                ],
-            },
-        ],
-    });
+    const helloWorldTree = new DialogueTree(nodes['root'], nodes);
 
     return helloWorldTree;
 }

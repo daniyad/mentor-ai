@@ -21,9 +21,10 @@ export interface DialogueNode {
 }
 
 export class DialogueTree {
-    constructor(rootNode?: DialogueNode);
+    constructor(rootNode: DialogueNode, nodes: { [id: string]: DialogueNode });
 
     private rootNode: DialogueNode;
+    private nodes: { [id: string]: DialogueNode };
     private currentNode: DialogueNode;
 
     navigateToNode(nodeId: string): void;
