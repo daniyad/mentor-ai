@@ -93,7 +93,6 @@ mentor.post("/hint", authFilter, async (req, res) => {
 mentor.post("/dialogue-tree", authFilter, async (req, res) => {
     try {
         const problemId = parseInt(req.body.problemId, 10); // Get problemId from request body
-        const nodeId = req.body.nodeId; // Get nodeId from request body
         const userInput = req.body.userInput; // Get user input from request body
 
         // Fetch the problem based on problemId
@@ -106,10 +105,10 @@ mentor.post("/dialogue-tree", authFilter, async (req, res) => {
         }
 
         // Retrieve the dialogue tree for the current problem
-        const dialogueTree = getDialogueTreeForProblem(problem, nodeId);
+        const dialogueTree = getDialogueTreeForProblem(problem);
 
         // Check if the dialogue tree has a predefined response
-        const options = dialogueTree.getOptionsForUserInput(userInput, nodeId);
+        const options = dialogueTree.getOptionsForUserInput(userInput);
         if (options && options.length > 0) {
             res.json({
                 problem_name: problem.name,
@@ -130,11 +129,11 @@ mentor.post("/dialogue-tree", authFilter, async (req, res) => {
 });
 
 // Function to retrieve the dialogue tree for a given problem
-function getDialogueTreeForProblem(problem, nodeId) {
+function getDialogueTreeForProblem(problem) {
     // This function should retrieve the dialogue tree based on the problem's unique characteristics
     // For now, it returns a placeholder dialogue tree
     // Assuming DialogueTree constructor can take a nodeId to initialize the correct node
-    return new DialogueTree(nodeId);
+    return new DialogueTree();
 }
 
 export default mentor;
