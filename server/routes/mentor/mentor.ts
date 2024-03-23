@@ -91,10 +91,35 @@ mentor.post("/hint", authFilter, async (req, res) => {
 
 // Function to retrieve the dialogue tree for a given problem
 function getDialogueTreeForProblem(problem) {
-    // This function should retrieve the dialogue tree based on the problem's unique characteristics
-    // For now, it returns a placeholder dialogue tree
-    // Assuming DialogueTree constructor can take a nodeId to initialize the correct node
-    return new DialogueTree();
+    // This function now returns a dialogue tree specific to the "Hello World" problem in Python
+    const helloWorldTree = new DialogueTree({
+        id: 'root',
+        type: 'TEXT',
+        content: {
+            type: 'TEXT',
+            text: 'To write "Hello World" in Python, you just need to use the print function. Try typing: print("Hello World")',
+        },
+        children: [
+            {
+                id: 'success',
+                type: 'TEXT',
+                content: {
+                    type: 'TEXT',
+                    text: 'Well done! You have successfully written "Hello World" in Python!',
+                },
+            },
+            {
+                id: 'error',
+                type: 'TEXT',
+                content: {
+                    type: 'TEXT',
+                    text: 'It seems there was an error. Remember to include the quotation marks inside the parentheses.',
+                },
+            },
+        ],
+    });
+
+    return helloWorldTree;
 }
 
 mentor.post("/conversation/next", async (req, res) => {
