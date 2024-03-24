@@ -93,10 +93,10 @@ mentor.post("/hint", authFilter, async (req, res) => {
 function getDialogueTreeForProblem(problem) {
     // Define nodes
     const nodes = [
-        { id: 'root', type: 'TEXT', content: { text: 'Welcome to the Python "Hello World" problem!' } },
-        { id: 'ask-how', type: 'TEXT', content: { text: 'To write "Hello World" in Python, you can use the print function.' } },
-        { id: 'explain-print', type: 'TEXT', content: { text: 'The print function in Python outputs text to the console.' } },
-        { id: 'guide-print-text', type: 'TEXT', content: { text: 'You can write print("Hello World") to display the text "Hello World".' } },
+        { id: 'root', type: 'TEXT', content: { text: 'Welcome to the Python "Hello World" problem!' }, userQuestionText: 'Start the "Hello World" problem' },
+        { id: 'ask-how', type: 'TEXT', content: { text: 'To write "Hello World" in Python, you can use the print function.' }, userQuestionText: 'How do I write "Hello World" in Python?' },
+        { id: 'explain-print', type: 'TEXT', content: { text: 'The print function in Python outputs text to the console.' }, userQuestionText: 'Can you explain the print function?' },
+        { id: 'guide-print-text', type: 'TEXT', content: { text: 'You can write print("Hello World") to display the text "Hello World".' }, userQuestionText: 'How do I use the print function to display text?' },
         // Add more nodes as needed
     ];
 
