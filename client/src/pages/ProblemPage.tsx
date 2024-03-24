@@ -233,7 +233,10 @@ const ProblemPage = ({
                     username: username,
                 }}
             />
-            <HStack>
+            <HStack spacing="24px">
+                {problemDescriptionData && (
+                    <Chat descriptionData={problemDescriptionData} />
+                )}
                 <VStack></VStack>
                 <ReactCodeMirror
                     value={
