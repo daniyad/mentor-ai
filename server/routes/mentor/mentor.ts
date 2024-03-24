@@ -141,39 +141,22 @@ mentor.post("/conversation/next", async (req, res) => {
 
         const dialogueTree = getDialogueTreeForProblem(problem);
         dialogueTree.navigateToNode(nodeId);
-        const currentNode = dialogueTree.getCurrentNode();
-
-        if (currentNode.type === 'LARGE_LANGUAGE_MODEL') {
-            const completion = await openai.chat.completions.create({
-                messages: [
-                    {
-                        role: "system",
-                        content: currentNode.content.prompt,
-                    },
-                    {
-                        role: "user",
-                        content: userInput,
-                    },
-                ],
-                model: "gpt-4-1106-preview",
-            });
-            let content = completion.choices[0].message.content ?? "";
-            res.json({
-                problem_name: problem.name,
-                status: "Accepted",
-                response: content,
-                options: dialogueTree.getOptionsForCurrentNode(),
-            });
-        } else if (currentNode.type === 'TEXT') {
-            res.json({
-                problem_name: problem.name,
-                status: "Accepted",
-                response: currentNode.content.text,
-                options: dialogueTree.getOptionsForCurrentNode(),
-            });
-        } else {
-            res.status(404).send("Node type not supported.");
-        }
+        // Use the updated getResponseForCurrentNode method which now returns a Promise
+        dialogueTree.getResponseForCurrentNode().then((responseContent) => {
+            if (responseContent) {
+                res.json({
+                    problem_name: problem.name,
+                    status: "Accepted",
+                    response: responseContent.type === 'TEXT' ? responseContent.text : responseContent.prompt,
+                    options: dialogueTree.getOptionsForCurrentNode(),
+                });
+            } else {
+                res.status(404).send("No response available for the current node.");
+            }
+        }).catch((error) => {
+            console.error(error);
+            res.status(500).send("Error while getting response for current node.");
+        });
 
         // Send the AI's response back to the FE
         res.json({
