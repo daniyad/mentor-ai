@@ -91,7 +91,7 @@ const ProblemPage = ({
 
     const requestHint = () => {
         setIsHintLoading(true);
-        if(!id || !name) {
+        if (!id || !name) {
             console.log("id not found");
             setIsHintLoading(false);
             return;
@@ -99,34 +99,41 @@ const ProblemPage = ({
 
         const problem_name = name;
         axios
-            .post<{}, AxiosResponse<HintResponse>, { code: string; id: string; problem_name: string }>(`${API_URL}/api/problem/hint/${name}`, {
+            .post<
+                {},
+                AxiosResponse<HintResponse>,
+                { code: string; id: string; problem_name: string }
+            >(`${API_URL}/api/problem/hint/${name}`, {
                 code,
                 id,
                 problem_name,
             })
             .then(({ data }) => {
                 setIsHintLoading(false);
-                if (data.status !== "Accepted" && data.status !== "Runtime Error"){
-                    console.log("Data status is unaccepted")
-                    return
+                if (
+                    data.status !== "Accepted" &&
+                    data.status !== "Runtime Error"
+                ) {
+                    console.log("Data status is unaccepted");
+                    return;
                 }
 
                 const hint: Hint = {
                     problem_name: data.problem_name,
                     status: data.status,
                     error: data.error,
-                    hint: data.response
+                    hint: data.response,
                 };
                 setHintData(hint);
-                navigate(`/problem/${name}/hint`)
+                navigate(`/problem/${name}/hint`);
                 setIsHintRequested(false);
             })
             .catch((err) => {
-               console.error(err);
-               setIsHintRequested(false);
-               setIsHintLoading(false); 
+                console.error(err);
+                setIsHintRequested(false);
+                setIsHintLoading(false);
             });
-    }
+    };
 
     useEffect(() => {
         axios
@@ -135,14 +142,14 @@ const ProblemPage = ({
                 setProblemDescriptionData(
                     data.main as unknown as SetStateAction<
                         DescriptionData | undefined
-                    >
+                    >,
                 );
                 if (
                     "code_body" in data.main &&
                     "JavaScript" in data.main.code_body
                 ) {
                     setInitCode(
-                        data.main.code_body.JavaScript as unknown as string
+                        data.main.code_body.JavaScript as unknown as string,
                     );
                 }
             })
@@ -171,7 +178,7 @@ const ProblemPage = ({
         axios
             .post<{}, { data: Submission[] }, { id: string }>(
                 `${API_URL}/api/problem/submissions/${name}`,
-                { id: id || "" }
+                { id: id || "" },
             )
             .then(({ data }) => {
                 if (data.length !== 0) {
@@ -180,24 +187,28 @@ const ProblemPage = ({
                 setSubmissionData(data);
             })
             .catch((e) => console.log(e));
-        
+
         const messages = [
             {
                 role: "user",
-                text: "Hello!"
-            }
-        ]
+                text: "Hello!",
+            },
+        ];
         const conversation = {
-            messages: messages, 
+            messages: messages,
             code_body: code,
-        }
+        };
         axios
-            .post<{}, { data: AiResponse }, { conversation: Conversation }>(`${API_URL}/api/problem/conversation/next`, {
-                conversation,
-            }).then(({ data }) => {
+            .post<{}, { data: AiResponse }, { conversation: Conversation }>(
+                `${API_URL}/api/problem/conversation/next`,
+                {
+                    conversation,
+                },
+            )
+            .then(({ data }) => {
                 console.log(data.message);
                 console.log(data.code_body);
-            })
+            });
     }, []);
 
     useEffect(() => {
@@ -215,8 +226,6 @@ const ProblemPage = ({
             .catch((e) => console.error(e));
     }, [activeNavOption]);
 
-    
-
     return (
         <>
             <MainHeading
@@ -225,15 +234,13 @@ const ProblemPage = ({
                 }}
             />
             <HStack>
-                <VStack>
-
-                </VStack>
+                <VStack></VStack>
                 <ReactCodeMirror
                     value={
                         code === "" || code == null
-                        ? initCode || ""
-                        : code || ""
-                        }
+                            ? initCode || ""
+                            : code || ""
+                    }
                     extensions={[loadLanguage("javascript")!]}
                     theme={tokyoNight}
                     onChange={(value) => {
@@ -303,7 +310,7 @@ const ProblemPage = ({
                             {
                                 activeNavOption == "hint" &&
                                 (
-                                    <HintDisplay data = {{ hint: hintData, is_hint_loading: isHintLoading, is_hint_requested: isHintRequested }} />  
+                                    <HintDisplay data = {{ hint: hintData, is_hint_loading: isHintLoading, is_hint_requested: isHintRequested }} />
                                 )
                             }
                         </div>
