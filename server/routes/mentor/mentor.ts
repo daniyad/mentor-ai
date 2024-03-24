@@ -123,6 +123,7 @@ function getDialogueTreeForProblem(problem) {
 
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
+mentor.post("/conversation/next", async (req, res) => {
     const { problemId, userInput, nodeId } = req.body;
 
     try {
@@ -158,10 +159,21 @@ mentor.post("/conversation/next", async (req, res) => {
             res.status(500).send("Error while getting response for current node.");
         });
 
-        // Send the AI's response back to the FE
-        res.json({
-            message: aiResponse.message,
-            code_body: aiResponse.code_body,
+        // Use the updated getResponseForCurrentNode method which now returns a Promise
+        dialogueTree.getResponseForCurrentNode().then((responseContent) => {
+            if (responseContent) {
+                res.json({
+                    problem_name: problem.name,
+                    status: "Accepted",
+                    response: responseContent.type === 'TEXT' ? responseContent.text : responseContent.prompt,
+                    options: dialogueTree.getOptionsForCurrentNode(),
+                });
+            } else {
+                res.status(404).send("No response available for the current node.");
+            }
+        }).catch((error) => {
+            console.error(error);
+            res.status(500).send("Error while getting response for current node.");
         });
     } catch (e) {
         console.error(e);
