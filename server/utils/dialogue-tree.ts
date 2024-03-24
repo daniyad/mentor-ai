@@ -1,8 +1,13 @@
 import { DialogueNode } from "../types/dialogue-tree";
+import { Message, Conversation } from "../types/conversation";
+import { LLMClient } from "../types/conversation";
 
 export class DialogueTree {
-    constructor(nodes: DialogueNode[], childrenMap: { [id: string]: string[] }) {
-        const rootNode = nodes.find(node => node.id === 'root');
+    constructor(
+        nodes: DialogueNode[],
+        childrenMap: { [id: string]: string[] },
+    ) {
+        const rootNode = nodes.find((node) => node.id === "root");
         if (!rootNode) {
             throw new Error('DialogueTree requires a node with ID "root"');
         }
@@ -14,7 +19,7 @@ export class DialogueTree {
     private childrenMap: { [id: string]: string[] };
 
     getOptionsFromNode(nodeId: string): DialogueNode[] {
-        const childrenIds = this.childrenMap[this.currentNode.id] || [];
+        const childrenIds = this.childrenMap[nodeId] || [];
         return childrenIds.map((id) =>
             this.nodes.find((node) => node.id === id),
         );
@@ -35,7 +40,7 @@ export class DialogueTree {
             case "TEXT":
                 conversation.messages.push({
                     role: "assistant",
-                    text: currentNode.content,
+                    text: currentNode.content.text,
                 });
                 return conversation;
             case "LARGE_LANGUAGE_MODEL":
