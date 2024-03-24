@@ -38,25 +38,23 @@ export class DialogueTree {
             this.nodes.find((node) => node.id === id),
         );
     }
-    getResponseFromNode(nodeId: string): Promise<NodeContent | null> {
-        return new Promise(async (resolve, reject) => {
-            if (this.currentNode.type === "TEXT") {
-                resolve(this.currentNode.content);
-            } else if (this.currentNode.type === "LARGE_LANGUAGE_MODEL") {
-                // Here you would implement the logic to get the response from the LLM
-                // For example, you might use an API call to OpenAI's GPT-3 or similar
+    async getResponseFromNode(nodeId: string): Promise<NodeContent | null> {
+        const currentNode = this.nodes.find(node => node.id === nodeId);
+        if (!currentNode) return null;
+
+        switch (currentNode.type) {
+            case "TEXT":
+                return currentNode.content;
+            case "LARGE_LANGUAGE_MODEL":
                 try {
-                    const response = await getResponseFromLLM(
-                        this.currentNode.content.prompt,
-                    );
-                    resolve({ type: "LARGE_LANGUAGE_MODEL", prompt: response });
+                    const response = await getResponseFromLLM(currentNode.content.prompt);
+                    return { type: "LARGE_LANGUAGE_MODEL", prompt: response };
                 } catch (error) {
-                    reject(error);
+                    throw error;
                 }
-            } else {
-                resolve(null);
-            }
-        });
+            default:
+                return null;
+        }
     }
 }
 
