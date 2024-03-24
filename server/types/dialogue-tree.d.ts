@@ -31,6 +31,14 @@ export class DialogueTree {
 
     navigateToNode(nodeId: string): void;
     getCurrentNode(): DialogueNode;
-    getOptionsForCurrentNode(): string[];
-    getResponseForCurrentNode(): string | null;
+    getOptionsForCurrentNode(): DialogueNode[] {
+        const childrenIds = this.childrenMap[this.currentNode.id] || [];
+        return childrenIds.map((id) => this.nodes.find((node) => node.id === id));
+    }
+    getResponseForCurrentNode(): NodeContent | null {
+        if (this.currentNode.type === 'TEXT') {
+            return this.currentNode.content;
+        }
+        return null;
+    }
 }
