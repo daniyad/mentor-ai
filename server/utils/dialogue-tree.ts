@@ -2,6 +2,10 @@ import { DialogueNode } from "../types/dialogue-tree";
 
 export class DialogueTree {
     constructor(nodes: DialogueNode[], childrenMap: { [id: string]: string[] }) {
+        const rootNode = nodes.find(node => node.id === 'root');
+        if (!rootNode) {
+            throw new Error('DialogueTree requires a node with ID "root"');
+        }
         this.nodes = nodes;
         this.childrenMap = childrenMap;
     }
