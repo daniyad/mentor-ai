@@ -2,7 +2,7 @@ import express from "express";
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter";
 import OpenAI from "openai";
-import { DialogueNode, DialogueTree } from "../../types/dialogue-tree";
+import { DialogueNode, DialogueTree } from "../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
 import { ClaudeClient } from "../../utils/claude_client";
 
