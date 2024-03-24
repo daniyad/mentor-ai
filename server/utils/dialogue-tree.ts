@@ -1,7 +1,10 @@
 import { DialogueNode } from "../types/dialogue-tree";
 
 export class DialogueTree {
-    constructor(nodes: DialogueNode[], childrenMap: { [id: string]: string[] });
+    constructor(nodes: DialogueNode[], childrenMap: { [id: string]: string[] }) {
+        this.nodes = nodes;
+        this.childrenMap = childrenMap;
+    }
 
     private nodes: DialogueNode[];
     private childrenMap: { [id: string]: string[] };
