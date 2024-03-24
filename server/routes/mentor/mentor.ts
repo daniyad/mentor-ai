@@ -21,13 +21,13 @@ function getDialogueTreeForProblem(problem) {
     const nodes: DialogueNode[] = [
         {
             id: "root",
-            type: "EMPTY" as const, // Assuming "EMPTY" is a valid type for DialogueNode
+            type: "EMPTY", // Corrected type without casting
             content: { text: 'Welcome to the Python "Hello World" problem!' },
             userQuestionText: 'Print "Hello World" to the console',
         },
         {
             id: "ask-how",
-            type: "TEXT" as const, // Assuming "TEXT" is a valid type for DialogueNode
+            type: "TEXT", // Corrected type without casting
             content: {
                 text: 'To write "Hello World" in Python, you can use the print function.',
             },
@@ -35,7 +35,7 @@ function getDialogueTreeForProblem(problem) {
         },
         {
             id: "explain-print",
-            type: "TEXT" as const, // Assuming "TEXT" is a valid type for DialogueNode
+            type: "TEXT", // Corrected type without casting
             content: {
                 text: "The print function in Python outputs text to the console.",
             },
@@ -43,7 +43,7 @@ function getDialogueTreeForProblem(problem) {
         },
         {
             id: "guide-print-text",
-            type: "TEXT" as const, // Assuming "TEXT" is a valid type for DialogueNode
+            type: "TEXT", // Corrected type without casting
             content: {
                 text: 'You can write print("Hello World") to display the text "Hello World".',
             },
