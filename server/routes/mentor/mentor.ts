@@ -107,7 +107,6 @@ mentor.post("/conversation/next", async (req, res) => {
 
         res.json({
             messages: response.messages,
-            code_body: null,
             code_body: response.code_body,
         });
     } catch (e) {
