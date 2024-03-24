@@ -1,4 +1,6 @@
-export type NodeType = "TEXT" | "LARGE_LANGUAGE_MODEL";
+import { Message, LLMClient } from "./conversation";
+
+export type NodeType = "TEXT" | "LARGE_LANGUAGE_MODEL" | "EMPTY";
 
 export type NodeContent = TextContent | LargeLanguageModelContent;
 
@@ -38,33 +40,37 @@ export class DialogueTree {
             this.nodes.find((node) => node.id === id),
         );
     }
-    async getResponseFromNode(nodeId: string): Promise<NodeContent | null> {
-        const currentNode = this.nodes.find(node => node.id === nodeId);
+    async addToConversationFromNode(
+        nodeId: string,
+        conversation: Conversation,
+        llmClient: LLMClient,
+    ): Promise<Conversation | null> {
+        const currentNode = this.nodes.find((node) => node.id === nodeId);
         if (!currentNode) return null;
 
         switch (currentNode.type) {
+            case "EMPTY":
+                return conversation;
             case "TEXT":
-                return currentNode.content;
+                conversation.messages.append({
+                    role: "assistant",
+                    text: currentNode.content,
+                });
+                return conversation;
             case "LARGE_LANGUAGE_MODEL":
-                try {
-                    const response = await getResponseFromLLM(currentNode.content.prompt);
-                    return { type: "LARGE_LANGUAGE_MODEL", prompt: response };
-                } catch (error) {
-                    throw error;
-                }
-            default:
-                return null;
+                const newMessage: Message = {
+                    role: "user",
+                    text: currentNode.userQuestionText,
+                };
+                conversation.messages.append(newMessage);
+                const response =
+                    await llmClient.createChatCompletion(conversation);
+                conversation.messages.append({
+                    role: "assistant",
+                    text: response.message,
+                });
+
+                return conversation;
         }
     }
-}
-
-// This is a placeholder function for getting a response from a Large Language Model.
-// You would replace this with your actual implementation.
-async function getResponseFromLLM(prompt: string): Promise<string> {
-    // Simulate an API call with a delay
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(`Response based on the prompt: ${prompt}`);
-        }, 1000); // Simulate network delay
-    });
 }

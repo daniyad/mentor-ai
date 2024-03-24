@@ -1,13 +1,11 @@
 export interface Message {
-    role:
-        | "assistant"
-        | "user";
-    text: string
+    role: "assistant" | "user";
+    text: string;
 }
 
 export interface Conversation {
     messages: Message[];
-    code_body: string;
+    code_body?: string;
 }
 
 export interface AiResponse {
@@ -16,5 +14,7 @@ export interface AiResponse {
 }
 
 export interface LLMClient {
-    createChatCompletion(conversation: Conversation): Promise< AiResponse | null >;
+    createChatCompletion(
+        conversation: Conversation,
+    ): Promise<AiResponse | null>;
 }

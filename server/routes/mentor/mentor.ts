@@ -173,15 +173,21 @@ mentor.post("/conversation/next", async (req, res) => {
         const dialogueTree = getDialogueTreeForProblem(problem);
         const options = dialogueTree.getOptionsFromNode(nodeId);
         const claudeClient = new ClaudeClient();
-        const response = dialogueTree.addToConversationFromNode(
+        const response = await dialogueTree.addToConversationFromNode(
             nodeId,
             conversation,
             claudeClient,
         );
 
+        if (!response) {
+            res.status(404).send("Unable to add to conversation from node.");
+            return;
+        }
+
         res.json({
             messages: response.messages,
             code_body: null,
+            code_body: response.code_body,
         });
     } catch (e) {
         console.error(e);
