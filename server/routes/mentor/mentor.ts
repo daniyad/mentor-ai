@@ -18,7 +18,7 @@ const openai = new OpenAI();
 function getDialogueTreeForProblem(problem) {
     // Right now, we just return the Hello World dialogue tree
     // Define nodes
-    const nodes = [
+    const nodes: DialogueNode[] = [
         {
             id: "root",
             type: "EMPTY",
