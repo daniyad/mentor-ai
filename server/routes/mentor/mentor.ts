@@ -21,30 +21,28 @@ function getDialogueTreeForProblem(problem) {
     const nodes: DialogueNode[] = [
         {
             id: "root",
-            type: "NodeType.EMPTY", // Assuming "NodeType.EMPTY" is a valid value for the type property
-            content: { text: 'Welcome to the Python "Hello World" problem!' },
             userQuestionText: 'Print "Hello World" to the console',
         },
         {
             id: "ask-how",
-            type: "NodeType.TEXT", // Assuming "NodeType.TEXT" is a valid value for the type property
             content: {
+                type: "TEXT",
                 text: 'To write "Hello World" in Python, you can use the print function.',
             },
             userQuestionText: 'How do I print "Hello World" in Python?',
         },
         {
             id: "explain-print",
-            type: "NodeType.TEXT", // Assuming "NodeType.TEXT" is a valid value for the type property
             content: {
+                type: "TEXT",
                 text: "The print function in Python outputs text to the console.",
             },
             userQuestionText: "Can you explain the print function?",
         },
         {
             id: "guide-print-text",
-            type: "NodeType.TEXT", // Assuming "NodeType.TEXT" is a valid value for the type property
             content: {
+                type: "TEXT",
                 text: 'You can write print("Hello World") to display the text "Hello World".',
             },
             userQuestionText:
