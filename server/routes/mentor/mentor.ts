@@ -2,7 +2,12 @@ import express from "express";
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter";
 import OpenAI from "openai";
-import { DialogueTree } from "../../types/dialogue-tree";
+import {
+    DialogueNode,
+    DialogueTree,
+    LargeLanguageModelContent,
+    TextContent,
+} from "../../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
 import { ClaudeClient } from "../../utils/claude_client";
 
@@ -88,43 +93,68 @@ mentor.post("/hint", authFilter, async (req, res) => {
     }
 });
 
-
 // Function to retrieve the dialogue tree for a given problem
 function getDialogueTreeForProblem(problem) {
+    // Right now, we just return the Hello World dialogue tree
     // Define nodes
     const nodes = [
-        { id: 'root', type: 'TEXT', content: { text: 'Welcome to the Python "Hello World" problem!' }, userQuestionText: 'Start the "Hello World" problem' },
-        { id: 'ask-how', type: 'TEXT', content: { text: 'To write "Hello World" in Python, you can use the print function.' }, userQuestionText: 'How do I write "Hello World" in Python?' },
-        { id: 'explain-print', type: 'TEXT', content: { text: 'The print function in Python outputs text to the console.' }, userQuestionText: 'Can you explain the print function?' },
-        { id: 'guide-print-text', type: 'TEXT', content: { text: 'You can write print("Hello World") to display the text "Hello World".' }, userQuestionText: 'How do I use the print function to display text?' },
+        {
+            id: "root",
+            type: "TEXT",
+            content: { text: 'Welcome to the Python "Hello World" problem!' },
+            userQuestionText: 'Start the "Hello World" problem',
+        },
+        {
+            id: "ask-how",
+            type: "TEXT",
+            content: {
+                text: 'To write "Hello World" in Python, you can use the print function.',
+            },
+            userQuestionText: 'How do I write "Hello World" in Python?',
+        },
+        {
+            id: "explain-print",
+            type: "TEXT",
+            content: {
+                text: "The print function in Python outputs text to the console.",
+            },
+            userQuestionText: "Can you explain the print function?",
+        },
+        {
+            id: "guide-print-text",
+            type: "TEXT",
+            content: {
+                text: 'You can write print("Hello World") to display the text "Hello World".',
+            },
+            userQuestionText:
+                "How do I use the print function to display text?",
+        },
         // Add more nodes as needed
     ];
 
     // Define children map
     const childrenMap = {
-        'root': ['ask-how', 'explain-print'],
-        'ask-how': ['guide-print-text'],
-        'explain-print': ['guide-print-text'],
+        root: ["ask-how", "explain-print"],
+        "ask-how": ["guide-print-text"],
+        "explain-print": ["guide-print-text"],
         // Add more relationships as needed
     };
 
     // Find the root node based on the id
-    const rootNode = nodes.find(node => node.id === 'root');
+    const rootNode = nodes.find((node) => node.id === "root");
     if (!rootNode) {
-        throw new Error('Root node not found in the dialogue tree nodes.');
+        throw new Error("Root node not found in the dialogue tree nodes.");
     }
 
     // Create the dialogue tree with the root node, nodes, and children map
     const helloWorldTree = new DialogueTree(rootNode, nodes, childrenMap);
-
 
     return helloWorldTree;
 }
 
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
-mentor.post("/conversation/next", async (req, res) => {
-    const { problemId, userInput, nodeId } = req.body;
+    const { problemId, userInput, nodeId, conversation } = req.body;
 
     try {
         // Retrieve the ongoing conversation from the database or cache
@@ -141,39 +171,17 @@ mentor.post("/conversation/next", async (req, res) => {
         }
 
         const dialogueTree = getDialogueTreeForProblem(problem);
-        dialogueTree.navigateToNode(nodeId);
-        // Use the updated getResponseForCurrentNode method which now returns a Promise
-        dialogueTree.getResponseForCurrentNode().then((responseContent) => {
-            if (responseContent) {
-                res.json({
-                    problem_name: problem.name,
-                    status: "Accepted",
-                    response: responseContent.type === 'TEXT' ? responseContent.text : responseContent.prompt,
-                    options: dialogueTree.getOptionsForCurrentNode(),
-                });
-            } else {
-                res.status(404).send("No response available for the current node.");
-            }
-        }).catch((error) => {
-            console.error(error);
-            res.status(500).send("Error while getting response for current node.");
-        });
+        const options = dialogueTree.getOptionsFromNode(nodeId);
+        const claudeClient = new ClaudeClient();
+        const response = dialogueTree.addToConversationFromNode(
+            nodeId,
+            conversation,
+            claudeClient,
+        );
 
-        // Use the updated getResponseForCurrentNode method which now returns a Promise
-        dialogueTree.getResponseForCurrentNode().then((responseContent) => {
-            if (responseContent) {
-                res.json({
-                    problem_name: problem.name,
-                    status: "Accepted",
-                    response: responseContent.type === 'TEXT' ? responseContent.text : responseContent.prompt,
-                    options: dialogueTree.getOptionsForCurrentNode(),
-                });
-            } else {
-                res.status(404).send("No response available for the current node.");
-            }
-        }).catch((error) => {
-            console.error(error);
-            res.status(500).send("Error while getting response for current node.");
+        res.json({
+            messages: response.messages,
+            code_body: null,
         });
     } catch (e) {
         console.error(e);
