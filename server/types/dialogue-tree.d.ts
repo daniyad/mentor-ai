@@ -16,6 +16,7 @@ export interface DialogueNode {
     id: string;
     type: NodeType;
     content: NodeContent;
+    userQuestionText?: string;
     children?: DialogueNode[];
     parent?: string;
 }
