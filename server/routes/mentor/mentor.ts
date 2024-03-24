@@ -108,8 +108,14 @@ function getDialogueTreeForProblem(problem) {
         // Add more relationships as needed
     };
 
-    // Create the dialogue tree with the nodes and children map
-    const helloWorldTree = new DialogueTree(nodes[0], nodes, childrenMap);
+    // Find the root node based on the id
+    const rootNode = nodes.find(node => node.id === 'root');
+    if (!rootNode) {
+        throw new Error('Root node not found in the dialogue tree nodes.');
+    }
+
+    // Create the dialogue tree with the root node, nodes, and children map
+    const helloWorldTree = new DialogueTree(rootNode, nodes, childrenMap);
 
 
     return helloWorldTree;
