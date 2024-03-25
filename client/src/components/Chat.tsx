@@ -2,6 +2,7 @@ import { Box, Text, VStack, Card, CardHeader, CardBody, Button } from "@chakra-u
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../App';
+import { Message } from '../types/general';
 
 const Chat = ({ problemId }: { problemId: string }) => {
     const [options, setOptions] = useState<string[]>([]);
@@ -32,11 +33,8 @@ const Chat = ({ problemId }: { problemId: string }) => {
                 <Card>
                     <CardBody>
                         {messages.map((message, index) => (
-                            <Text key={index}>{message.text}</Text>
+                            <Text key={index}>{message.role} : {message.text}</Text>
                         ))}
-                        <Text>
-                        {descriptionData.name}: {descriptionData.description_body}
-                        </Text>
                         {options.map((option, index) => (
                             <Button key={index}>{option}</Button>
                         ))}
