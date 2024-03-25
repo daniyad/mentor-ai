@@ -40,6 +40,11 @@ interface TestCase {
     expected_output: string;
 }
 
+interface Message {
+  role: string;
+  text: string;
+}
+
 interface ProblemPageData {
     activeNavOption?: string | undefined;
 }

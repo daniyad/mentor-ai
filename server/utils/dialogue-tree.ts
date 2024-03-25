@@ -51,7 +51,7 @@ export class DialogueTree {
                 conversation.messages.push(newMessage);
                 const response =
                     await llmClient.createChatCompletion(conversation);
-                conversation.messages.append({
+                conversation.messages.push({
                     role: "assistant",
                     text: response.message,
                 });

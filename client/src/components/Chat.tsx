@@ -16,7 +16,6 @@ const Chat = ({ problemId }: { problemId: string }) => {
                     problemId: problemId,
                     nodeId: currentNodeId,
                     messages: messages,
-                    messages: [],
                 });
 
                 setOptions(response.data.options);
@@ -44,7 +43,6 @@ const Chat = ({ problemId }: { problemId: string }) => {
             console.error('Failed to fetch next conversation step:', error);
         }
     };
-    }, [problemId]);
 
     return (
         <>
@@ -63,3 +61,5 @@ const Chat = ({ problemId }: { problemId: string }) => {
         </>
     )
 }
+
+export default Chat;

@@ -14,8 +14,8 @@ import Submissions from "../components/Submissions";
 import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
-import { HStack, VStack } from "@chakra-ui/react";
-import { ProblemPageData, DescriptionData, Submission, Hint, HintResponse } from '../types/general';
+import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
+import { ProblemPageData, DescriptionData, Submission, Hint, HintResponse, Message } from '../types/general';
 
 const ProblemPage = ({
     data,
@@ -56,6 +56,10 @@ const ProblemPage = ({
 
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const [isHintRequested, setIsHintRequested] = useState<boolean>(false);
+
+    const [options, setOptions] = useState<string[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [currentNodeId, setCurrentNodeId] = useState<string>('root');
 
     const { name } = useParams();
 
@@ -206,6 +210,41 @@ const ProblemPage = ({
             .catch((e) => console.error(e));
     }, [activeNavOption]);
 
+    useEffect(() => {
+        const fetchOptions = async () => {
+            try {
+                const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+                    problemId: "hello-world",
+                    nodeId: currentNodeId,
+                    messages: messages,
+                });
+
+                setOptions(response.data.options);
+                setMessages(response.data.messages);
+            } catch (error) {
+                console.error('Failed to fetch options:', error);
+            }
+        };
+
+        fetchOptions();
+    }, [currentNodeId]);
+
+    const handleOptionClick = async (option: string) => {
+        try {
+            const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+                problemId: 'hello-world',
+                nodeId: option,
+                messages: messages,
+            });
+
+            setOptions(response.data.options);
+            setMessages(response.data.messages);
+            setCurrentNodeId(option);
+        } catch (error) {
+            console.error('Failed to fetch next conversation step:', error);
+        }
+    };
+
     return (
         <>
             <MainHeading
@@ -213,8 +252,19 @@ const ProblemPage = ({
                     username: username,
                 }}
             />
-            <HStack spacing={0} w="full">
-                <Chat problemId="1" />
+            <HStack spacing={2}>
+                <VStack>
+                  <Card>
+                      <CardBody>
+                          {messages.map((message, index) => (
+                            <Text key={index}>{message.role} : {message.text}</Text>
+                          ))}
+                          {options.map((option, index) => (
+                            <Button key={index} onClick={() => handleOptionClick(option)}>{option}</Button>
+                          ))}
+                      </CardBody>
+                    </Card>
+                </VStack>
                 <ReactCodeMirror
                     value={
                         code === "" || code == null

@@ -2,7 +2,7 @@ import express from "express";
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter";
 import OpenAI from "openai";
-import DialogueNode from "../../types/dialogue-tree";
+import { DialogueNode } from "../../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
 import { ClaudeClient } from "../../utils/claude_client";
 import { DialogueTree } from "../../utils/dialogue-tree";
@@ -100,6 +100,7 @@ mentor.post("/conversation/next", async (req, res) => {
         }
 
         res.json({
+            options: options,
             messages: response.messages,
             code_body: response.code_body,
         });
