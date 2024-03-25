@@ -5,7 +5,7 @@ import { API_URL } from '../App';
 
 const Chat = ({ problemId }: { problemId: string }) => {
     const [options, setOptions] = useState<string[]>([]);
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
         const fetchOptions = async () => {
@@ -17,7 +17,7 @@ const Chat = ({ problemId }: { problemId: string }) => {
                 });
 
                 setOptions(response.data.options);
-                setMessages(response.data.messages)
+                setMessages(response.data.messages);
             } catch (error) {
                 console.error('Failed to fetch options:', error);
             }
@@ -31,6 +31,9 @@ const Chat = ({ problemId }: { problemId: string }) => {
             <VStack>
                 <Card>
                     <CardBody>
+                        {messages.map((message, index) => (
+                            <Text key={index}>{message.text}</Text>
+                        ))}
                         <Text>
                         {descriptionData.name}: {descriptionData.description_body}
                         </Text>
