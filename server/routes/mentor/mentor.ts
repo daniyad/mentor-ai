@@ -11,7 +11,7 @@ const mentor = express.Router();
 const openai = new OpenAI();
 
 // Function to retrieve the dialogue tree for a given problem
-function getDialogueTreeForProblem(problem) {
+function getDialogueTreeForProblem() {
     // Right now, we just return the Hello World dialogue tree
     // Define nodes
     const nodes: DialogueNode[] = [
@@ -72,20 +72,8 @@ mentor.post("/conversation/next", async (req, res) => {
     const { problemId, userInput, nodeId, conversation } = req.body;
 
     try {
-        // Retrieve the ongoing conversation from the database or cache
-        const problem = await CourseModel.findOne(
-            { "sections.problems.id": problemId },
-            { "sections.$": 1 },
-        ).then((course) =>
-            course?.sections[0].problems.find((p) => p.id === problemId),
-        );
-
-        if (!problem) {
-            res.status(400).send("Requested problem does not exist");
-            return;
-        }
-
-        const dialogueTree = getDialogueTreeForProblem(problem);
+      // TODO: Use problemId to fetch appropriate dialogue tree
+      const dialogueTree = getDialogueTreeForProblem();
         const options = dialogueTree.getOptionsFromNode(nodeId);
         const claudeClient = new ClaudeClient();
         const response = await dialogueTree.addToConversationFromNode(

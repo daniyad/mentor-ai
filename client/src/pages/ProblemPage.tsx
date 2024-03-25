@@ -213,7 +213,7 @@ const ProblemPage = ({
     useEffect(() => {
         const fetchOptions = async () => {
             try {
-                const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+                const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                     problemId: "hello-world",
                     nodeId: currentNodeId,
                     messages: messages,
@@ -231,7 +231,7 @@ const ProblemPage = ({
 
     const handleOptionClick = async (option: string) => {
         try {
-            const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+            const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                 problemId: 'hello-world',
                 nodeId: option,
                 messages: messages,
