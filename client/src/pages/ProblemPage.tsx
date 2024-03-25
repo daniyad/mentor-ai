@@ -213,7 +213,7 @@ const ProblemPage = ({
                     username: username,
                 }}
             />
-            <HStack>
+            <HStack spacing={0} w="full">
                 <Chat problemId="1" />
                 <ReactCodeMirror
                     value={
@@ -226,7 +226,7 @@ const ProblemPage = ({
                     onChange={(value) => {
                         setCode(value);
                     }}
-                    width="100%"
+                    width="50%"
                     height="100%"
                 />
             </HStack>
@@ -320,7 +320,7 @@ const ProblemPage = ({
                                 onChange={(value) => {
                                     setCode(value);
                                 }}
-                                width="100%"
+                                width="50%"
                                 height="100%"
                             />
                         </div>
