@@ -3,17 +3,21 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../App';
 
-const Chat = ({ descriptionData, problemId }: { descriptionData: DescriptionData, problemId: number }) => {
+const Chat = ({ problemId }: { problemId: string }) => {
     const [options, setOptions] = useState<string[]>([]);
+    const [messages, setMessages] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchOptions = async () => {
             try {
-                const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
+                const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
                     problemId: problemId,
                     nodeId: 'root',
+                    messages: [],
                 });
+
                 setOptions(response.data.options);
+                setMessages(response.data.messages)
             } catch (error) {
                 console.error('Failed to fetch options:', error);
             }
