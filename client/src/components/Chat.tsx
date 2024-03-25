@@ -12,7 +12,7 @@ const Chat = ({ problemId }: { problemId: string }) => {
     useEffect(() => {
         const fetchOptions = async () => {
             try {
-                const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+                const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                     problemId: problemId,
                     nodeId: currentNodeId,
                     messages: messages,
@@ -30,7 +30,7 @@ const Chat = ({ problemId }: { problemId: string }) => {
 
     const handleOptionClick = async (option: string) => {
         try {
-            const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+            const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                 problemId: problemId,
                 nodeId: option,
                 messages: messages,
