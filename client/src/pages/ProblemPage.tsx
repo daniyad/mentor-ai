@@ -6,6 +6,7 @@ import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import ProblemNavbar from "../components/ProblemNavbar";
 import ProblemDescription from "../components/ProblemDescription";
+import Chat from "../components/Chat";
 import { useNavigate, useParams } from "react-router-dom";
 import Editorial from "../components/Editorial";
 import MainHeading from "../components/MainHeading";
@@ -14,6 +15,7 @@ import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import { HStack, VStack } from "@chakra-ui/react";
+import { ProblemPageData, DescriptionData, Submission, Hint, HintResponse } from '../types/general';
 
 const ProblemPage = ({
     data,
@@ -187,28 +189,6 @@ const ProblemPage = ({
                 setSubmissionData(data);
             })
             .catch((e) => console.log(e));
-
-        const messages = [
-            {
-                role: "user",
-                text: "Hello!",
-            },
-        ];
-        const conversation = {
-            messages: messages,
-            code_body: code,
-        };
-        axios
-            .post<{}, { data: AiResponse }, { conversation: Conversation }>(
-                `${API_URL}/api/problem/conversation/next`,
-                {
-                    conversation,
-                },
-            )
-            .then(({ data }) => {
-                console.log(data.message);
-                console.log(data.code_body);
-            });
     }, []);
 
     useEffect(() => {
@@ -233,11 +213,8 @@ const ProblemPage = ({
                     username: username,
                 }}
             />
-            <HStack spacing="24px">
-                {problemDescriptionData && (
-                    <Chat descriptionData={problemDescriptionData} />
-                )}
-                <VStack></VStack>
+            <HStack>
+                <Chat problemId="1" />
                 <ReactCodeMirror
                     value={
                         code === "" || code == null
