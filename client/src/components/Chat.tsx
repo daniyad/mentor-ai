@@ -7,13 +7,15 @@ import { Message } from '../types/general';
 const Chat = ({ problemId }: { problemId: string }) => {
     const [options, setOptions] = useState<string[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
+    const [currentNodeId, setCurrentNodeId] = useState<string>('root');
 
     useEffect(() => {
         const fetchOptions = async () => {
             try {
                 const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
                     problemId: problemId,
-                    nodeId: 'root',
+                    nodeId: currentNodeId,
+                    messages: messages,
                     messages: [],
                 });
 
@@ -25,6 +27,23 @@ const Chat = ({ problemId }: { problemId: string }) => {
         };
 
         fetchOptions();
+    }, [problemId, currentNodeId]);
+
+    const handleOptionClick = async (option: string) => {
+        try {
+            const response = await axios.post(`${API_URL}/mentor/conversation/next`, {
+                problemId: problemId,
+                nodeId: option,
+                messages: messages,
+            });
+
+            setOptions(response.data.options);
+            setMessages(response.data.messages);
+            setCurrentNodeId(option);
+        } catch (error) {
+            console.error('Failed to fetch next conversation step:', error);
+        }
+    };
     }, [problemId]);
 
     return (
@@ -36,7 +55,7 @@ const Chat = ({ problemId }: { problemId: string }) => {
                             <Text key={index}>{message.role} : {message.text}</Text>
                         ))}
                         {options.map((option, index) => (
-                            <Button key={index}>{option}</Button>
+                            <Button key={index} onClick={() => handleOptionClick(option)}>{option}</Button>
                         ))}
                     </CardBody>
                 </Card>
