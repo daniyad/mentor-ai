@@ -15,7 +15,7 @@ import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
-import { ProblemPageData, DescriptionData, Submission, Hint, HintResponse, Message } from '../types/general';
+import { ProblemPageData, DescriptionData, Submission, Hint, HintResponse, Message, Option } from '../types/general';
 
 const ProblemPage = ({
     data,
@@ -57,7 +57,7 @@ const ProblemPage = ({
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const [isHintRequested, setIsHintRequested] = useState<boolean>(false);
 
-    const [options, setOptions] = useState<any>();
+    const [options, setOptions] = useState<Option[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentNodeId, setCurrentNodeId] = useState<string>('root');
 
@@ -142,75 +142,6 @@ const ProblemPage = ({
     };
 
     useEffect(() => {
-        axios
-            .get(`${API_URL}/api/problem/${name}?id=${id}`)
-            .then(({ data }) => {
-                setProblemDescriptionData(
-                    data.main as unknown as SetStateAction<
-                        DescriptionData | undefined
-                    >,
-                );
-                if (
-                    "code_body" in data.main &&
-                    "JavaScript" in data.main.code_body
-                ) {
-                    setInitCode(
-                        data.main.code_body.JavaScript as unknown as string,
-                    );
-                }
-            })
-            .catch((e) => console.error(e));
-
-        if (!token) return;
-
-        axios
-            .get(`${API_URL}/api/accounts/id/${id}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
-            .then(({ data }) => {
-                setUsername(data.username);
-            })
-            .catch((e: AxiosError) => {
-                console.log(e);
-                navigate("/sorry");
-            });
-
-        if (!id || !name) {
-            console.log("id not found");
-            return;
-        }
-        axios
-            .post<{}, { data: Submission[] }, { id: string }>(
-                `${API_URL}/api/problem/submissions/${name}`,
-                { id: id || "" },
-            )
-            .then(({ data }) => {
-                if (data.length !== 0) {
-                    setCode(data[0].code_body);
-                }
-                setSubmissionData(data);
-            })
-            .catch((e) => console.log(e));
-    }, []);
-
-    useEffect(() => {
-        if (activeNavOption === "description") return;
-
-        axios
-            .get(`${API_URL}/api/problem/${name}/${activeNavOption}`)
-            .then(({ data }) => {
-                if (activeNavOption === "editorial") {
-                    if ("editorial_body" in data) {
-                        setEditorial(data.editorial_body);
-                    }
-                }
-            })
-            .catch((e) => console.error(e));
-    }, [activeNavOption]);
-
-    useEffect(() => {
         const fetchOptions = async () => {
             try {
                 const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
@@ -229,7 +160,7 @@ const ProblemPage = ({
         fetchOptions();
     }, [currentNodeId]);
 
-    const handleOptionClick = async (option: string) => {
+    const handleOptionClick = async (option: Option) => {
         try {
             const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                 problemId: 'hello-world',
@@ -239,7 +170,7 @@ const ProblemPage = ({
 
             setOptions(response.data.options);
             setMessages(response.data.messages);
-            setCurrentNodeId(option);
+            setCurrentNodeId(option.id);
         } catch (error) {
             console.error('Failed to fetch next conversation step:', error);
         }
@@ -259,9 +190,9 @@ const ProblemPage = ({
                           {messages.map((message, index) => (
                             <Text key={index}>{message.role} : {message.text}</Text>
                           ))}
-                          {/* {options.map((option, index) => (
-                            <Button key={index} onClick={() => handleOptionClick(option)}>{option}</Button>
-                          ))}*/}
+                        { options.map((option, index) => (
+                            <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
+                          ))}
                       </CardBody>
                     </Card>
                 </VStack>
