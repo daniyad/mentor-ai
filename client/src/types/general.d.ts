@@ -40,6 +40,11 @@ interface TestCase {
     expected_output: string;
 }
 
+interface Message {
+  role: string;
+  text: string;
+}
+
 interface ProblemPageData {
     activeNavOption?: string | undefined;
 }
@@ -191,6 +196,34 @@ interface Submission {
     input?: string;
     expected_output?: string;
     user_output?: string;
+}
+
+export interface Message {
+    role:
+        | "assistant"
+        | "user";
+    text: string
+}
+
+export interface Option {
+    id: string,
+    userQuestionText: string,
+    content: Content,
+}
+
+export interface Content {
+    type: string,
+    text: string,
+}
+
+export interface Conversation {
+    messages: Message[];
+    code_body: string;
+}
+
+export interface AiResponse {
+    message: string;
+    code_body: string;
 }
 
 interface HintResponse {

@@ -8,7 +8,8 @@ import { CourseMeta } from "../components/CourseMeta";
 import Syllabus from "../components/Syllabus";
 import { CourseDescription } from "../components/CourseDescription";
 import MainHeading from "../components/MainHeading";
-import { CircularProgress } from '@chakra-ui/react'
+import { CircularProgress } from '@chakra-ui/react';
+import { CourseData } from "../types/general";
 
 const CoursePage = () => {
     const { isLoggedIn } = useAuth();
@@ -22,7 +23,7 @@ const CoursePage = () => {
             navigate("/");
             return;
         }
-    
+
         const fetchData = async () => {
             setIsLoading(true);
             // Fetch profile details
@@ -49,7 +50,7 @@ const CoursePage = () => {
         };
         fetchData();
     }, [isLoggedIn, navigate]);
-    
+
     if (isLoading) {
         return <CircularProgress isIndeterminate color='orange.300' />;
     }
