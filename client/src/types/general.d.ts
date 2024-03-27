@@ -205,6 +205,17 @@ export interface Message {
     text: string
 }
 
+export interface Option {
+    id: string,
+    userQuestionText: string,
+    content: Content,
+}
+
+export interface Content {
+    type: string,
+    text: string,
+}
+
 export interface Conversation {
     messages: Message[];
     code_body: string;

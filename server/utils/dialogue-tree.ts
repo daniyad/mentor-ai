@@ -30,9 +30,12 @@ export class DialogueTree {
         llmClient: LLMClient,
     ): Promise<Conversation | null> {
         const currentNode = this.nodes.find((node) => node.id === nodeId);
+        console.log(currentNode);
+
         if (!currentNode) return null;
 
         if (!currentNode.content) {
+            console.log("Entered into this");
             return conversation;
         }
 

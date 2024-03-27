@@ -67,23 +67,32 @@ function getDialogueTreeForProblem() {
     return helloWorldTree;
 }
 
+const claudeClient = new ClaudeClient();
+
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
-    const { problemId, userInput, nodeId, conversation } = req.body;
+    const { problemId, userInput, nodeId, messages } = req.body;
+
+    const conversation: Conversation = {
+        messages: messages,
+    }
 
     try {
       // TODO: Use problemId to fetch appropriate dialogue tree
       const dialogueTree = getDialogueTreeForProblem();
-        const options = dialogueTree.getOptionsFromNode(nodeId);
-        const claudeClient = new ClaudeClient();
-        const response = await dialogueTree.addToConversationFromNode(
-            nodeId,
-            conversation,
-            claudeClient,
-        );
+      const options = dialogueTree.getOptionsFromNode(nodeId);
 
-        if (!response) {
-            res.status(404).send("Unable to add to conversation from node.");
+      console.log("Conversation", conversation);
+
+      const response = await dialogueTree.addToConversationFromNode(
+        nodeId,
+        conversation,
+        claudeClient,
+      );
+
+      console.log("Response", response);
+      if (!response) {
+            res.status(500).send("Unable to add to conversation from node.");
             return;
         }
 

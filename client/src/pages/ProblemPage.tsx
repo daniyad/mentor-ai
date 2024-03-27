@@ -57,7 +57,7 @@ const ProblemPage = ({
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const [isHintRequested, setIsHintRequested] = useState<boolean>(false);
 
-    const [options, setOptions] = useState<string[]>([]);
+    const [options, setOptions] = useState<any>();
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentNodeId, setCurrentNodeId] = useState<string>('root');
 
@@ -259,9 +259,9 @@ const ProblemPage = ({
                           {messages.map((message, index) => (
                             <Text key={index}>{message.role} : {message.text}</Text>
                           ))}
-                          {options.map((option, index) => (
+                          {/* {options.map((option, index) => (
                             <Button key={index} onClick={() => handleOptionClick(option)}>{option}</Button>
-                          ))}
+                          ))}*/}
                       </CardBody>
                     </Card>
                 </VStack>
