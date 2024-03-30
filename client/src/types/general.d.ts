@@ -45,10 +45,6 @@ interface Message {
   text: string;
 }
 
-interface ProblemPageData {
-    activeNavOption?: string | undefined;
-}
-
 interface SidePanelData {
     username: string;
 }

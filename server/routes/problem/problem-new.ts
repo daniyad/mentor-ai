@@ -2,6 +2,8 @@ import express from "express";
 import axios from "axios"
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
+import { userInfo } from "os";
+import UsersModel from "../../models/user-model";
 
 
 const problem_new = express.Router();
@@ -92,7 +94,7 @@ problem_new.get("/problem", authFilter, async (req, res) => {
         const isSolved = user.attempts.some(attempt =>
             attempt.problem_id === problem.id && attempt.status == PROBLEM_STATUS.SOLVED
         );
-
+        
         // Add isSolved field to the problem object
         const response = { ...problem.toObject(), isSolved };
 
@@ -106,9 +108,9 @@ problem_new.post("/submit", authFilter, async (req, res) => {
     const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
     const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
     const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
-    const code = req.query.code as string // Get submitted code
+    const code = req.body.code as string // Get submitted code
 
-
+    const user = req.user as User; // User information from session
     const course = await CourseModel.findOne({ id: courseId })
     if (!course) {
         res.status(400).send("The requested course doesn't exist")
@@ -178,8 +180,17 @@ problem_new.post("/submit", authFilter, async (req, res) => {
         res.status(500).send("There was an error in our servers, please try again later")
         return
     }
-
-    res.status(200).json(codeSubmissionResponse.data)
+    const submissionStatus = codeSubmissionResponse.data.status.description
+    if (submissionStatus == "Accepted") {
+        const dbUser = await UsersModel.findById(user.id); // Fetch the user from the database
+        dbUser.attempts.push({
+            problem_id: problem.id,
+            status: PROBLEM_STATUS.SOLVED
+        });
+        await dbUser.save(); // Save the user
+    }
+    
+    res.status(200).json(codeSubmissionResponse.data.status.description)
 })
 
 function stringToBase64(str: string): string {

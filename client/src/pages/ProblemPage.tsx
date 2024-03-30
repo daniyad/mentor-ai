@@ -15,17 +15,9 @@ import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
-import { ProblemPageData, DescriptionData, Submission, Hint, HintResponse, Message, Option } from '../types/general';
+import { DescriptionData, Submission, Hint, HintResponse, Message, Option } from '../types/general';
 
-const ProblemPage = ({
-    data,
-    token,
-    id,
-}: {
-    data?: ProblemPageData;
-    token: string | null;
-    id: string | null;
-}) => {
+const ProblemPage = ({}) => {
     const [username, setUsername] = useState<string>("");
     const [initCode, setInitCode] = useState<string>("");
     const [code, setCode] = useState<string>("");
@@ -40,104 +32,41 @@ const ProblemPage = ({
     };
 
     const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
-    const [isHintLoading, setIsHintLoading] = useState<boolean>(false);
-
-    const [editorial, setEditorial] = useState<string>("");
-
-    const activeNavOption = data?.activeNavOption || "description";
 
     const [problemDescriptionData, setProblemDescriptionData] =
         useState<DescriptionData>();
 
-    const [submissionData, setSubmissionData] = useState<Submission[]>();
+    const [submissionStatus, setSubmissionStatus] = useState<boolean>();
+    const [submissionData, setSubmisionData] = useState<Submission>();
 
-    const [hintData, setHintData] = useState<Hint>();
     const navigate = useNavigate();
 
-    const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-    const [isHintRequested, setIsHintRequested] = useState<boolean>(false);
+    const [isSolved, setIsSolved] = useState<boolean>(false);
 
     const [options, setOptions] = useState<Option[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentNodeId, setCurrentNodeId] = useState<string>('root');
 
-    const { name } = useParams();
+    const { courseId, sectionId, problemId } = useParams();
 
     const submitCode = () => {
         setIsSubmitLoading(true);
-        if (!id || !name) {
-            console.log("id not found");
+        if (!courseId || !sectionId || problemId) {
+            console.log(`the problem for course: ${courseId}, section: ${sectionId}, ${problemId} not found`);
             setIsSubmitLoading(false);
             return;
         }
 
-        const problem_name = name;
-        axios
-            .post<
-                {},
-                { data: Submission[] },
-                { code: string; id: string; problem_name: string }
-            >(`${API_URL}/api/problem/submit/${name}`, {
-                code,
-                id,
-                problem_name,
-            })
+        axios.post(`${API_URL}/api/problem-new/submit/${courseId}/${sectionId}/${problemId}`, {code})
             .then(({ data }) => {
-                setIsSubmitted(true);
-                setSubmissionData(data);
-                navigate(`/problem/${name}/submissions`);
-                setIsSubmitLoading(false);
-            })
-            .catch((err) => {
-                console.error(err);
-                setIsSubmitLoading(false);
-                setIsSubmitted(true);
-            });
-    };
-
-    const requestHint = () => {
-        setIsHintLoading(true);
-        if (!id || !name) {
-            console.log("id not found");
-            setIsHintLoading(false);
-            return;
-        }
-
-        const problem_name = name;
-        axios
-            .post<
-                {},
-                AxiosResponse<HintResponse>,
-                { code: string; id: string; problem_name: string }
-            >(`${API_URL}/api/problem/hint/${name}`, {
-                code,
-                id,
-                problem_name,
-            })
-            .then(({ data }) => {
-                setIsHintLoading(false);
-                if (
-                    data.status !== "Accepted" &&
-                    data.status !== "Runtime Error"
-                ) {
-                    console.log("Data status is unaccepted");
-                    return;
+                if (data == "Accepted") {
+                    setIsSolved(true)
                 }
-
-                const hint: Hint = {
-                    problem_name: data.problem_name,
-                    status: data.status,
-                    error: data.error,
-                    hint: data.response,
-                };
-                setHintData(hint);
-                navigate(`/problem/${name}/hint`);
-                setIsHintRequested(false);
+                // mark problem as solved, and allow moving to the other person
+                setIsSubmitLoading(false);
             })
             .catch((err) => {
-                console.error(err);
-                setIsHintRequested(false);
-                setIsHintLoading(false);
+                setIsSubmitLoading(false);
             });
     };
 

@@ -1,3 +1,5 @@
+import { StarData } from "../types/general";
+
 const StarIcon = ({ data }: { data: StarData }) => {
     return (
         <div style={{ width: data.width, height: data.height }}>

@@ -75,7 +75,7 @@ const CoursePage = () => {
                 description={courseData?.description!!}
                 skills={courseData?.skills!!}
             />
-            <Syllabus sections={courseData?.sections!!} />
+            <Syllabus sections={courseData?.sections!!} courseId={courseData?.id!!} />
         </div>
     );
 }
