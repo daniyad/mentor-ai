@@ -25,6 +25,15 @@ interface DescriptionData {
     solution_count: number;
 }
 
+interface ProblemDescriptionData {
+    name: string;
+    difficulty: "Hard" | "Medium" | "Easy";
+    isSolved: boolean;
+    description_body: string,
+    code_body: string,
+    solution_count: number;
+}
+
 interface EditorialData {
     editorial_body: string;
 }

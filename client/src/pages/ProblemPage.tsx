@@ -5,7 +5,7 @@ import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import ProblemNavbar from "../components/ProblemNavbar";
-import ProblemDescription from "../components/ProblemDescription";
+import ProblemDescription  from "../components/ProblemDescription";
 import Chat from "../components/Chat";
 import { useNavigate, useParams } from "react-router-dom";
 import Editorial from "../components/Editorial";
@@ -15,7 +15,7 @@ import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
-import { DescriptionData, Submission, Hint, HintResponse, Message, Option } from '../types/general';
+import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
 
 const ProblemPage = ({}) => {
     const [username, setUsername] = useState<string>("");
@@ -34,8 +34,7 @@ const ProblemPage = ({}) => {
     const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
 
     const [problemDescriptionData, setProblemDescriptionData] =
-        useState<DescriptionData>();
-
+        useState<ProblemDescriptionData>();
     const [submissionStatus, setSubmissionStatus] = useState<boolean>();
     const [submissionData, setSubmisionData] = useState<Submission>();
 
@@ -71,6 +70,15 @@ const ProblemPage = ({}) => {
     };
 
     useEffect(() => {
+        const fetchProblemData = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/api/problem_new/problem?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,  { withCredentials: true });               
+                setProblemDescriptionData(response.data)
+            } catch (error) {
+                console.error('Failed to fetch problem data:', error);
+            }
+        };
+
         const fetchOptions = async () => {
             try {
                 const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
@@ -78,7 +86,7 @@ const ProblemPage = ({}) => {
                     nodeId: currentNodeId,
                     messages: messages,
                 });
-
+    
                 setOptions(response.data.options);
                 setMessages(response.data.messages);
             } catch (error) {
@@ -86,8 +94,9 @@ const ProblemPage = ({}) => {
             }
         };
 
+        fetchProblemData();
         fetchOptions();
-    }, [currentNodeId]);
+    }, [currentNodeId, courseId, sectionId, problemId]);
 
     const handleOptionClick = async (option: Option) => {
         try {

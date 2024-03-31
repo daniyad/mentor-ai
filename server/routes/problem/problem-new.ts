@@ -2,7 +2,6 @@ import express from "express";
 import axios from "axios"
 import { CourseModel } from "../../models/problem-model";
 import authFilter from "../../middlewares/auth-filter"
-import { userInfo } from "os";
 import UsersModel from "../../models/user-model";
 
 
@@ -45,7 +44,10 @@ problem_new.get("/course", authFilter, async (req, res) => {
                     name: problem.name,
                     difficulty: problem.difficulty,
                     isSolved: user.attempts.some(attempt =>
-                        attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED
+                        attempt.course_id === courseId &&
+                        attempt.section_id === section.id && 
+                        attempt.problem_id === problem.id && 
+                        attempt.status === PROBLEM_STATUS.SOLVED
                     ),
                 }));
 
@@ -92,11 +94,21 @@ problem_new.get("/problem", authFilter, async (req, res) => {
 
         // Check if the problem is solved by the user
         const isSolved = user.attempts.some(attempt =>
-            attempt.problem_id === problem.id && attempt.status == PROBLEM_STATUS.SOLVED
+            attempt.course_id === courseId && 
+            attempt.section_id === sectionId &&
+            attempt.problem_id === problemId &&
+            attempt.status == PROBLEM_STATUS.SOLVED
         );
+
+        const pythonCodeTemplate = problem.code_body.find(template => template.language === 'Python');
         
-        // Add isSolved field to the problem object
-        const response = { ...problem.toObject(), isSolved };
+        const response = {
+            name: problem.name,
+            difficulty: problem.difficulty,
+            description_body: problem.description_body,
+            code_body: pythonCodeTemplate,
+            isSolved: isSolved
+        }
 
         res.status(200).json(response);
     } catch (error) {
@@ -184,7 +196,9 @@ problem_new.post("/submit", authFilter, async (req, res) => {
     if (submissionStatus == "Accepted") {
         const dbUser = await UsersModel.findById(user.id); // Fetch the user from the database
         dbUser.attempts.push({
-            problem_id: problem.id,
+            section_id: sectionId,
+            course_id: courseId,
+            problem_id: problemId,
             status: PROBLEM_STATUS.SOLVED
         });
         await dbUser.save(); // Save the user

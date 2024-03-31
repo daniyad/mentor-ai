@@ -4,6 +4,8 @@ enum PROBLEM_STATUS{
 }
 
 interface Attempt {
+    course_id: number,
+    section_id: number,
     problem_id: number,
     status: PROBLEM_STATUS
 }
