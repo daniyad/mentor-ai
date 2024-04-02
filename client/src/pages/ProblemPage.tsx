@@ -83,7 +83,7 @@ const ProblemPage = ({}) => {
             try {
                 const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                     problemId: "hello-world",
-                    nodeId: currentNodeId,
+                    nodeId: "root",
                     messages: messages,
                 });
     
@@ -96,13 +96,13 @@ const ProblemPage = ({}) => {
 
         fetchProblemData();
         fetchOptions();
-    }, [currentNodeId, courseId, sectionId, problemId]);
+    }, [courseId, sectionId, problemId]);
 
     const handleOptionClick = async (option: Option) => {
         try {
             const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
                 problemId: 'hello-world',
-                nodeId: option,
+                nodeId: option.id,
                 messages: messages,
             });
 

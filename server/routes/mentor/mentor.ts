@@ -71,7 +71,7 @@ const claudeClient = new ClaudeClient();
 
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
-    const { problemId, userInput, nodeId, messages } = req.body;
+    const { problemId, nodeId, messages } = req.body;
 
     const conversation: Conversation = {
         messages: messages,
