@@ -5,7 +5,7 @@ import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import ProblemNavbar from "../components/ProblemNavbar";
-import ProblemDescription  from "../components/ProblemDescription";
+import ProblemDescription from "../components/ProblemDescription";
 import Chat from "../components/Chat";
 import { useNavigate, useParams } from "react-router-dom";
 import Editorial from "../components/Editorial";
@@ -17,7 +17,7 @@ import Loading from "../components/Loading";
 import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
 import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
 
-const ProblemPage = ({}) => {
+const ProblemPage = ({ }) => {
     const [username, setUsername] = useState<string>("");
     const [initCode, setInitCode] = useState<string>("");
     const [code, setCode] = useState<string>("");
@@ -56,7 +56,11 @@ const ProblemPage = ({}) => {
             return;
         }
 
-        axios.post(`${API_URL}/api/problem-new/submit/${courseId}/${sectionId}/${problemId}`, {code})
+        axios.post(
+            `${API_URL}/api/problem-new/submit/${courseId}/${sectionId}/${problemId}`,
+            { code },
+            { withCredentials: true },
+        )
             .then(({ data }) => {
                 if (data == "Accepted") {
                     setIsSolved(true)
@@ -72,7 +76,7 @@ const ProblemPage = ({}) => {
     useEffect(() => {
         const fetchProblemData = async () => {
             try {
-                const response = await axios.get(`${API_URL}/api/problem_new/problem?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,  { withCredentials: true });               
+                const response = await axios.get(`${API_URL}/api/problem_new/problem?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`, { withCredentials: true });
                 setProblemDescriptionData(response.data)
             } catch (error) {
                 console.error('Failed to fetch problem data:', error);
@@ -86,7 +90,7 @@ const ProblemPage = ({}) => {
                     nodeId: currentNodeId,
                     messages: messages,
                 });
-    
+
                 setOptions(response.data.options);
                 setMessages(response.data.messages);
             } catch (error) {
@@ -123,15 +127,15 @@ const ProblemPage = ({}) => {
             />
             <HStack spacing={2}>
                 <VStack>
-                  <Card>
-                      <CardBody>
-                          {messages.map((message, index) => (
-                            <Text key={index}>{message.role} : {message.text}</Text>
-                          ))}
-                        { options.map((option, index) => (
-                            <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
-                          ))}
-                      </CardBody>
+                    <Card>
+                        <CardBody>
+                            {messages.map((message, index) => (
+                                <Text key={index}>{message.role} : {message.text}</Text>
+                            ))}
+                            {options.map((option, index) => (
+                                <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
+                            ))}
+                        </CardBody>
                     </Card>
                 </VStack>
                 <ReactCodeMirror
