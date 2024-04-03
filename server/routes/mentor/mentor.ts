@@ -6,9 +6,9 @@ import { DialogueNode } from "../../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
 import { ClaudeClient } from "../../utils/claude_client";
 import { DialogueTree } from "../../utils/dialogue-tree";
+import { OpenAIClient } from "../../utils/openai_client";
 
 const mentor = express.Router();
-const openai = new OpenAI();
 
 // Function to retrieve the dialogue tree for a given problem
 function getDialogueTreeForProblem() {
@@ -18,6 +18,14 @@ function getDialogueTreeForProblem() {
         {
             id: "root",
             userQuestionText: 'Print "Hello World" to the console',
+        },
+        {
+            id: "test-llm",
+            userQuestionText: "Ask the LLM how to write Hello World",
+            content: {
+                type: "LARGE_LANGUAGE_MODEL",
+                prompt: "How do I write 'Hello World' in Python?"
+            }
         },
         {
             id: "ask-how",
@@ -49,7 +57,7 @@ function getDialogueTreeForProblem() {
 
     // Define children map
     const childrenMap = {
-        root: ["ask-how", "explain-print"],
+        root: ["ask-how", "explain-print", "test-llm"],
         "ask-how": ["guide-print-text"],
         "explain-print": ["guide-print-text"],
         // Add more relationships as needed
@@ -68,6 +76,7 @@ function getDialogueTreeForProblem() {
 }
 
 const claudeClient = new ClaudeClient();
+const openaiClient = new OpenAIClient();
 
 mentor.post("/conversation/next", async (req, res) => {
     // A request from the FE comes as a list of user messages and assistant messages with the latest message being the user message we respond to, and the code
@@ -82,12 +91,10 @@ mentor.post("/conversation/next", async (req, res) => {
       const dialogueTree = getDialogueTreeForProblem();
       const options = dialogueTree.getOptionsFromNode(nodeId);
 
-      console.log("Conversation", conversation);
-
       const response = await dialogueTree.addToConversationFromNode(
         nodeId,
         conversation,
-        claudeClient,
+        openaiClient,
       );
 
       console.log("Response", response);

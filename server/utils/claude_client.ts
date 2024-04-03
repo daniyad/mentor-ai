@@ -12,17 +12,18 @@ export class ClaudeClient implements LLMClient {
             role: message.role,
             content: message.text,
         }));
+        messages.shift(); // Remove the first message from the array
 
         const response = await anthropic.messages.create({
             model: claudeModel,
             messages: messages,
             max_tokens: 4000,
         });
-        const json = JSON.parse(response.content[0].text);
+        const responseText = response.content[0].text;
 
         return {
-            message: json["message"],
-            code_body: json["code_body"],
+            message: responseText,
+            code_body: null,
         };
     }
 }
