@@ -55,7 +55,7 @@ export class DialogueTree {
             case "LARGE_LANGUAGE_MODEL":
                 const newMessage: Message = {
                     role: "user",
-                    text: currentNode.userQuestionText,
+                    text: currentNode.content.prompt,
                 };
                 conversation.messages.push(newMessage);
                 const response =

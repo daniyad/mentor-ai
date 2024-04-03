@@ -125,10 +125,10 @@ const ProblemPage = ({ }) => {
                     username: username,
                 }}
             />
-            <HStack spacing={2}>
-                <VStack>
-                    <Card>
-                        <CardBody>
+            <HStack>
+                <VStack style={{ height: '100vh' }}>
+                    <Card style={{ height: '100%' }}>
+                        <CardBody style={{ height: '100%' }}>
                             {messages.map((message, index) => (
                                 <Text key={index}>{message.role} : {message.text}</Text>
                             ))}
@@ -149,8 +149,7 @@ const ProblemPage = ({ }) => {
                     onChange={(value) => {
                         setCode(value);
                     }}
-                    width="50%"
-                    height="100%"
+                    minHeight='100%'
                 />
             </HStack>
         </>
