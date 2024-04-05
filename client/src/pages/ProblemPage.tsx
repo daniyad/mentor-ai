@@ -4,8 +4,6 @@ import ReactCodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import ProblemNavbar from "../components/ProblemNavbar";
-import ProblemDescription from "../components/ProblemDescription";
 import Chat from "../components/Chat";
 import { useNavigate, useParams } from "react-router-dom";
 import Editorial from "../components/Editorial";
@@ -16,6 +14,7 @@ import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
 import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
+import { Editor } from "@monaco-editor/react"
 
 const ProblemPage = ({ }) => {
     const [username, setUsername] = useState<string>("");
@@ -138,7 +137,8 @@ const ProblemPage = ({ }) => {
                         </CardBody>
                     </Card>
                 </VStack>
-                <ReactCodeMirror
+                <Editor height="500px" width="100%" theme="vs-dark" defaultLanguage="python" value=""/>
+                {/* <ReactCodeMirror
                     value={
                         code === "" || code == null
                             ? initCode || ""
@@ -150,7 +150,7 @@ const ProblemPage = ({ }) => {
                         setCode(value);
                     }}
                     minHeight='100%'
-                />
+                /> */}
             </HStack>
         </>
         /**<>

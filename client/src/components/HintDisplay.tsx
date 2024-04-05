@@ -1,3 +1,5 @@
+import { HintData } from "../types/general";
+
 const HintDisplay = ({ data }: { data: HintData }) => {
     if (!data) {
         return (
