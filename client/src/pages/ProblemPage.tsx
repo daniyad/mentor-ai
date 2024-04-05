@@ -12,7 +12,7 @@ import Submissions from "../components/Submissions";
 import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
-import { HStack, VStack, Card, CardBody, Button, Text } from "@chakra-ui/react";
+import { HStack, VStack, Card, CardBody, Button, Text, CardHeader, Flex, Box, Heading } from "@chakra-ui/react";
 import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
 import { Editor } from "@monaco-editor/react"
 
@@ -124,18 +124,25 @@ const ProblemPage = ({ }) => {
                     username: username,
                 }}
             />
-            <HStack>
+            <HStack spacing={2}>
                 <VStack style={{ height: '100vh' }}>
-                    <Card style={{ height: '100%' }}>
-                        <CardBody style={{ height: '100%' }}>
-                            {messages.map((message, index) => (
-                                <Text key={index}>{message.role} : {message.text}</Text>
-                            ))}
-                            {options.map((option, index) => (
-                                <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
-                            ))}
-                        </CardBody>
-                    </Card>
+                    {
+                        messages.map((message, index) => (
+                            <Card maxW='md'>
+                                <CardHeader>
+                                    <Heading size='md'>{message.role}</Heading>
+                                </CardHeader>
+                                <CardBody>
+                                    <Text>
+                                        {message.text}
+                                    </Text>
+                                </CardBody>
+                            </Card>
+                        ))
+                    }
+                    {options.map((option, index) => (
+                        <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
+                    ))}
                 </VStack>
                 <Editor height="500px" width="100%" theme="vs-dark" defaultLanguage="python" value=""/>
                 {/* <ReactCodeMirror
