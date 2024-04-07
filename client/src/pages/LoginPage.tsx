@@ -76,7 +76,7 @@ const LoginPage = () => {
                     </button>
                     <h2 className="text-white text-left text-2xl font-bold mb-2"> Log In </h2>
                     <p className="text-white text-left text-sm mb-6"> By continuing, you agree to our
-                        <Link to="/user-agreement" className="text-blue-500 no-underline"> User Agreement </Link>
+                        <Link to="/terms-and-conditions" className="text-blue-500 no-underline"> User Agreement </Link>
                         and acknowledge that you understand the
                         <Link to="/privacy-policy" className="text-blue-500 no-underline"> Privacy Policy</Link>.
                     </p>

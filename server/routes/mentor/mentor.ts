@@ -21,11 +21,15 @@ function getDialogueTreeForProblem() {
         },
         {
             id: "test-llm",
-            userQuestionText: "Ask the LLM how to write Hello World",
             content: {
                 type: "LARGE_LANGUAGE_MODEL",
-                prompt: "How do I write 'Hello World' in Python?"
-            }
+                prompt: 
+                `
+                    Provide a concise explanation and only Python code snippet for a 'Hello World' program. 
+                    Structure your response with a brief explanation followed by the Python code in a Markdown code block on the next line.
+                `
+            },
+            userQuestionText: "Ask the LLM how to write Hello World",
         },
         {
             id: "ask-how",
@@ -75,7 +79,6 @@ function getDialogueTreeForProblem() {
     return helloWorldTree;
 }
 
-const claudeClient = new ClaudeClient();
 const openaiClient = new OpenAIClient();
 
 mentor.post("/conversation/next", async (req, res) => {
@@ -87,22 +90,23 @@ mentor.post("/conversation/next", async (req, res) => {
     }
 
     try {
-      // TODO: Use problemId to fetch appropriate dialogue tree
-      const dialogueTree = getDialogueTreeForProblem();
-      const options = dialogueTree.getOptionsFromNode(nodeId);
+        // TODO: Use problemId to fetch appropriate dialogue tree
+        const dialogueTree = getDialogueTreeForProblem();
+        const options = dialogueTree.getOptionsFromNode(nodeId);
 
-      const response = await dialogueTree.addToConversationFromNode(
-        nodeId,
-        conversation,
-        openaiClient,
-      );
+        const response = await dialogueTree.addToConversationFromNode(
+            nodeId,
+            conversation,
+            openaiClient,
+        );
 
-      console.log("Response", response);
-      if (!response) {
+        if (!response) {
             res.status(500).send("Unable to add to conversation from node.");
             return;
         }
 
+        const updatedText = fixConcatenation(response.messages[response.messages.length - 1].text)
+        response.messages[response.messages.length - 1].text = updatedText
         res.json({
             options: options,
             messages: response.messages,
@@ -115,5 +119,24 @@ mentor.post("/conversation/next", async (req, res) => {
         });
     }
 });
+
+const fixConcatenation = (str: string): string => {
+    // Split the string into lines
+    let lines = str.split('+');
+
+    // Trim whitespace from the start and end of each line
+    lines = lines.map(line => line.trim());
+
+    // Join the lines back together with newline characters
+    let fixedStr = lines.join('\n');
+
+    // Remove the extra quotes around the string
+    fixedStr = fixedStr.replace(/^'(.*)'$/, '$1');
+
+    // Unescape any escaped characters
+    fixedStr = fixedStr.replace(/\\n/g, '\n').replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+
+    return fixedStr;
+}
 
 export default mentor;

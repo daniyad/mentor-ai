@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
-interface ErrorPage {
+interface ErrorPageProps {
     header: string;
     message?: string;
     links?: Links[];
@@ -13,7 +13,7 @@ interface Links {
     link_path: string;
 }
 
-const ErrorPage = ({ data }: { data: ErrorPage }) => {
+const ErrorPage = ({ data }: { data: ErrorPageProps }) => {
     return (
         <>
            <Navbar/>

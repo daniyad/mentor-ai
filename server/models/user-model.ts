@@ -10,7 +10,9 @@ interface DbUser extends Document {
     googleId: string;
     accessToken: string;
     refreshToken: string;
-    attempts: [Attempt]
+    attempts: [Attempt],
+    awards: [Award],
+    course_status: string,
 }
 
 const userSchema = new mongoose.Schema<DbUser>({
@@ -50,9 +52,19 @@ const userSchema = new mongoose.Schema<DbUser>({
     attempts: {
         type: [Object],
         required: true,
+    },
+    awards: {
+        type: [Object],
+        required: true,
+    },
+    course_status: {
+        type: String,
+        required: true,
+        enum: ['IN_PROGRESS', 'COMPLETED'],
+        default: 'IN_PROGRESS',
     }
 });
 
 const UsersModel = mongoose.model<DbUser>("Users_New", userSchema, "users_new");
 
-export default UsersModel;
+export { UsersModel, DbUser };

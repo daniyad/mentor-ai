@@ -37,7 +37,7 @@ const LandingPage = () => {
     }
 
     return (
-        <div className="text-[14px] overflow-hidden h-screen">
+        <div className="text-[14px]  overflow-hidden h-screen font-menlo" style={{ fontFamily: 'menlo'}} >
             {/* Background animations remain outside the conditional rendering to ensure they are always displayed */}
             <div className="w-full h-full absolute top-0 left-0">
                 <div className="circle-1-animation absolute top-[6%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full filter blur-[99px] bg-gradient-to-br from-transparent to-red-800 opacity-60 z-10"></div>
@@ -59,11 +59,10 @@ const LandingPage = () => {
                 <>
                     <MainHeading
                         data={{
-                            username: username,
-                            status: "loggedin",
+                            status: "logged-in",
                         }}
                     />
-                    <h1 className="absolute text-[38px] md:text-[48px] mx-auto text-center font-bold mt-[100px] z-50 inset-0 top-[100px]">
+                    <h1 className="absolute text-[38px] md:text-[48px] text-white  mx-auto text-center font-bold mt-[100px] z-50 inset-0 top-[100px]">
                         <TypeAnimation
                             sequence={[
                                 `Welcome back ${username}!`,
@@ -80,7 +79,7 @@ const LandingPage = () => {
                             }}
                         />
                     </h1>
-                    <p className="absolute md:w-1/2 w-3/4 text-center mx-auto mt-[50px] z-50 inset-0 md:top-[300px] top-[400px]">
+                    <p className="absolute md:w-1/2 w-3/4 text-center text-gray-300 mx-auto mt-[50px] z-50 inset-0 md:top-[300px] top-[400px]">
                         Ready to conquer complex challenges? Explore our Problem List now!
                     </p>
                     <div className="absolute md:top-[450px] top-[550px] left-1/2 -translate-x-1/2 z-50">
@@ -99,10 +98,10 @@ const LandingPage = () => {
                 <>
                     <MainHeading
                         data={{
-                            status: "not-loggedin",
+                            status: "logged-out",
                         }}
                     />
-                    <h1 className="absolute text-[38px] md:text-[48px] mx-auto text-center font-bold mt-[100px] z-50 inset-0 top-[100px]">
+                    <h1 className="absolute text-[38px] text-white md:text-[48px] mx-auto text-center font-bold mt-[100px] z-50 inset-0 top-[100px]">
                         <TypeAnimation
                             sequence={[
                                 "Learn",
@@ -125,7 +124,7 @@ const LandingPage = () => {
                             }}
                         />
                     </h1>
-                    <p className="absolute md:w-1/2 w-3/4 text-center mx-auto mt-[50px] z-50 inset-0 top-[300px]">
+                    <p className="absolute md:w-1/2 w-3/4 text-gray-300 text-center mx-auto mt-[50px] z-50 inset-0 top-[300px]">
                         Learn Coding with Mentor.ai.
                         Elevate your skills with the best tutor there is and get better every day.
                     </p>

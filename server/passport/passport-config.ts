@@ -1,6 +1,6 @@
 import passport from 'passport';
 import localStrategy from './local-auth-strategy';
-import Users from '../models/user-model';
+import { UsersModel } from '../models/user-model';
 import googleStrategy from './google-strategy';
 
 const initializePassport = () => {
@@ -13,7 +13,7 @@ const initializePassport = () => {
 
     passport.deserializeUser(async (id, done) => {
         try {
-            const user = await Users.findById(id);
+            const user = await UsersModel.findById(id);
             done(null, user);
         } catch (err) {
             done(err);

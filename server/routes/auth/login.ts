@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import validator from 'validator';
-import UsersModel from '../../models/user-model';
+import { UsersModel } from '../../models/user-model';
 import bcrypt from 'bcrypt'
 import ensureAuthenticated from '../../middlewares/auth-filter'
 import { OAuth2Client } from 'google-auth-library';
@@ -119,8 +119,6 @@ auth.post('/delete-account', ensureAuthenticated, async (req, res, next) => {
 
       // Find and delete the user by email
       const deletedUser = await UsersModel.findOneAndDelete({ email: user.email });
-      console.log(user)
-      console.log(deletedUser)
 
       if (!deletedUser) {
           // If no user was found or deleted, handle accordingly

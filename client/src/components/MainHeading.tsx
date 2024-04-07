@@ -9,17 +9,30 @@ import { MdMenu } from 'react-icons/md'; // Importing the hamburger menu icon
 
 
 interface MainHeadingData {
-    username?: string;
-    status?: "loggedin" | "not-loggedin" | "none";
+    status?: "logged-in" | "logged-out";
 }
 
 const MainHeading = ({ data }: { data?: MainHeadingData }) => {
-    const [sidePanelState, setSidePanelState] = useState<boolean>(false);
     const [notifDisplayState, setNotifDisplayState] = useState<boolean>(false);
 
     // Function to render the user interface when logged in
     const renderLoggedInUI = () => (
         <>
+            <Link
+                to="/profile"
+                className="inline-block font-bold py-[6px] px-[16px] bg-black text-white text-[14px]  hover:bg-borders">
+                Profile
+            </Link>
+            <Link
+                to="/course"
+                className="inline-block font-bold py-[6px] px-[16px] bg-black text-white text-[14px]  hover:bg-borders rounded-md">
+                Problems
+            </Link>
+            <Link
+                to="/settings"
+                className="inline-block font-bold py-[6px] px-[16px] bg-black text-white text-[14px]  hover:bg-borders rounded-md">
+                Settings
+            </Link>
             <div
                 id="notification"
                 className="inline-block p-[5px] text-[14px] text-[#808080]"
@@ -30,20 +43,7 @@ const MainHeading = ({ data }: { data?: MainHeadingData }) => {
                     displayFn={setNotifDisplayState}
                 />
             </div>
-            {/* Wrap the icon in a div with an onClick handler to toggle sidePanelState */}
-            <div
-                className="w-[35px] h-[35px] flex items-center justify-center cursor-pointer hover:bg-[#222]"
-                onClick={() => setSidePanelState(!sidePanelState)}
-            >
-                <MdMenu color="white" size="25px" />
-            </div>
-            <SidePanel
-                displayFn={setSidePanelState}
-                display={sidePanelState}
-                data={{
-                    username: data?.username || "",
-                }}
-            />
+
         </>
     );
 
@@ -51,10 +51,25 @@ const MainHeading = ({ data }: { data?: MainHeadingData }) => {
     const renderLoggedOutUI = () => (
         <>
             <Link
+                to="/profile"
+                className="inline-block font-bold py-[6px] px-[16px] bg-black text-white text-[14px]  hover:bg-borders">
+                Profile
+            </Link>
+            <Link
+                to="/course"
+                className="inline-block font-bold py-[6px] px-[16px] bg-black text-white text-[14px]  hover:bg-borders rounded-md">
+                Problems
+            </Link>
+            <Link
+                to="/settings"
+                className="inline-block font-bold py-[6px] px-[16px] bg-black text-white text-[14px]  hover:bg-borders rounded-md">
+                Settings
+            </Link>
+            <Link
                 to="/login"
                 className="inline-block font-bold py-[6px] px-[16px] bg-black hover:bg-borders border rounded-md border-borders text-white text-[14px]"
             >
-                Log In
+                Sign In
             </Link>
             <Link
                 to="/signup"
@@ -71,11 +86,11 @@ const MainHeading = ({ data }: { data?: MainHeadingData }) => {
                 <div className="pl-4">
                     <Navbar />
                 </div>
-                {data?.status === "loggedin" || data?.status == undefined ? (
-                    <div className="fixed flex flex-row right-[36px] items-center h-[60px]">
+                {data?.status === "logged-in" ? (
+                    <div className="fixed flex flex-row right-[36px] items-center h-[60px] justify-end space-x-12 pr-4">
                         {renderLoggedInUI()}
                     </div>
-                ) : data?.status === "not-loggedin" ? (
+                ) : data?.status === "logged-out" ? (
                     <div className="fixed flex flex-row right-[36px] items-center h-[60px]">
                         {renderLoggedOutUI()}
                     </div>

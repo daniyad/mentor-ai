@@ -24,6 +24,7 @@ export class DialogueTree {
             this.nodes.find((node) => node.id === id),
         );
     }
+
     async addToConversationFromNode(
         nodeId: string,
         conversation: Conversation,
@@ -58,8 +59,9 @@ export class DialogueTree {
                     text: currentNode.content.prompt,
                 };
                 conversation.messages.push(newMessage);
-                const response =
-                    await llmClient.createChatCompletion(conversation);
+                const response = await llmClient.createChatCompletion(conversation);
+                // this is gross but it's the easiest fix
+                conversation.messages[conversation.messages.length - 1].text = currentNode.userQuestionText;
                 conversation.messages.push({
                     role: "assistant",
                     text: response.message,
