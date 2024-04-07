@@ -7,7 +7,7 @@ interface Attempt {
     course_id: number,
     section_id: number,
     problem_id: number,
-    status: PROBLEM_STATUS
+    status: "ATTEMPTED" | "SOLVED"
 }
 
 interface User extends Express.User {

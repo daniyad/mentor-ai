@@ -51,7 +51,7 @@ profile.get('/achievements', ensureAuthenticated, async (req, res) => {
                         attempt.course_id === course.id &&
                         attempt.section_id === section.id && 
                         attempt.problem_id === problem.id && 
-                        attempt.status === PROBLEM_STATUS.SOLVED
+                        attempt.status === "SOLVED"
                         )) {
                         const solvedKey = problem.difficulty.toLowerCase() + 'Solved'; // e.g., 'easySolved'
                         solvedCounts[solvedKey]++;

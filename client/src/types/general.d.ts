@@ -30,8 +30,12 @@ interface ProblemDescriptionData {
     difficulty: "Hard" | "Medium" | "Easy";
     isSolved: boolean;
     description_body: string,
-    code_body: string,
-    solution_count: number;
+    code_body: CodeBody,
+}
+
+interface CodeBody {
+    language: string,
+    code_template: string,
 }
 
 interface EditorialData {

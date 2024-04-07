@@ -12,9 +12,12 @@ import Submissions from "../components/Submissions";
 import HintDisplay from "../components/HintDisplay";
 import { API_URL } from "../App";
 import Loading from "../components/Loading";
-import { HStack, VStack, Card, CardBody, Button, Text, CardHeader, Flex, Box, Heading } from "@chakra-ui/react";
+import { Box, Divider, VStack, Text, Button, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Heading, HStack, Card, CardHeader, CardBody, Avatar, Badge } from '@chakra-ui/react';
 import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
 import { Editor } from "@monaco-editor/react"
+import { Resizable } from 're-resizable';
+
+
 
 const ProblemPage = ({ }) => {
     const [username, setUsername] = useState<string>("");
@@ -39,24 +42,25 @@ const ProblemPage = ({ }) => {
 
     const navigate = useNavigate();
 
-    const [isSolved, setIsSolved] = useState<boolean>(false);
+    const [isSolved, setIsSolved] = useState<boolean>(true);
 
     const [options, setOptions] = useState<Option[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentNodeId, setCurrentNodeId] = useState<string>('root');
 
+
     const { courseId, sectionId, problemId } = useParams();
 
     const submitCode = () => {
         setIsSubmitLoading(true);
-        if (!courseId || !sectionId || problemId) {
-            console.log(`the problem for course: ${courseId}, section: ${sectionId}, ${problemId} not found`);
+        if (!courseId || !sectionId || !problemId) {
+            console.log(`the problem for course: ${courseId}, section: ${sectionId}, problem: ${problemId} not found`);
             setIsSubmitLoading(false);
             return;
         }
 
         axios.post(
-            `${API_URL}/api/problem-new/submit/${courseId}/${sectionId}/${problemId}`,
+            `${API_URL}/api/problem_new/submit?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,
             { code },
             { withCredentials: true },
         )
@@ -65,6 +69,7 @@ const ProblemPage = ({ }) => {
                     setIsSolved(true)
                 }
                 // mark problem as solved, and allow moving to the other person
+                console.log("LETS GOOOOO EBAT")
                 setIsSubmitLoading(false);
             })
             .catch((err) => {
@@ -77,6 +82,7 @@ const ProblemPage = ({ }) => {
             try {
                 const response = await axios.get(`${API_URL}/api/problem_new/problem?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`, { withCredentials: true });
                 setProblemDescriptionData(response.data)
+                setCode(response.data?.code_body.code_template ?? "Start coding here")
             } catch (error) {
                 console.error('Failed to fetch problem data:', error);
             }
@@ -124,48 +130,75 @@ const ProblemPage = ({ }) => {
                     username: username,
                 }}
             />
-            <HStack pr={0} mr={0}>
-                <VStack h="100vh" pt={4}>
-                    {
-                        messages.map((message, index) => (
-                            <Card maxW='md'>
-                                <CardHeader>
-                                    <Heading size='md'>{message.role}</Heading>
-                                </CardHeader>
-                                <CardBody>
-                                    <Text>
-                                        {message.text}
-                                    </Text>
-                                </CardBody>
-                            </Card>
-                        ))
-                    }
-                    {options.map((option, index) => (
-                        <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
-                    ))}
-                </VStack>
-                <Flex direction="column" h="100vh" w="100%" mr={0} pr={0}>
-                    <Box flex="85" mb="2">
-                        <Editor theme="vs-dark" defaultLanguage="python" value=""/>
-                    </Box>
-                    <Box flex="15" display="flex" justifyContent="flex-end">
-                        <Button>Submit</Button>
-                    </Box>
-                </Flex>
-                {/* <ReactCodeMirror
-                    value={
-                        code === "" || code == null
-                            ? initCode || ""
-                            : code || ""
-                    }
-                    extensions={[loadLanguage("javascript")!]}
-                    theme={tokyoNight}
-                    onChange={(value) => {
-                        setCode(value);
+
+            <div style={{ display: 'flex', height: '100vh' }}>
+                <Resizable
+                    defaultSize={{
+                        width: '50%',
+                        height: '100%',
                     }}
-                    minHeight='100%'
-                /> */}
-            </HStack>
+                    style={{
+                        overflow: 'auto',
+                        backgroundColor: '#262626', // Background color
+                    }}
+                    handleStyles={{
+                        right: {
+                            background: '#262626',
+                        },
+                    }}
+                >
+                    <Box bg="#333333" pl={3}>
+                        <Text mb={2} ml="" color="white">
+                            <b>Description</b>
+                        </Text>
+                    </Box>
+                    <HStack>
+                        <VStack h="100%" pt={4} pl={4} align={"start"}>
+                            <Heading as="h2" size="lg" color="white" fontWeight="bold">
+                                {`${problemId}. ${problemDescriptionData?.name}`}
+                            </Heading>
+                            <HStack spacing={2} mb={4}>
+                                <Badge colorScheme={problemDescriptionData?.difficulty === "Easy" ? "green" : problemDescriptionData?.difficulty === "Medium" ? "orange" : "red"}>
+                                    {problemDescriptionData?.difficulty}
+                                </Badge>
+                                {problemDescriptionData?.isSolved && <Badge colorScheme="blue">Solved</Badge>}
+                            </HStack>
+                            {
+                                messages.map((message, index) => (
+                                    <HStack key={index} spacing={3}>
+                                        <Avatar name={message.role} size="sm" />
+                                        <Text color="white" maxW='md'>
+                                            {message.text}
+                                        </Text>
+                                    </HStack>
+                                ))
+                            }
+                            {options.map((option, index) => (
+                                <Button key={index} onClick={() => handleOptionClick(option)}>{option.userQuestionText}</Button>
+                            ))}
+                        </VStack>
+                    </HStack>
+                </Resizable>
+                <div style={{ flex: 1 }}>
+                    <Box w="100%" h="90%">
+                        <Editor
+                            height="100%"
+                            language="python"
+                            theme="vs-dark"
+                            value={code}
+                            onChange={(newValue, e) => {
+                                setCode(newValue!!);
+                            }}
+                            options={{ automaticLayout: true }}
+                        />
+                    </Box>
+                    <Box w="100%" h="10%" p={2} bg="#262626" display="flex" justifyContent="flex-end">
+                        <Button colorScheme="blue" size="sm" borderRadius="md" onClick={submitCode} isLoading={isSubmitLoading} loadingText="Submitting">
+                            Submit
+                        </Button>
+                    </Box>
+                </div>
+            </div>
         </>
     );
 };

@@ -47,7 +47,7 @@ problem_new.get("/course", authFilter, async (req, res) => {
                         attempt.course_id === courseId &&
                         attempt.section_id === section.id && 
                         attempt.problem_id === problem.id && 
-                        attempt.status === PROBLEM_STATUS.SOLVED
+                        attempt.status === "SOLVED"
                     ),
                 }));
 
@@ -97,12 +97,13 @@ problem_new.get("/problem", authFilter, async (req, res) => {
             attempt.course_id === courseId && 
             attempt.section_id === sectionId &&
             attempt.problem_id === problemId &&
-            attempt.status == PROBLEM_STATUS.SOLVED
+            attempt.status == "SOLVED"
         );
 
         const pythonCodeTemplate = problem.code_body.find(template => template.language === 'Python');
         
         const response = {
+            id: problem.id,
             name: problem.name,
             difficulty: problem.difficulty,
             description_body: problem.description_body,
@@ -194,12 +195,13 @@ problem_new.post("/submit", authFilter, async (req, res) => {
     }
     const submissionStatus = codeSubmissionResponse.data.status.description
     if (submissionStatus == "Accepted") {
+        console.log("HELLOOOOO SOLVED")
         const dbUser = await UsersModel.findById(user.id); // Fetch the user from the database
         dbUser.attempts.push({
             section_id: sectionId,
             course_id: courseId,
             problem_id: problemId,
-            status: PROBLEM_STATUS.SOLVED
+            status: "SOLVED"
         });
         await dbUser.save(); // Save the user
     }
