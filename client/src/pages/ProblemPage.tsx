@@ -16,8 +16,7 @@ import { Box, Divider, VStack, Text, Button, Slider, SliderTrack, SliderFilledTr
 import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
 import { Editor } from "@monaco-editor/react"
 import { Resizable } from 're-resizable';
-
-
+import { PythonTester } from "../utils/python";
 
 const ProblemPage = ({ }) => {
     const [username, setUsername] = useState<string>("");
@@ -53,6 +52,8 @@ const ProblemPage = ({ }) => {
 
     const submitCode = () => {
         setIsSubmitLoading(true);
+        const pythonTester = new PythonTester();
+
         if (!courseId || !sectionId || !problemId) {
             console.log(`the problem for course: ${courseId}, section: ${sectionId}, problem: ${problemId} not found`);
             setIsSubmitLoading(false);

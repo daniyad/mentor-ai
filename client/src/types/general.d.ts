@@ -207,6 +207,10 @@ interface Submission {
     user_output?: string;
 }
 
+interface Window {
+    loadPyodide: (config: { indexUrl: string }) => Promise<any>;
+}
+
 export interface Message {
     role:
         | "assistant"
