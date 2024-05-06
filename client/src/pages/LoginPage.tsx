@@ -5,6 +5,7 @@ import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../AuthContext";
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 
 // LoginPage component handles the user login process
@@ -16,6 +17,17 @@ const LoginPage = () => {
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const {isLoggedIn, setIsLoggedIn} = useAuth()
+
+    const handleSuccess = (credentialResponse: CredentialResponse) => {
+        setIsLoggedIn(true);
+        navigate("/")
+        // Handle further logic here, e.g., redirecting the user or calling your backend with the token
+    };
+
+    const handleError = () => {
+        console.error('Login failed!');
+        // Handle errors here, such as showing an alert or updating the UI appropriately
+    };
 
     useEffect(() => {
       if (isLoggedIn) {
@@ -91,6 +103,10 @@ const LoginPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                    />
+                    <GoogleLogin
+                        onSuccess={handleSuccess}
+                        onError={handleError}
                     />
                     <button
                         className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}

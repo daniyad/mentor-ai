@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from './App';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const AuthContext = createContext<{
     isLoggedIn: boolean;
@@ -33,8 +34,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-            {children}
-        </AuthContext.Provider>
+        <GoogleOAuthProvider clientId='516453322893-n7ppaq89tteacugri4ec8posi45bbt93.apps.googleusercontent.com'>
+            <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+                {children}
+            </AuthContext.Provider>
+        </GoogleOAuthProvider>
     );
 };
