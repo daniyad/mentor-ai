@@ -5,7 +5,6 @@ import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../AuthContext";
-import { GoogleLogin, CredentialResponse, useGoogleLogin, CodeResponse } from '@react-oauth/google';
 
 
 // LoginPage component handles the user login process
@@ -18,49 +17,8 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { isLoggedIn, setIsLoggedIn } = useAuth()
 
-    const handleSuccess = async (credentialResponse: CredentialResponse) => {
-        console.log(credentialResponse);
-        const response = await axios.post(`${API_URL}/api/auth/google/client`, {
-            token: credentialResponse.credential,
-        });
-        if (response.data.success) {
-            setIsLoggedIn(true);
-            navigate("/");
-        } else {
-            console.error('Authentication failed on server');
-        }
-        // Handle further logic here, e.g., redirecting the user or calling your backend with the token
-    };
-
-    const handleSuccessForAuthorizationCodeFlow = async (codeResponse: CodeResponse) => {
-        const response = await axios.get(`${API_URL}/api/auth/google/callback`, {
-            params: {
-                code: codeResponse.code,
-            }
-        });
-
-        if (response.data.success) {
-            // The server has successfully handled the authorization code
-            console.log('Authorization code sent to server successfully');
-            setIsLoggedIn(true);
-            navigate('/');
-        } else {
-            console.error('Error sending authorization code to server:', response.status);
-        }
-    }
-
     const initiateGoogleAuth = () => {
         window.location.href = `${API_URL}/api/auth/google`;
-    };
-
-    const login = useGoogleLogin({
-        onSuccess: handleSuccessForAuthorizationCodeFlow,
-        flow: 'auth-code',
-    });
-
-    const handleError = () => {
-        console.error('Login failed!');
-        // Handle errors here, such as showing an alert or updating the UI appropriately
     };
 
     useEffect(() => {
