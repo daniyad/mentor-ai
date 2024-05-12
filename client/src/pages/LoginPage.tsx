@@ -5,7 +5,7 @@ import { API_URL } from "../App";
 import Loading from "../components/Loading";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../AuthContext";
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { GoogleLogin, CredentialResponse, useGoogleLogin, CodeResponse } from '@react-oauth/google';
 
 
 // LoginPage component handles the user login process
@@ -16,13 +16,47 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const {isLoggedIn, setIsLoggedIn} = useAuth()
+    const { isLoggedIn, setIsLoggedIn } = useAuth()
 
-    const handleSuccess = (credentialResponse: CredentialResponse) => {
-        setIsLoggedIn(true);
-        navigate("/")
+    const handleSuccess = async (credentialResponse: CredentialResponse) => {
+        console.log(credentialResponse);
+        const response = await axios.post(`${API_URL}/api/auth/google/client`, {
+            token: credentialResponse.credential,
+        });
+        if (response.data.success) {
+            setIsLoggedIn(true);
+            navigate("/");
+        } else {
+            console.error('Authentication failed on server');
+        }
         // Handle further logic here, e.g., redirecting the user or calling your backend with the token
     };
+
+    const handleSuccessForAuthorizationCodeFlow = async (codeResponse: CodeResponse) => {
+        const response = await axios.get(`${API_URL}/api/auth/google/callback`, {
+            params: {
+                code: codeResponse.code,
+            }
+        });
+
+        if (response.data.success) {
+            // The server has successfully handled the authorization code
+            console.log('Authorization code sent to server successfully');
+            setIsLoggedIn(true);
+            navigate('/');
+        } else {
+            console.error('Error sending authorization code to server:', response.status);
+        }
+    }
+
+    const initiateGoogleAuth = () => {
+        window.location.href = `${API_URL}/api/auth/google`;
+    };
+
+    const login = useGoogleLogin({
+        onSuccess: handleSuccessForAuthorizationCodeFlow,
+        flow: 'auth-code',
+    });
 
     const handleError = () => {
         console.error('Login failed!');
@@ -30,9 +64,9 @@ const LoginPage = () => {
     };
 
     useEffect(() => {
-      if (isLoggedIn) {
-        navigate("/")
-      }  
+        if (isLoggedIn) {
+            navigate("/")
+        }
     })
 
     const navigate = useNavigate();
@@ -44,8 +78,8 @@ const LoginPage = () => {
             const response = await axios.post(`${API_URL}/api/auth/login-locally`, {
                 username: email,
                 password: password,
-            }, {withCredentials: true});
-            
+            }, { withCredentials: true });
+
             const data = response.data;
             if (data.success === false) {
                 setMessage(data.message);
@@ -72,7 +106,7 @@ const LoginPage = () => {
     // Login form layout with conditional rendering for loading state and error messages
     return (
         <>
-            <Navbar/>
+            <Navbar />
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                 <div className="relative bg-[#1A1A1A] rounded-lg p-8 max-w-md m-4 w-full">
                     <button
@@ -104,10 +138,14 @@ const LoginPage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                    <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={handleError}
-                    />
+                    <button
+                        className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}
+                        type="button"
+                        onClick={() => initiateGoogleAuth()}
+                        disabled={!isFormFilled}
+                    >
+                        Sign in with Google
+                    </button>
                     <button
                         className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}
                         type="button"

@@ -4,8 +4,11 @@ import validator from 'validator';
 import UsersModel from '../../models/user-model';
 import bcrypt from 'bcrypt'
 import ensureAuthenticated from '../../middlewares/auth-filter'
+import { OAuth2Client } from 'google-auth-library';
+require("dotenv").config();
 
 const auth = express.Router();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 auth.post('/login-locally', (req, res, next) => { 
@@ -131,5 +134,18 @@ auth.post('/delete-account', ensureAuthenticated, async (req, res, next) => {
       return next(error); // Pass errors to error-handling middleware
   }
 });
+
+// Route that triggers the Google OAuth flow
+auth.get('/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+auth.get('/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    (req, res) => {
+        // Successful authentication, redirect to your desired destination
+        res.redirect('http://localhost:3000/');
+    }
+);
 
 export default auth;
