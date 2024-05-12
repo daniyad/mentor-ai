@@ -1,3 +1,4 @@
+import { SubmissionsData } from "../types/general";
 import CodeBlock from "./CodeBlock";
 
 const Submissions = ({ data }: { data: SubmissionsData }) => {

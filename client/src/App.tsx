@@ -49,54 +49,8 @@ function App() {
                             element={<LandingPage/>}
                         />
                         <Route
-                            path="/problems/:id/editorial"
-                            element={
-                                <ProblemPage
-                                    data={{ activeNavOption: "editorial" }}
-                                    token={token}
-                                    id={id}
-                                />
-                            }
-                        />
-                        <Route
-                            path="/problems/:id/solutions"
-                            element={
-                                <ProblemPage
-                                    data={{ activeNavOption: "solutions" }}
-                                    token={token}
-                                    id={id}
-                                />
-                            }
-                        />
-                        <Route
-                            path="/problems/:id/submissions"
-                            element={
-                                <ProblemPage
-                                    data={{ activeNavOption: "submissions" }}
-                                    token={token}
-                                    id={id}
-                                />
-                            }
-                        />
-                        <Route
-                            path="/problems/:id/hint"
-                            element={
-                                <ProblemPage
-                                    data={{ activeNavOption: "hint" }}
-                                    token={token}
-                                    id={id}
-                                />
-                            }
-                        />
-                        <Route
-                            path="/problems/:id"
-                            element={
-                                <ProblemPage
-                                    data={{ activeNavOption: "description" }}
-                                    token={token}
-                                    id={id}
-                                />
-                            }
+                            path="/problems/:courseId/:sectionId/:problemId"
+                            element={ <ProblemPage/>}
                         />
                         <Route
                             path="/signup"

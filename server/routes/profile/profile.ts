@@ -47,7 +47,12 @@ profile.get('/achievements', ensureAuthenticated, async (req, res) => {
                     solvedCounts.total++;
 
                     // Check if the user has solved this problem
-                    if (user.attempts.some(attempt => attempt.problem_id === problem.id && attempt.status === PROBLEM_STATUS.SOLVED)) {
+                    if (user.attempts.some(attempt => 
+                        attempt.course_id === course.id &&
+                        attempt.section_id === section.id && 
+                        attempt.problem_id === problem.id && 
+                        attempt.status === "SOLVED"
+                        )) {
                         const solvedKey = problem.difficulty.toLowerCase() + 'Solved'; // e.g., 'easySolved'
                         solvedCounts[solvedKey]++;
                         solvedCounts.totalSolved++;

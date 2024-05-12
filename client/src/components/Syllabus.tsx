@@ -1,8 +1,9 @@
 import { Box, HStack, VStack, Text, Divider } from '@chakra-ui/react';
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
+import { SectionData } from '../types/general';
 
-const Syllabus = ({ sections }: { sections: SectionData[] }) => {
+const Syllabus = ({ sections, courseId }: { sections: SectionData[]; courseId: number }) => {
   return (
     <Box p={5} m={5} border="1px solid" borderColor="gray.700" borderRadius="lg">
       <VStack spacing={4} align="start">
@@ -21,7 +22,7 @@ const Syllabus = ({ sections }: { sections: SectionData[] }) => {
                 <Text flex={5} color="grey" fontWeight="bold" textAlign="left">Difficulty</Text>
               </HStack>
               {section.problems.map((problem, index) => (
-                <Box as={Link} key={index} to={`/problems/${problem.id}`} w="full" display="flex" textDecoration="none">
+                <Box as={Link} key={index} to={`/problems/${courseId}/${section.id}/${problem.id}`} w="full" display="flex" textDecoration="none">
                   <HStack w="full">
                     <Box flex={1}>
                       {problem.isSolved ? <FaRegCircleCheck size="30px" color="green" /> : <FaRegCircleXmark size="30px" color="red" />}

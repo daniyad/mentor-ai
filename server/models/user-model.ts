@@ -7,6 +7,9 @@ interface DbUser extends Document {
     password: string;
     preferred_coding_language: string;
     language: string;
+    googleId: string;
+    accessToken: string;
+    refreshToken: string;
     attempts: [Attempt]
 }
 
@@ -31,6 +34,18 @@ const userSchema = new mongoose.Schema<DbUser>({
     language: {
         type: String,
         required: true,
+    },
+    googleId: {
+        type: String,
+        required: false,
+    },
+    accessToken: {
+        type: String,
+        required: false,
+    },
+    refreshToken: {
+        type: String,
+        required: false,
     },
     attempts: {
         type: [Object],

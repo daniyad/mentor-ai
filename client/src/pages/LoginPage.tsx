@@ -15,12 +15,16 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const {isLoggedIn, setIsLoggedIn} = useAuth()
+    const { isLoggedIn, setIsLoggedIn } = useAuth()
+
+    const initiateGoogleAuth = () => {
+        window.location.href = `${API_URL}/api/auth/google`;
+    };
 
     useEffect(() => {
-      if (isLoggedIn) {
-        navigate("/")
-      }  
+        if (isLoggedIn) {
+            navigate("/")
+        }
     })
 
     const navigate = useNavigate();
@@ -32,8 +36,8 @@ const LoginPage = () => {
             const response = await axios.post(`${API_URL}/api/auth/login-locally`, {
                 username: email,
                 password: password,
-            }, {withCredentials: true});
-            
+            }, { withCredentials: true });
+
             const data = response.data;
             if (data.success === false) {
                 setMessage(data.message);
@@ -60,7 +64,7 @@ const LoginPage = () => {
     // Login form layout with conditional rendering for loading state and error messages
     return (
         <>
-            <Navbar/>
+            <Navbar />
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                 <div className="relative bg-[#1A1A1A] rounded-lg p-8 max-w-md m-4 w-full">
                     <button
@@ -92,6 +96,14 @@ const LoginPage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
+                    <button
+                        className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}
+                        type="button"
+                        onClick={() => initiateGoogleAuth()}
+                        disabled={!isFormFilled}
+                    >
+                        Sign in with Google
+                    </button>
                     <button
                         className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}
                         type="button"

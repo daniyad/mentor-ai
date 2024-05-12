@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { convertMarkdownToHtml } from "../ts/utils/utils";
 import { changeCase, kebabToSpacedPascal } from "../ts/utils/string";
 import StarIcon from "./StarIcon";
+import { DescriptionData } from "../types/general";
 
 const ProblemDescription = ({ data }: { data: DescriptionData }) => {
     const [isStarred, setIsStarred] = useState<boolean>(

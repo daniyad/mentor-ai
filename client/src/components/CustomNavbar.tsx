@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { changeCase } from "../ts/utils/string";
+import { Navbar } from "../types/general";
 
 const CustomNavbar = ({ data }: { data: Navbar }) => {
     const default_color_all: string = "#808080";

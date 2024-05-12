@@ -1,4 +1,5 @@
 import React from "react";
+import { Sort } from "../types/general";
 
 const SortIcon = ({ order }: { order: Sort }) => {
     return (

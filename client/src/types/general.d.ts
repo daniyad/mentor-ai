@@ -25,6 +25,19 @@ interface DescriptionData {
     solution_count: number;
 }
 
+interface ProblemDescriptionData {
+    name: string;
+    difficulty: "Hard" | "Medium" | "Easy";
+    isSolved: boolean;
+    description_body: string,
+    code_body: CodeBody,
+}
+
+interface CodeBody {
+    language: string,
+    code_template: string,
+}
+
 interface EditorialData {
     editorial_body: string;
 }
@@ -40,8 +53,9 @@ interface TestCase {
     expected_output: string;
 }
 
-interface ProblemPageData {
-    activeNavOption?: string | undefined;
+interface Message {
+  role: string;
+  text: string;
 }
 
 interface SidePanelData {
@@ -191,6 +205,34 @@ interface Submission {
     input?: string;
     expected_output?: string;
     user_output?: string;
+}
+
+export interface Message {
+    role:
+        | "assistant"
+        | "user";
+    text: string
+}
+
+export interface Option {
+    id: string,
+    userQuestionText: string,
+    content: Content,
+}
+
+export interface Content {
+    type: string,
+    text: string,
+}
+
+export interface Conversation {
+    messages: Message[];
+    code_body: string;
+}
+
+export interface AiResponse {
+    message: string;
+    code_body: string;
 }
 
 interface HintResponse {
