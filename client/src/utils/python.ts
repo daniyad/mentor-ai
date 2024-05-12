@@ -1,15 +1,22 @@
+import { loadPyodide, PyodideInterface } from "pyodide";
 
 export class PythonTester {
-    private pyodide: any | null = null;
+    private pyodide: PyodideInterface | null = null;
+    private outputs: string[] = [];
 
-    constructor() {
+    constructor(){
         this.initPyodide();
     }
 
     async initPyodide() {
-        this.pyodide = await window.loadPyodide({
-            indexUrl: "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/"
-        });
+        try {
+            this.pyodide = await loadPyodide({
+                indexURL: `${window.location.origin}/pyodide`,
+                stdout: (msg: string) => this.outputs.push(msg),
+            });
+        } catch (error) {
+            console.error(`Error loading Pyodide: ${error}`)
+        }
     }
 
     async run(code: string): Promise<any> {
@@ -25,74 +32,24 @@ export class PythonTester {
         }
     }
 
-    async assertUsingStdOut(code: string, expected_output: any): Promise<boolean> {
+    async assertUsingStdOut(code: string, expectedOutput: any): Promise<boolean> {
         if(!this.pyodide) {
             throw new Error("Pyodide is not initialized");
         }
 
-        const mainResult = await this.pyodide.runPythonAsync(code);
-        return mainResult == expected_output;
+        const previousOutputLength = this.outputs.length;
+        this.pyodide.runPython(code);
+
+        if (previousOutputLength === this.outputs.length){
+            console.log("Python script did not log to STDOUT");
+        }
+
+        if (this.outputs.length === 0) {
+            console.error("No output to check");
+        }
+        const actualOutput = this.outputs[this.outputs.length - 1];
+        console.log(`result:${actualOutput}, ${expectedOutput}`)
+
+        return actualOutput === expectedOutput;
     } 
-
-    async assertUsingJson(code: string, expected_json: Object): Promise<boolean> {
-        if(!this.pyodide) {
-            throw new Error("Pyodide is not initialized");
-        }
-
-        const mainResult = await this.pyodide.runPythonAsync(code);
-
-        return mainResult == expected_json;
-    }
-
-    async assertUsingPython(code: string, assertions: string): Promise<{ passed: boolean, results: any[] }> {
-        if (!this.pyodide) {
-            throw new Error("Pyodide is not initialized");
-        }
-
-        let results: any[] = [];
-        let passed = true;
-
-        try {
-            // Run the main code
-            const mainResult = await this.pyodide.runPythonAsync(code);
-
-            // Run assertions
-            const assertionResults = await this.pyodide.runPythonAsync(`
-            import json
-            try:
-                ${assertions}
-                json.dumps({'result': 'success'})
-            except AssertionError as e:
-                json.dumps({'result': 'failure', 'message': str(e)})
-            `);
-
-            const parsedResults = JSON.parse(assertionResults);
-            if (parsedResults.result === 'failure') {
-                passed = false;
-                results.push({
-                    assertion: assertions,
-                    error: parsedResults.message,
-                    success: false
-                });
-            } else {
-                results.push({
-                    assertion: assertions,
-                    success: true
-                });
-            }
-        } catch (error) {
-            console.error("Error while running assertions:", error);
-            passed = false;
-            results.push({
-                assertion: assertions,
-                error: error instanceof Error ? error.message : 'Unknown error',
-                success: false
-            });
-        }
-
-        return {
-            passed,
-            results
-        };
-    }
 }

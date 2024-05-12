@@ -31,6 +31,7 @@ interface ProblemDescriptionData {
     isSolved: boolean;
     description_body: string,
     code_body: CodeBody,
+    expected_output: string,
 }
 
 interface CodeBody {
@@ -205,10 +206,6 @@ interface Submission {
     input?: string;
     expected_output?: string;
     user_output?: string;
-}
-
-interface Window {
-    loadPyodide: (config: { indexUrl: string }) => Promise<any>;
 }
 
 export interface Message {
