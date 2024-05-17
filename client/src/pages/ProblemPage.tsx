@@ -16,8 +16,7 @@ import { Box, Divider, VStack, Text, Button, Slider, SliderTrack, SliderFilledTr
 import { DescriptionData, Submission, Hint, HintResponse, Message, Option, ProblemDescriptionData } from '../types/general';
 import { Editor } from "@monaco-editor/react"
 import { Resizable } from 're-resizable';
-
-
+import { PythonTester } from "../utils/python";
 
 const ProblemPage = ({ }) => {
     const [username, setUsername] = useState<string>("");
@@ -47,34 +46,55 @@ const ProblemPage = ({ }) => {
     const [options, setOptions] = useState<Option[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentNodeId, setCurrentNodeId] = useState<string>('root');
+    const [pythonTester, setPythonTester] = useState<PythonTester>();
 
 
     const { courseId, sectionId, problemId } = useParams();
 
-    const submitCode = () => {
+    const submitCode = async () => {
         setIsSubmitLoading(true);
+
         if (!courseId || !sectionId || !problemId) {
             console.log(`the problem for course: ${courseId}, section: ${sectionId}, problem: ${problemId} not found`);
             setIsSubmitLoading(false);
             return;
         }
 
-        axios.post(
-            `${API_URL}/api/problem_new/submit?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,
-            { code },
-            { withCredentials: true },
-        )
-            .then(({ data }) => {
-                if (data == "Accepted") {
-                    setIsSolved(true)
-                }
-                // mark problem as solved, and allow moving to the other person
-                console.log("LETS GOOOOO EBAT")
-                setIsSubmitLoading(false);
-            })
-            .catch((err) => {
-                setIsSubmitLoading(false);
-            });
+        if (!problemDescriptionData?.expected_output){
+            console.log(`There is no expected output for this problem: ${courseId}:${sectionId}:${problemId}`);
+            setIsSubmitLoading(false);
+            return;
+        }
+        const expected_output = problemDescriptionData?.expected_output;
+
+        const problemEvaluationResult = await pythonTester?.assertUsingStdOut(code, expected_output);
+
+        if(problemEvaluationResult) {
+            axios.post(
+                `${API_URL}/api/problem_new/submit?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,
+                { code },
+                { withCredentials: true },
+            )
+                .then(({ data }) => {
+                    if (data == "Accepted") {
+                        setIsSolved(true)
+                    }
+                    // mark problem as solved, and allow moving to the other person
+                    console.log("LETS GOOOOO EBAT")
+                    alert("Problem solved!");
+                    setIsSubmitLoading(false);
+                })
+                .catch((err) => {
+                    setIsSubmitLoading(false);
+                });
+        } else {
+            if (problemEvaluationResult === null){
+                alert('Failed to evaluate!')
+            } else{
+                alert(`Wrong output! Expected Output:${expected_output}`);
+            }
+            setIsSubmitLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -103,6 +123,15 @@ const ProblemPage = ({ }) => {
             }
         };
 
+        const setupPythonTester = async () => {
+            try {
+                setPythonTester(new PythonTester());
+            } catch(error) {
+                console.error('Failed to run Python', error);
+            }
+        }
+
+        setupPythonTester();
         fetchProblemData();
         fetchOptions();
     }, [courseId, sectionId, problemId]);

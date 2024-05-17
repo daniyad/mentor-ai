@@ -108,7 +108,8 @@ problem_new.get("/problem", authFilter, async (req, res) => {
             difficulty: problem.difficulty,
             description_body: problem.description_body,
             code_body: pythonCodeTemplate,
-            isSolved: isSolved
+            isSolved: isSolved,
+            expected_output: problem.expected_output,
         }
 
         res.status(200).json(response);

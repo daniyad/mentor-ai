@@ -31,6 +31,7 @@ interface ProblemDescriptionData {
     isSolved: boolean;
     description_body: string,
     code_body: CodeBody,
+    expected_output: string,
 }
 
 interface CodeBody {
