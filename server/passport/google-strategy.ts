@@ -1,4 +1,4 @@
-import UsersModel from '../models/user-model';
+import { UsersModel } from '../models/user-model';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { v4 as uuidv4 } from 'uuid';
 require("dotenv").config();

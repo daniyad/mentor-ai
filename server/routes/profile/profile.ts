@@ -65,7 +65,8 @@ profile.get('/achievements', ensureAuthenticated, async (req, res) => {
         const userDetails = {
             name: user.name,
             language: user.language,
-            solvedCounts: solvedCounts // Include solved counts in the response
+            solvedCounts: solvedCounts,
+            awards: user.awards,
         };
 
         res.json(userDetails);

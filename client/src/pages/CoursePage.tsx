@@ -10,31 +10,22 @@ import { CourseDescription } from "../components/CourseDescription";
 import MainHeading from "../components/MainHeading";
 import { CircularProgress } from '@chakra-ui/react';
 import { CourseData } from "../types/general";
+import LockedOut from "../components/LockedOut";
+import Confetti from 'react-dom-confetti';
 
 const CoursePage = () => {
     const { isLoggedIn } = useAuth();
     const navigate = useNavigate();
-    const [username, setUsername] = useState<string>("");
     const [courseData, setCourseData] = useState<CourseData>()
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        if (!isLoggedIn) {
-            navigate("/");
-            return;
-        }
-
         const fetchData = async () => {
-            setIsLoading(true);
-            // Fetch profile details
-            try {
-                const profileResponse = await axios.get(`${API_URL}/api/profile/details`, { withCredentials: true });
-                setUsername(profileResponse.data.username);
-            } catch (e) {
-                console.log(e);
-                window.location.reload();
+            if (!isLoggedIn) {
+                return
             }
-            // Fetch problem list
+
+            setIsLoading(true);
             try {
                 const courseData = await axios.get(`${API_URL}/api/problem_new/course/?courseId=1`,
                     { withCredentials: true }
@@ -44,38 +35,43 @@ const CoursePage = () => {
             } catch (e) {
                 // Handle error if necessary
                 console.log(e);
-                navigate("/");
-                window.location.reload();
+                navigate("/error");
             }
         };
         fetchData();
     }, [isLoggedIn, navigate]);
 
+    if (!isLoggedIn) {
+        return <LockedOut/>
+    }
+
     if (isLoading) {
         return <CircularProgress isIndeterminate color='orange.300' />;
     }
 
+
     return (
-        <div className="course-page">
+        <div>
             <MainHeading
                 data={{
-                    username: username,
-                    status: "loggedin",
-                }}/>
-            <CourseHeader
-                title={courseData?.title!!}
-                course_description={courseData?.short_description!!}
-            />
-            <CourseMeta
-                level={courseData?.metadata?.level!!}
-                timeToComplete={courseData?.metadata?.timeToComplete!!}
-                prerequisites={courseData?.metadata?.prerequisites!!}
-            />
-            <CourseDescription
-                description={courseData?.description!!}
-                skills={courseData?.skills!!}
-            />
-            <Syllabus sections={courseData?.sections!!} courseId={courseData?.id!!} />
+                    status: "logged-in",
+                }} />
+            <div className="mx-auto max-w-screen-lg">
+                <CourseHeader
+                    title={courseData?.title!!}
+                    course_description={courseData?.short_description!!}
+                />
+                <CourseMeta
+                    level={courseData?.metadata?.level!!}
+                    timeToComplete={courseData?.metadata?.timeToComplete!!}
+                    prerequisites={courseData?.metadata?.prerequisites!!}
+                />
+                <CourseDescription
+                    description={courseData?.description!!}
+                    skills={courseData?.skills!!}
+                />
+                <Syllabus sections={courseData?.sections!!} courseId={courseData?.id!!} />
+            </div>
         </div>
     );
 }

@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+import mongoose, { Document } from "mongoose";
 
 interface CodeBody {
         language: string,
@@ -12,9 +11,27 @@ interface DbProblem extends Document {
         difficulty: string,
         description_body: string,
         supported_languages: [string],
-        code_body: [CodeBody],
+        code_body: CodeBody[],
         expected_output: string,
 }
+
+interface DbSection extends Document {
+        id: number,
+        title: string,
+        description: string,
+        short_description: string,
+        problems: DbProblem[],
+}
+
+interface DbCourse extends Document {
+        id: number,
+        title: string,
+        description: string,
+        short_description: string,
+        skills: string,
+        sections: DbSection[]
+}
+
 
 const problemSchema = new mongoose.Schema<DbProblem>({
         id: { type: Number, required: true },
@@ -49,4 +66,4 @@ const ProblemsModel = mongoose.model("Problems_New", problemSchema, "problems_ne
 const SectionModel = mongoose.model("Section", sectionSchema, "sections_new");
 const CourseModel = mongoose.model("Course", courseSchema, "courses_new")
 
-export { CourseModel };
+export { CourseModel, DbCourse };

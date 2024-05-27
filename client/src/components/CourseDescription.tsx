@@ -7,16 +7,16 @@ export const CourseDescription = ({ description, skills }: { description: string
     <Box p={5} m={5}>
       <HStack spacing={8} align="start">
         <VStack align="start" flex={8}>
-          <Text fontSize="2xl" fontWeight="bold" color="white">About this course</Text>
-          <Text color="white">{description}</Text>
+          <Text fontSize="md" fontWeight="bold" color="white">About this course</Text>
+          <Text color="white" fontSize="small">{description}</Text>
         </VStack>
         <VStack align="start" flex={2}>
-          <Text fontSize="2xl" fontWeight="bold" color="white">Skills you'll gain</Text>
+          <Text fontSize="md" fontWeight="bold" color="white">Skills you'll gain</Text>
           <VStack align="start" spacing={2}>
             {skills.split(',').map((skill, index) => (
               <HStack key={index} spacing={0}>
                 <IoCheckmark color="white" />
-                <Text as="li" color="white" sx={{ listStyleType: 'none', marginLeft: '5px' }}>{skill}</Text>
+                <Text as="li" color="white" fontSize="small" sx={{ listStyleType: 'none', marginLeft: '5px' }}>{skill}</Text>
               </HStack>
             ))}
           </VStack>

@@ -10,6 +10,11 @@ interface Attempt {
     status: "ATTEMPTED" | "SOLVED"
 }
 
+interface Award {
+    name: string,
+    description: string,
+}
+
 interface User extends Express.User {
     id: number;
     name: string;
@@ -17,5 +22,7 @@ interface User extends Express.User {
     password: string;
     preferred_coding_language: string;
     language: string;
-    attempts: [Attempt]
+    attempts: [Attempt],
+    awards: [Award],
+    course_status: IN_PROGRESS | COMPLETED,
 }

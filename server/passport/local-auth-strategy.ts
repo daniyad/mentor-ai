@@ -1,12 +1,12 @@
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import User from '../models/user-model'
+import {UsersModel} from '../models/user-model'
 
 const localStrategy = new LocalStrategy(async (email, password, done) => {
   try {
       // Find the user by email
-      const user = await User.findOne({ email: email });
+      const user = await UsersModel.findOne({ email: email });
 
       if (!user) {
           // If user not found

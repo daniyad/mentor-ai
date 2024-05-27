@@ -19,12 +19,12 @@ const ConfirmModal = ({
     }
 
     return ReactDOM.createPortal(
-        <div className="fixed inset-0 z-[100] backdrop-blur-sm flex justify-center items-center">
+        <div className="fixed inset-0 z-[100] backdrop-blur-sm flex justify-center items-center" style={{fontFamily:'menlo'}}>
             <div className="bg-[#1A1A1A] rounded-lg p-6 max-w-sm mx-auto">
-                <h3 className="text-white text-[24px] font-semibold mb-5 text-center">
+                <h3 className="text-white text-[24px] mb-5 text-center">
                     {title}
                 </h3>
-                <p className="text-white font-semibold text-center mb-8">{message}</p>
+                <p className="text-white text-center mb-8">{message}</p>
                 <div className="flex gap-3">
                     <button
                         className="flex-1 bg-gray-800 text-white rounded hover:bg-orange-500 text-[14px] py-2 transition duration-300"

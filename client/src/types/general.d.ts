@@ -28,9 +28,22 @@ interface DescriptionData {
 interface ProblemDescriptionData {
     name: string;
     difficulty: "Hard" | "Medium" | "Easy";
-    isSolved: boolean;
+    is_solved: boolean;
     description_body: string,
     code_body: CodeBody,
+    next_problem: NextProblemData,
+    expected_output: string,
+}
+
+interface Award {
+    name: string,
+    description: string,
+}
+
+interface NextProblemData {
+    problem_id: number,
+    section_id: number,
+    is_course_end: boolean,
     expected_output: string,
 }
 
