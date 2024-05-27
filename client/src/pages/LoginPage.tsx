@@ -97,10 +97,9 @@ const LoginPage = () => {
                         required
                     />
                     <button
-                        className={`w-full rounded-full py-3 font-bold text-white transition-colors ${isFormFilled ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#2A2A2A] cursor-not-allowed'}`}
+                        className={`w-full rounded-full py-3 font-bold text-white transition-colors bg-[#4285F4] hover:bg-[#2a75f3] mt-3 mb-3 flex items-center justify-center`}
                         type="button"
                         onClick={() => initiateGoogleAuth()}
-                        disabled={!isFormFilled}
                     >
                         Sign in with Google
                     </button>
@@ -110,7 +109,7 @@ const LoginPage = () => {
                         onClick={handleLogin}
                         disabled={!isFormFilled}
                     >
-                        {isLoading ? <Loading /> : 'Login'}
+                        {isLoading ? <Loading /> : 'Login with Email and Password'}
                     </button>
                     {message && (
                         <div className="text-red-600 text-center mt-4">
