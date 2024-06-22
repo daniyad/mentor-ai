@@ -59,28 +59,43 @@ const ProblemPage = ({
             return;
         }
 
-        const problem_name = name;
-        axios
-            .post<
-                {},
-                { data: Submission[] },
-                { code: string; id: string; problem_name: string }
-            >(`${API_URL}/api/problem/submit/${name}`, {
-                code,
-                id,
-                problem_name,
-            })
-            .then(({ data }) => {
-                setIsSubmitted(true);
-                setSubmissionData(data);
-                navigate(`/problem/${name}/submissions`);
-                setIsSubmitLoading(false);
-            })
-            .catch((err) => {
-                console.error(err);
-                setIsSubmitLoading(false);
-                setIsSubmitted(true);
+        if (!problemDescriptionData?.expected_output){
+            console.log(`There is no expected output for this problem: ${courseId}:${sectionId}:${problemId}`);
+            setIsSubmitLoading(false);
+            return;
+        }
+        const expected_output = problemDescriptionData?.expected_output;
+
+        const problemEvaluationResult = await pythonTester?.assertUsingStdOut(code, expected_output);
+
+        if(problemEvaluationResult) {
+            axios.post(
+                `${API_URL}/api/problem_new/submit?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,
+                { code },
+                { withCredentials: true },
+            )
+                .then(({ data }) => {
+                    if (data == "Accepted") {
+                        setIsSolved(true)
+                    }
+                    // mark problem as solved, and allow moving to the other person
+                    alert("Problem solved!");
+                    setIsSubmitLoading(false);
+                })
+                .catch((err) => {
+                    setIsSubmitLoading(false);
+                });
+        } else {
+            setIsSubmitLoading(false);
+            toast({
+                title: "Error",
+                description: "An error occurred while submitting your code. Please try again.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "top",
             });
+        }
     };
 
     useEffect(() => {
