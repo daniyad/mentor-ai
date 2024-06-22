@@ -176,7 +176,6 @@ problem_new.post("/submit", authFilter, async (req, res) => {
     const courseId = parseInt(req.query.courseId as string, 10); // Get courseId from query param
     const sectionId = parseInt(req.query.sectionId as string, 10); // Get sectionId from query param
     const problemId = parseInt(req.query.problemId as string, 10); // Get problemId from query param
-    const code = req.body.code as string // Get submitted code
 
     const user = req.user as User; // User information from session
     const course = await CourseModel.findOne({ id: courseId })
@@ -198,86 +197,33 @@ problem_new.post("/submit", authFilter, async (req, res) => {
         return;
     }
 
-    const expectedOutput = problem.expected_output
-    const submissionUrl = "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&fields=*"
-    const pythonLanguageId = 71
-
-    const submissionHeaders = {
-        "Accept": "application/json",
-        "Content-Type": "application/json;charset=UTF-8",
-        "X-RapidAPI-Key": judgeApiKey,
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-    }
-
-    const optionsForSubmittingCode = {
-        method: "POST",
-        url: submissionUrl,
-        headers: submissionHeaders,
-        data: {
-            "language_id": pythonLanguageId,
-            "source_code": stringToBase64(code),
-            "expected_output": stringToBase64(expectedOutput)
-        }
-    }
-
-    const submissionResponse = await axios(optionsForSubmittingCode);
-    if (!submissionResponse || submissionResponse.status != 201) {
-        res.status(500).send("There was an error in our servers, please try again later")
-        return
-    }
-
-    //waiting for the code to be complete
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    const token = submissionResponse.data.token
-    const submissionStatusUrl =
-        "https://judge0-ce.p.rapidapi.com/submissions/" + token + "?base64_encoded=true&fields=*"
-    const submissionStatusHeaders = {
-        "X-RapidAPI-Key": judgeApiKey,
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-    }
-
-    const optionsForRetrievingResult = {
-        method: "GET",
-        url: submissionStatusUrl,
-        headers: submissionStatusHeaders,
-    }
-
-    const codeSubmissionResponse = await axios(optionsForRetrievingResult)
-    if (!codeSubmissionResponse || codeSubmissionResponse.status != 200) {
-        res.status(500).send("There was an error in our servers, please try again later")
-        return
-    }
-    const submissionStatus = codeSubmissionResponse.data.status.description
     const awards = []
-    if (submissionStatus == "Accepted") {
-        const dbUser = await UsersModel.findById(user.id); // Fetch the user from the database
-        const hasSolved = dbUser.attempts.some(attempt =>
-            attempt.course_id === courseId &&
-            attempt.section_id === sectionId &&
-            attempt.problem_id === problemId &&
-            attempt.status === "SOLVED"
-        );
-        if (!hasSolved) {
-            dbUser.attempts.push({
-                section_id: sectionId,
-                course_id: courseId,
-                problem_id: problemId,
-                status: "SOLVED"
-            });
-            awards.push(...checkAndAwardUser(dbUser, course))
-        }
-
-        const nextProblem = findNextProblem(problemId, sectionId, course)
-        if (nextProblem.is_course_end == true && user.course_status == "IN_PROGRESS") {
-            dbUser.course_status = "COMPLETED"
-        }
-        await dbUser.save(); // Save the user
+    const dbUser = await UsersModel.findById(user.id); // Fetch the user from the database
+    const hasSolved = dbUser.attempts.some(attempt =>
+        attempt.course_id === courseId &&
+        attempt.section_id === sectionId &&
+        attempt.problem_id === problemId &&
+        attempt.status === "SOLVED"
+    );
+    if (!hasSolved) {
+        dbUser.attempts.push({
+            section_id: sectionId,
+            course_id: courseId,
+            problem_id: problemId,
+            status: "SOLVED"
+        });
+        awards.push(...checkAndAwardUser(dbUser, course))
     }
+
+    const nextProblem = findNextProblem(problemId, sectionId, course)
+    if (nextProblem.is_course_end == true && user.course_status == "IN_PROGRESS") {
+        dbUser.course_status = "COMPLETED"
+    }
+    await dbUser.save(); // Save the user
     
     res.status(200).json(
         {
-            status: codeSubmissionResponse.data.status.description,
+            status: "Accepted",
             awards: [ { 
                 name: "Second Award", 
                 description: "Half-way there!"
