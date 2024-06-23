@@ -25,11 +25,17 @@ interface DescriptionData {
     solution_count: number;
 }
 
+interface DescriptionPart {
+    title: string,
+    type: string; // 'text', 'code', 'instruction'
+    content: string;
+}
+
 interface ProblemDescriptionData {
     name: string;
     difficulty: "Hard" | "Medium" | "Easy";
     is_solved: boolean;
-    description_body: string,
+    description_body: DescriptionPart[],
     code_body: CodeBody,
     next_problem: NextProblemData,
     expected_output: string,
