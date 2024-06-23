@@ -1,10 +1,6 @@
 import express from "express";
-import { CourseModel } from "../../models/problem-model";
-import authFilter from "../../middlewares/auth-filter";
-import OpenAI from "openai";
 import { DialogueNode } from "../../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
-import { ClaudeClient } from "../../utils/claude_client";
 import { DialogueTree } from "../../utils/dialogue-tree";
 import { OpenAIClient } from "../../utils/openai_client";
 
@@ -17,7 +13,7 @@ function getDialogueTreeForProblem() {
     const nodes: DialogueNode[] = [
         {
             id: "root",
-            userQuestionText: "Print \"Hello, world! I’m coding in Python!\"",
+            userQuestionText: 'You can ask me any questions you like!',
         },
         {
             id: "test-llm",
@@ -37,7 +33,7 @@ function getDialogueTreeForProblem() {
                 type: "TEXT",
                 text: 'To write "Hello World" in Python, you can use the print function.',
             },
-            userQuestionText: 'How do I print "Hello World" in Python?',
+            userQuestionText: 'Can you show me exactly what I need to do?',
         },
         {
             id: "explain-print",
@@ -47,23 +43,14 @@ function getDialogueTreeForProblem() {
             },
             userQuestionText: "Can you explain the print function?",
         },
-        {
-            id: "guide-print-text",
-            content: {
-                type: "TEXT",
-                text: 'You can write print("Hello World") to display the text "Hello World".',
-            },
-            userQuestionText:
-                "How do I use the print function to display text?",
-        },
         // Add more nodes as needed
     ];
 
     // Define children map
     const childrenMap = {
         root: ["ask-how", "explain-print", "test-llm"],
-        "ask-how": ["guide-print-text"],
-        "explain-print": ["guide-print-text"],
+        "ask-how": ["test-llm"],
+        "explain-print": ["test-llm"],
         // Add more relationships as needed
     };
 
@@ -111,6 +98,7 @@ mentor.post("/conversation/next", async (req, res) => {
             options: options,
             messages: response.messages,
             code_body: response.code_body,
+            option_title: "🤖 Chat with me 🤖"
         });
     } catch (e) {
         console.error(e);

@@ -4,8 +4,8 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import MainHeading from "../components/MainHeading";
 import { API_URL } from "../App";
-import { Skeleton, Box, Flex, VStack, Text, Button, useToast, Heading, HStack, Avatar, Badge, background } from '@chakra-ui/react';
-import { Award, Message, Option, ProblemDescriptionData } from '../types/general';
+import { Skeleton, Box, Flex, VStack, Text, Button, useToast, Heading, HStack, Avatar, Badge, background, UnorderedList, ListItem } from '@chakra-ui/react';
+import { Award, DescriptionPart, Message, Option, ProblemDescriptionData } from '../types/general';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/dark.css';
@@ -39,6 +39,7 @@ const ProblemPage = ({ }) => {
     const [options, setOptions] = useState<Option[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentNodeId, setCurrentNodeId] = useState<string>('root');
+    const [optionTitle, setOptionTitle] = useState<string>("")
     const [isLoadingOption, setIsLoadingOption] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(false);
     const [isConfettiEnabled, setIsConfettiEnabled] = useState(false);
@@ -55,7 +56,7 @@ const ProblemPage = ({ }) => {
         height: "9px",
         perspective: "500px",
         colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
-      };
+    };
     const [pythonTester, setPythonTester] = useState<PythonTester>();
 
 
@@ -67,12 +68,14 @@ const ProblemPage = ({ }) => {
         if (!courseId || !sectionId || !problemId) {
             console.error(`the problem for course: ${courseId}, section: ${sectionId}, problem: ${problemId} not found`);
             setIsSubmitLoading(false);
-            return;
+            navigate("/error");
+            return
         }
 
         if (!problemDescriptionData?.expected_output){
             console.log(`There is no expected output for this problem: ${courseId}:${sectionId}:${problemId}`);
             setIsSubmitLoading(false);
+            navigate("/error")
             return;
         }
         const expected_output = problemDescriptionData?.expected_output;
@@ -88,14 +91,20 @@ const ProblemPage = ({ }) => {
                 .then(({ data }) => {
                     if (data == "Accepted") {
                         setIsSolved(true)
+                        toast({
+                            title: "Congratulations!",
+                            description: "Congratulations on completing the problem!",
+                            status: "info",
+                            duration: 5000,
+                            isClosable: true,
+                            position: "top",
+                        });
                     }
-                    // mark problem as solved, and allow moving to the other person
-                    alert("Problem solved!");
+                    if (data.awards.length > 0) {
+                        showcaseAwardToast(data.awards)
+                    }
                     setIsSubmitLoading(false);
                 })
-                .catch((err) => {
-                    setIsSubmitLoading(false);
-                });
         } else {
             setIsSubmitLoading(false);
             toast({
@@ -110,7 +119,7 @@ const ProblemPage = ({ }) => {
     };
 
     const showcaseAwardToast = (awards: Award[]) => {
-        awards.map( award => {
+        awards.map(award => {
             toast({
                 title: `${award.description}`,
                 description: "Congratulations on unlocking a new award!",
@@ -159,6 +168,7 @@ const ProblemPage = ({ }) => {
                 });
                 setOptions(response.data.options);
                 setMessages(response.data.messages);
+                setOptionTitle(response.data.option_title)
             } catch (error) {
                 console.error('Failed to fetch options:', error);
             }
@@ -167,7 +177,7 @@ const ProblemPage = ({ }) => {
         const setupPythonTester = async () => {
             try {
                 setPythonTester(new PythonTester());
-            } catch(error) {
+            } catch (error) {
                 console.error('Failed to run Python', error);
             }
         }
@@ -176,7 +186,7 @@ const ProblemPage = ({ }) => {
         Promise.all([fetchProblemData(), fetchOptions()]).then(() => {
             setIsInitialLoading(false);
         });
-    }, [courseId, sectionId, problemId]);
+    }, []);
 
     const handleOptionClick = async (option: Option) => {
         setIsLoadingOption(true);
@@ -197,8 +207,50 @@ const ProblemPage = ({ }) => {
         }
     };
 
+    const renderDescriptionPart = (part: DescriptionPart) => {
+        let contentElement;
+        switch (part.type) {
+            case 'text':
+                contentElement = <ReactMarkdown
+                    children={part.content}
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                />;
+                break;
+            case 'code':
+                contentElement =
+                    <ReactMarkdown
+                    children={`\`\`\`python\n${part.content}\n\`\`\``}
+                    remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                    />;
+                break;
+            case 'instruction':
+                contentElement = (
+                    <UnorderedList spacing={3}>
+                        {part.content.split('- ').slice(1).map((item, index, array) => (
+                            <ListItem key={index} fontWeight={index === array.length - 1 ? "bold" : "normal"}>
+                                {item}
+                            </ListItem>
+                        ))}
+                    </UnorderedList>
+                );
+                break;
+            default:
+                contentElement = <p>{part.content}</p>;
+        }
+        return (
+            <VStack align="start" p={2} color="white">
+                <Box w="auto" bg="#201F2F">
+                    <Text fontSize="md" fontWeight="bold" color="">{part.title}</Text>
+                </Box>
+                {contentElement}
+            </VStack>
+        );
+    }
+
     if (!isLoggedIn) {
-        return <LockedOut/>
+        return <LockedOut />
     }
 
     return (
@@ -217,7 +269,7 @@ const ProblemPage = ({ }) => {
                             </Text>
                         </Box>
                         <HStack>
-                            <VStack h="100%" pt={4} pl={4} align={"start"}>
+                            <VStack h="100%" pt={4} pl={4} align={"start"} style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                                 <Skeleton isLoaded={!isInitialLoading} startColor="#333333" endColor="#E2E8F0">
                                     <Heading as="h2" size="lg" color="white" fontWeight="bold" fontFamily="menlo">
                                         {`${problemId}. ${problemDescriptionData?.name}`}
@@ -229,6 +281,14 @@ const ProblemPage = ({ }) => {
                                     </Badge>
                                     {problemDescriptionData?.is_solved && <Badge colorScheme="blue">Solved</Badge>}
                                 </HStack>
+                                {problemDescriptionData?.description_body?.map((part, index) => (
+                                    <Box key={index} color="white">
+                                        {renderDescriptionPart(part)}
+                                    </Box>
+                                ))}
+                                <Box w="auto" bg="#201F2F">
+                                    <Text fontSize="md" fontWeight="bold" color="white">{optionTitle}</Text>
+                                </Box>
                                 {
                                     messages.map((message, index) => (
                                         <HStack key={index} spacing={3} textColor="white">
@@ -238,7 +298,6 @@ const ProblemPage = ({ }) => {
                                                     children={message.text}
                                                     rehypePlugins={[rehypeHighlight]}
                                                     remarkPlugins={[remarkGfm]}
-
                                                 />
                                             </VStack>
                                         </HStack>
@@ -256,7 +315,7 @@ const ProblemPage = ({ }) => {
                     </Box>
                     <Box height="100vh">
                         <Box bg="#333333" pl={3}>
-                            <Text mb={2} ml="" color="white" fontFamily="menlo">
+                            <Text mb={2} ml="" color="white">
                                 <b>Code</b>
                             </Text>
                         </Box>
@@ -269,7 +328,7 @@ const ProblemPage = ({ }) => {
                                         setCode(newValue!!);
                                     }}
                                     extensions={[loadLanguage("python")!]}
-                                    style={{height: "auto"}}
+                                    style={{ height: "auto" }}
                                 />
                             </Box>
                             <Box
@@ -280,7 +339,7 @@ const ProblemPage = ({ }) => {
                                 justifyContent="flex-end"
                                 borderRadius="md"
                             >
-                                <Confetti active={ isConfettiEnabled } config={ confettiConfig }/>
+                                <Confetti active={isConfettiEnabled} config={confettiConfig} />
                                 <Button
                                     colorScheme="green"
                                     size="sm"
