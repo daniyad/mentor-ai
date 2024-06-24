@@ -17,7 +17,7 @@ function getDialogueTreeForProblem() {
     const nodes: DialogueNode[] = [
         {
             id: "root",
-            userQuestionText: 'Print "Hello World" to the console',
+            userQuestionText: "Print \"Hello, world! I’m coding in Python!\"",
         },
         {
             id: "test-llm",

@@ -70,39 +70,43 @@ const ProblemPage = ({ }) => {
             return;
         }
 
-        axios.post(
-            `${API_URL}/api/problem_new/submit?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,
-            { code },
-            { withCredentials: true },
-        )
-            .then(({ data }) => {
-                if (data.status == "Accepted") {
-                    setIsSolved(true)
-                    toast({
-                        title: "Congratulations!",
-                        description: "Congratulations on completing the problem!",
-                        status: "info",
-                        duration: 5000,
-                        isClosable: true,
-                        position: "top",
-                    });
-                }
-                if (data.awards.length > 0) {
-                 showcaseAwardToast(data.awards)
-                }
-                setIsSubmitLoading(false);
-            })
-            .catch((_) => {
-                setIsSubmitLoading(false);
-                toast({
-                    title: "Error",
-                    description: "An error occurred while submitting your code. Please try again.",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                    position: "top",
+        if (!problemDescriptionData?.expected_output){
+            console.log(`There is no expected output for this problem: ${courseId}:${sectionId}:${problemId}`);
+            setIsSubmitLoading(false);
+            return;
+        }
+        const expected_output = problemDescriptionData?.expected_output;
+
+        const problemEvaluationResult: boolean | undefined = await pythonTester?.assertUsingStdOut(code, expected_output);
+
+        if(problemEvaluationResult) {
+            axios.post(
+                `${API_URL}/api/problem_new/submit?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`,
+                { code },
+                { withCredentials: true },
+            )
+                .then(({ data }) => {
+                    if (data == "Accepted") {
+                        setIsSolved(true)
+                    }
+                    // mark problem as solved, and allow moving to the other person
+                    alert("Problem solved!");
+                    setIsSubmitLoading(false);
+                })
+                .catch((err) => {
+                    setIsSubmitLoading(false);
                 });
+        } else {
+            setIsSubmitLoading(false);
+            toast({
+                title: "Error",
+                description: "An error occurred while submitting your code. Please try again.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "top",
             });
+        }
     };
 
     const showcaseAwardToast = (awards: Award[]) => {
