@@ -77,7 +77,7 @@ const ProblemPage = ({ }) => {
         }
         const expected_output = problemDescriptionData?.expected_output;
 
-        const problemEvaluationResult = await pythonTester?.assertUsingStdOut(code, expected_output);
+        const problemEvaluationResult: boolean | undefined = await pythonTester?.assertUsingStdOut(code, expected_output);
 
         if(problemEvaluationResult) {
             axios.post(
