@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios  from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../App";
 import { useAuth } from "../AuthContext";
@@ -11,7 +11,6 @@ import MainHeading from "../components/MainHeading";
 import { CircularProgress } from '@chakra-ui/react';
 import { CourseData } from "../types/general";
 import LockedOut from "../components/LockedOut";
-import Confetti from 'react-dom-confetti';
 
 const CoursePage = () => {
     const { isLoggedIn } = useAuth();

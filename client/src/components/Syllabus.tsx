@@ -1,5 +1,5 @@
 import { Box, HStack, VStack, Text, Divider, Button } from '@chakra-ui/react';
-import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6';
+import { FaLock, FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { SectionData } from '../types/general';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
@@ -22,31 +22,44 @@ const Syllabus = ({ sections, courseId }: { sections: SectionData[]; courseId: n
                 newShowProblems[sectionIndex] = !newShowProblems[sectionIndex];
                 setShowProblems(newShowProblems);
               }}>
-                {showProblems[sectionIndex] ? <IoChevronUp color="white" size="1.5em" /> : <IoChevronDown size="1.5em" color="white"/>}
+                {showProblems[sectionIndex] ? <IoChevronUp color="white" size="1.5em" /> : <IoChevronDown size="1.5em" color="white" />}
               </Button>
             </HStack>
             <Text color="white">{section.short_description}</Text>
             {showProblems[sectionIndex] && (
-            <VStack align="start" w="full">
-              <HStack w="full">
-                <Box flex={1}>
-                  <Text color="grey" fontWeight="bold">Status</Text>
-                </Box>
-                <Text flex={10} color="grey" fontWeight="bold">Problem Name</Text>
-                <Text flex={5} color="grey" fontWeight="bold" textAlign="left">Difficulty</Text>
-              </HStack>
-              {section.problems.map((problem, index) => (
-                <Box as={Link} key={index} to={`/problems/${courseId}/${section.id}/${problem.id}`} w="full" display="flex" textDecoration="none">
-                  <HStack w="full">
-                    <Box flex={1}>
-                      {problem.isSolved ? <FaRegCircleCheck size="30px" color="green" /> : <FaRegCircleXmark size="30px" color="red" />}
-                    </Box>
-                    <Text flex={10} color="white" _hover={{ color: "white", fontWeight: "bold" }}>{problem.name}</Text>
-                    <Text flex={5} color={problem.difficulty === 'Easy' ? 'green' : problem.difficulty === 'Medium' ? 'orange' : 'red'} textAlign="left">{problem.difficulty}</Text>
-                  </HStack>
-                </Box>
-              ))}
-            </VStack>
+              <VStack align="start" w="full">
+                <HStack w="full">
+                  <Box flex={1}>
+                    <Text color="grey" fontWeight="bold">Status</Text>
+                  </Box>
+                  <Text flex={10} color="grey" fontWeight="bold">Problem Name</Text>
+                  <Text flex={5} color="grey" fontWeight="bold" textAlign="left">Difficulty</Text>
+                </HStack>
+                {section.problems.map((problem, index) => (
+                  <Box
+                    as={problem.isAvailable ? Link : 'div'}
+                    key={index}
+                    w="full"
+                    display="flex"
+                    textDecoration="none"
+                    {...(problem.isAvailable ? { to: `/problems/${courseId}/${section.id}/${problem.id}` } : {})}
+                  >
+                    <HStack w="full">
+                      <Box flex={1}>
+                        {problem.isSolved ? (
+                          <FaRegCircleCheck size="30px" color="green" />
+                        ) : problem.isAvailable ? (
+                          <FaRegCircleXmark size="30px" color="red" />
+                        ) : (
+                          <FaLock size="30px" color="grey" />
+                        )}
+                      </Box>
+                      <Text flex={10} color="white" _hover={{ color: "white", fontWeight: "bold" }}>{problem.name}</Text>
+                      <Text flex={5} color={problem.difficulty === 'Easy' ? 'green' : problem.difficulty === 'Medium' ? 'orange' : 'red'} textAlign="left">{problem.difficulty}</Text>
+                    </HStack>
+                  </Box>
+                ))}
+              </VStack>
             )}
           </VStack>
         ))}

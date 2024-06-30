@@ -34,7 +34,7 @@ const ProblemPage = ({ }) => {
 
     const navigate = useNavigate();
 
-    const [isSolved, setIsSolved] = useState<boolean>(true);
+    const [isSolved, setIsSolved] = useState<boolean>(false);
 
     const [options, setOptions] = useState<Option[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -89,7 +89,7 @@ const ProblemPage = ({ }) => {
                 { withCredentials: true },
             )
                 .then(({ data }) => {
-                    if (data == "Accepted") {
+                    if (data.status == "Accepted") {
                         setIsSolved(true)
                         toast({
                             title: "Congratulations!",
@@ -99,9 +99,10 @@ const ProblemPage = ({ }) => {
                             isClosable: true,
                             position: "top",
                         });
-                    }
-                    if (data.awards.length > 0) {
-                        showcaseAwardToast(data.awards)
+
+                        if (data.awards.length > 0) {
+                            showcaseAwardToast(data.awards)
+                        }
                     }
                     setIsSubmitLoading(false);
                 })
@@ -139,7 +140,9 @@ const ProblemPage = ({ }) => {
             return
         }
         const nextProblemUrl = `/problems/${courseId}/${nextProblem?.section_id}/${nextProblem?.problem_id}`;
+        console.log(nextProblemUrl)
         navigate(nextProblemUrl);
+        return
     };
 
     useEffect(() => {

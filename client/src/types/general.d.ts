@@ -183,7 +183,8 @@ interface Problem {
     id: number,
     name: string,
     difficulty: string,
-    isSolved: boolean
+    isSolved: boolean,
+    isAvailable: boolean
 }
 
 interface ProblemListData {
