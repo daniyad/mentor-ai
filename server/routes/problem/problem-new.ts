@@ -6,8 +6,6 @@ import { UsersModel, DbUser } from "../../models/user-model";
 
 
 const problem_new = express.Router();
-const judgeApiKey = process.env.JUDGE_API_KEY ?? ""
-
 
 problem_new.get("/course", authFilter, async (req, res) => {
     try {
@@ -37,20 +35,30 @@ problem_new.get("/course", authFilter, async (req, res) => {
             sections: course.sections.map(section => {
                 // Extract section properties
                 const { id, title, short_description, problems } = section;
-
-                // Construct problems info
-                const problemsInfo = problems.map(problem => ({
-                    id: problem.id,
-                    name: problem.name,
-                    difficulty: problem.difficulty,
-                    isSolved: user.attempts.some(attempt =>
+                
+                const problemsInfo = problems.map((problem, index) => {
+                    // Check if the problem is the first one or if the previous problem has been solved
+                    const isAvailable = index === 0 || user.attempts.some(attempt =>
                         attempt.course_id === courseId &&
                         attempt.section_id === section.id && 
-                        attempt.problem_id === problem.id && 
+                        attempt.problem_id === problems[index - 1].id && 
                         attempt.status === "SOLVED"
-                    ),
-                }));
-
+                    );
+                
+                    return {
+                        id: problem.id,
+                        name: problem.name,
+                        difficulty: problem.difficulty,
+                        isSolved: user.attempts.some(attempt =>
+                            attempt.course_id === courseId &&
+                            attempt.section_id === section.id && 
+                            attempt.problem_id === problem.id && 
+                            attempt.status === "SOLVED"
+                        ),
+                        isAvailable: isAvailable,
+                    };
+                });
+                
                 return {
                     id,
                     title,
@@ -273,8 +281,5 @@ const checkAndAwardUser = (dbUser: DbUser, course: DbCourse) => {
     return achievedAwards
 }
 
-function stringToBase64(str: string): string {
-    return Buffer.from(str).toString('base64');
-}
 
 export default problem_new;
