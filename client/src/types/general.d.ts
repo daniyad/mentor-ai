@@ -39,6 +39,7 @@ interface ProblemDescriptionData {
     code_body: CodeBody,
     next_problem: NextProblemData,
     expected_output: string,
+    is_available: boolean
 }
 
 interface Award {

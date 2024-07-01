@@ -35,30 +35,30 @@ problem_new.get("/course", authFilter, async (req, res) => {
             sections: course.sections.map(section => {
                 // Extract section properties
                 const { id, title, short_description, problems } = section;
-                
+
                 const problemsInfo = problems.map((problem, index) => {
                     // Check if the problem is the first one or if the previous problem has been solved
                     const isAvailable = index === 0 || user.attempts.some(attempt =>
                         attempt.course_id === courseId &&
-                        attempt.section_id === section.id && 
-                        attempt.problem_id === problems[index - 1].id && 
+                        attempt.section_id === section.id &&
+                        attempt.problem_id === problems[index - 1].id &&
                         attempt.status === "SOLVED"
                     );
-                
+
                     return {
                         id: problem.id,
                         name: problem.name,
                         difficulty: problem.difficulty,
                         isSolved: user.attempts.some(attempt =>
                             attempt.course_id === courseId &&
-                            attempt.section_id === section.id && 
-                            attempt.problem_id === problem.id && 
+                            attempt.section_id === section.id &&
+                            attempt.problem_id === problem.id &&
                             attempt.status === "SOLVED"
                         ),
                         isAvailable: isAvailable,
                     };
                 });
-                
+
                 return {
                     id,
                     title,
@@ -76,14 +76,14 @@ problem_new.get("/course", authFilter, async (req, res) => {
 
 problem_new.get("/course-end", authFilter, async (req, res) => {
     try {
-        const user = req.user as User; 
+        const user = req.user as User;
         // TODO(Din): hard-coding the course id here
         const course = await CourseModel.findOne({ id: 1 })
         // Check if the user has completed the course
         const hasCompletedCourse = user.course_status === "COMPLETED";
 
         // Return the course status
-        res.status(200).json({ 
+        res.status(200).json({
             hasCompletedCourse: hasCompletedCourse,
             name: user.name,
             courseName: course.title,
@@ -119,9 +119,20 @@ problem_new.get("/problem", authFilter, async (req, res) => {
             return;
         }
 
+        // Find the index of the current problem
+        const problemIndex = section.problems.findIndex(p => p.id === problemId);
+
+        // Check if the problem is the first one or if the previous problem has been solved
+        const isAvailable = problemIndex === 0 || user.attempts.some(attempt =>
+            attempt.course_id === courseId &&
+            attempt.section_id === sectionId &&
+            attempt.problem_id === section.problems[problemIndex - 1].id &&
+            attempt.status === "SOLVED"
+        );
+
         // Check if the problem is solved by the user
         const isSolved = user.attempts.some(attempt =>
-            attempt.course_id === courseId && 
+            attempt.course_id === courseId &&
             attempt.section_id === sectionId &&
             attempt.problem_id === problemId &&
             attempt.status == "SOLVED"
@@ -139,6 +150,7 @@ problem_new.get("/problem", authFilter, async (req, res) => {
             is_solved: isSolved,
             next_problem: next_problem,
             expected_output: problem.expected_output,
+            is_available: isAvailable,
         }
 
         res.status(200).json(response);
@@ -160,7 +172,7 @@ const findNextProblem = (currentProblemId: number, currentSectionId: number, cou
             section_id: currentSectionId,
             is_course_end: false,
         };
-    } 
+    }
     // Find the current section index
     const currentSectionIndex = course.sections.findIndex(section => section.id === currentSectionId);
 
@@ -228,12 +240,12 @@ problem_new.post("/submit", authFilter, async (req, res) => {
         dbUser.course_status = "COMPLETED"
     }
     await dbUser.save(); // Save the user
-    
+
     res.status(200).json(
         {
             status: "Accepted",
-            awards: [ { 
-                name: "Second Award", 
+            awards: [{
+                name: "Second Award",
                 description: "Half-way there!"
             }],
         }
@@ -247,17 +259,17 @@ const checkAndAwardUser = (dbUser: DbUser, course: DbCourse) => {
     const totalProblems = course.sections.reduce((total, section) => total + section.problems.length, 0);
     const solvedProblems = dbUser.attempts.filter((attempt: any) => attempt.status === "SOLVED").length;
 
-    const awardFirstProblem =  { 
-        name: "First Award", 
-        description: "First problem to go!" 
+    const awardFirstProblem = {
+        name: "First Award",
+        description: "First problem to go!"
     }
-    const awardHalfProblems = { 
-        name: "Second Award", 
+    const awardHalfProblems = {
+        name: "Second Award",
         description: "Half-way there!"
     };
-    const awardAllProblems = { 
-        name: "Third Award", 
-        description: "You finsihed it all!" 
+    const awardAllProblems = {
+        name: "Third Award",
+        description: "You finsihed it all!"
     };
 
     const achievedAwards = []

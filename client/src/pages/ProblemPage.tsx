@@ -154,6 +154,10 @@ const ProblemPage = ({ }) => {
         const fetchProblemData = async () => {
             try {
                 const response = await axios.get(`${API_URL}/api/problem_new/problem?courseId=${courseId}&sectionId=${sectionId}&problemId=${problemId}`, { withCredentials: true });
+                if (!response.data?.is_available) {
+                    console.log("Accessing wrong page")
+                    navigate("/error")
+                }
                 setProblemDescriptionData(response.data)
                 setCode(response.data?.code_body.code_template ?? "Start coding here")
             } catch (error) {
@@ -189,7 +193,7 @@ const ProblemPage = ({ }) => {
         Promise.all([fetchProblemData(), fetchOptions()]).then(() => {
             setIsInitialLoading(false);
         });
-    }, []);
+    }, [courseId, sectionId, problemId]);
 
     const handleOptionClick = async (option: Option) => {
         setIsLoadingOption(true);
