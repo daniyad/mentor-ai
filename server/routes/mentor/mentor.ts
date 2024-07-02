@@ -3,56 +3,19 @@ import { DialogueNode } from "../../types/dialogue-tree";
 import { Conversation } from "../../types/conversation";
 import { DialogueTree } from "../../utils/dialogue-tree";
 import { OpenAIClient } from "../../utils/openai_client";
+import { problemNodesMap } from "./dialogue-node";
 
 const mentor = express.Router();
 
 // Function to retrieve the dialogue tree for a given problem
-function getDialogueTreeForProblem() {
+const getDialogueTreeForProblem = (problemId: number) => {
     // Right now, we just return the Hello World dialogue tree
     // Define nodes
-    const nodes: DialogueNode[] = [
-        {
-            id: "root",
-            userQuestionText: 'You can ask me any questions you like!',
-        },
-        {
-            id: "test-llm",
-            content: {
-                type: "LARGE_LANGUAGE_MODEL",
-                prompt: 
-                `
-                    Provide a concise explanation and only Python code snippet for a 'Hello World' program. 
-                    Structure your response with a brief explanation followed by the Python code in a Markdown code block on the next line.
-                `
-            },
-            userQuestionText: "Ask the LLM how to write Hello World",
-        },
-        {
-            id: "ask-how",
-            content: {
-                type: "TEXT",
-                text: 'To write "Hello World" in Python, you can use the print function.',
-            },
-            userQuestionText: 'Can you show me exactly what I need to do?',
-        },
-        {
-            id: "explain-print",
-            content: {
-                type: "TEXT",
-                text: "The print function in Python outputs text to the console.",
-            },
-            userQuestionText: "Can you explain the print function?",
-        },
-        // Add more nodes as needed
-    ];
+    const nodes = problemNodesMap[problemId]
 
+    console.log(nodes)
     // Define children map
-    const childrenMap = {
-        root: ["ask-how", "explain-print", "test-llm"],
-        "ask-how": ["test-llm"],
-        "explain-print": ["test-llm"],
-        // Add more relationships as needed
-    };
+    const childrenMap = generateChildrenMap(nodes)
 
     // Find the root node based on the id
     const rootNode = nodes.find((node) => node.id === "root");
@@ -66,6 +29,28 @@ function getDialogueTreeForProblem() {
     return helloWorldTree;
 }
 
+const generateChildrenMap = (dialogueNodes: DialogueNode[]) => {
+    const childrenMap = {};
+
+    dialogueNodes.forEach((node) => {
+        if (node.parentIds) {
+            node.parentIds.forEach((parentId) => {
+                if (!childrenMap[parentId]) {
+                    childrenMap[parentId] = [];
+                }
+                childrenMap[parentId].push(node.id);
+            });
+        } else {
+            if (!childrenMap['root']) {
+                childrenMap['root'] = [];
+            }
+            childrenMap['root'].push(node.id);
+        }
+    });
+
+    return childrenMap;
+};
+
 const openaiClient = new OpenAIClient();
 
 mentor.post("/conversation/next", async (req, res) => {
@@ -77,8 +62,7 @@ mentor.post("/conversation/next", async (req, res) => {
     }
 
     try {
-        // TODO: Use problemId to fetch appropriate dialogue tree
-        const dialogueTree = getDialogueTreeForProblem();
+        const dialogueTree = getDialogueTreeForProblem(problemId as number);
         const options = dialogueTree.getOptionsFromNode(nodeId);
 
         const response = await dialogueTree.addToConversationFromNode(
