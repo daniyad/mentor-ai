@@ -169,7 +169,7 @@ const ProblemPage = ({ }) => {
         const fetchOptions = async () => {
             try {
                 const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
-                    problemId: "hello-world",
+                    problemId: problemId,
                     nodeId: "root",
                     messages: messages,
                 });
@@ -199,7 +199,7 @@ const ProblemPage = ({ }) => {
         setIsLoadingOption(true);
         try {
             const response = await axios.post(`${API_URL}/api/mentor/conversation/next`, {
-                problemId: 'hello-world',
+                problemId: problemId,
                 nodeId: option.id,
                 messages: messages,
             });
